@@ -13,9 +13,10 @@ scikit-learn
 matplotlib
 seaborn
 pandas
+yt-dlp
 tqdm
 jupyter
 datasets
 huggingface_hub
 lightning
-pytorch_lightning
+
