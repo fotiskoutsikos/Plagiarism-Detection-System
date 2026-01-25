@@ -1,0 +1,94 @@
+ INFO: GPU available: True (cuda), used: True
+INFO:lightning.pytorch.utilities.rank_zero:GPU available: True (cuda), used: True
+INFO: TPU available: False, using: 0 TPU cores
+INFO:lightning.pytorch.utilities.rank_zero:TPU available: False, using: 0 TPU cores
+INFO: LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+INFO:lightning.pytorch.accelerators.cuda:LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Starting Training...
+[Dataset] Loaded 158 embedding tracks.
+┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃   ┃ Name                     ┃ Type              ┃ Params ┃ Mode  ┃ FLOPs ┃
+┡━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│ 0 │ siamese_net              │ SiameseNet        │  7.8 M │ train │     0 │
+│ 1 │ classifier               │ Sequential        │ 33.2 K │ train │     0 │
+│ 2 │ criterion_triplet        │ TripletMarginLoss │      0 │ train │     0 │
+│ 3 │ criterion_classification │ BCEWithLogitsLoss │      0 │ train │     0 │
+│ 4 │ audio_model              │ MERTModel         │ 94.4 M │ eval  │     0 │
+└───┴──────────────────────────┴───────────────────┴────────┴───────┴───────┘
+
+Trainable params: 102 M                                                                                            
+Non-trainable params: 0                                                                                            
+Total params: 102 M                                                                                                
+Total estimated model params size (MB): 408                                                                        
+Modules in train mode: 29                                                                                          
+Modules in eval mode: 220                                                                                          
+Total FLOPs: 0                                                                                                     
+
+Epoch 19/19 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 94/94 0:04:20 • 0:00:00 0.40it/s v_num: 1.000 val_triplet_loss:     
+                                                                                0.266 val_classification_loss:     
+                                                                                0.544 val_accuracy: 0.880          
+                                                                                val_accuracy_positive: 0.880       
+
+/usr/local/lib/python3.12/dist-packages/lightning/pytorch/loops/fit_loop.py:534: Found 220 module(s) in eval mode 
+at the start of training. This may lead to unexpected behavior during training. If this is intentional, you can 
+ignore this warning.
+
+INFO: `Trainer.fit` stopped: `max_epochs=20` reached.
+INFO:lightning.pytorch.utilities.rank_zero:`Trainer.fit` stopped: `max_epochs=20` reached.
+
+✅ Training Finished!
+---------------------------------------------------------------------------------------
+🚀 Starting Automatic Calibration...
+📥 Loading: /content/logs/melodysim_run/version_1/checkpoints/best-acc-epoch=15.ckpt
+⚖️ Evaluating on 286 pairs...
+Computing Similarity Matrices...
+100%|██████████| 286/286 [02:19<00:00,  2.06it/s]
+
+🔍 Tuning Thresholds...
+
+========================================
+🏆 BEST CALIBRATED RESULT
+⚙️ Best Parameters: Proportion=0.4, Similarity=0.95
+========================================
+                    precision    recall  f1-score   support
+
+         Different       1.00      0.48      0.64       143
+Similar/Plagiarism       0.66      1.00      0.79       143
+
+          accuracy                           0.74       286
+         macro avg       0.83      0.74      0.72       286
+      weighted avg       0.83      0.74      0.72       286
+
+----------------------------------------
+✅ Max Accuracy: 73.78%
+Confusion Matrix:
+[[ 68  75]
+ [  0 143]]
+---------------------------------------------------------------------------------------
+ 🔍 Checking Distance Matrix Numerically...
+Loading: logs/melodysim_run/version_1/checkpoints/best-acc-epoch=15.ckpt
+
+Distance Matrix:
+            Cover 1     Cover 2     Cover 3     Cover 4     Cover 5  
+Orig 1     2.950000  140.059998   66.480003  176.509995   59.400002   
+Orig 2   139.750000    0.710000   73.629997   36.549999   80.730003   
+Orig 3    65.989998   73.800003    1.470000  110.230003    7.050000   
+Orig 4   176.330002   36.599998  110.220001    0.790000  117.320000   
+Orig 5    58.799999   81.010002    7.570000  117.430000    1.680000   
+Orig 6   121.129997  260.859985  187.220001  297.320007  180.130005   
+Orig 7    15.060000  154.350006   80.750000  190.830002   73.680000   
+Orig 8    88.180000   51.730000   22.150000   88.110001   29.219999   
+Orig 9    29.580000  110.330002   36.759998  146.800003   29.709999   
+Orig 10  102.830002  242.509995  168.910004  278.980011  161.820007   
+
+            Cover 6     Cover 7     Cover 8     Cover 9    Cover 10  
+Orig 1   120.940002   14.850000   88.629997   29.709999  102.720001  
+Orig 2   260.809998  154.350006   51.619999  110.410004  242.729996  
+Orig 3   187.089996   80.690002   22.410000   36.770000  168.990005  
+Orig 4   297.429993  190.970001   88.110001  147.009995  279.320007  
+Orig 5   179.889999   73.489998   29.510000   29.559999  161.779999  
+Orig 6     0.950000  106.500000  209.369995  150.449997   18.570000  
+Orig 7   106.540001    0.910000  102.980003   43.959999   88.489998  
+Orig 8   209.220001  102.820000    1.450000   58.889999  191.149994  
+Orig 9   150.559998   44.080002   58.980000    0.930000  132.449997  
+Orig 10   19.410000   88.190002  191.080002  132.100006    3.230000  
