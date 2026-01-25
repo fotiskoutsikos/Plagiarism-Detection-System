@@ -78,7 +78,7 @@ def main():
         if ok1 and ok2:
             success_count += 1
     
-    print(f"\n✅ Finished! Downloaded {success_count}/{len(df)} pairs.")
+    print(f"\nFinished! Downloaded {success_count}/{len(df)} pairs.")
     print(f"Files can be found at: {OUTPUT_DIR}")
 
 if __name__ == "__main__":
