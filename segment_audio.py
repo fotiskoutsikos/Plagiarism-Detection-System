@@ -73,7 +73,7 @@ def main():
             input_wav_path = os.path.join(pair_input_path, wav_file)
             segment_track(input_wav_path, version_output_folder)
 
-    print(f"\n✅ Segmentation Finished! You can fiind them at: {OUTPUT_DIR}")
+    print(f"\nSegmentation Finished! You can fiind them at: {OUTPUT_DIR}")
 
 if __name__ == "__main__":
     main()
