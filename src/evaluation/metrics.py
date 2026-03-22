@@ -1,59 +1,124 @@
 import os
+import ast
 import pandas as pd
 import numpy as np
 from scipy.spatial.distance import euclidean, cosine
 
 
-def compute_distances(parquet_path, output_csv_path):
-    """Compute distances between original and modified audio embeddings."""
+def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
+    """Compute distances using metadata mapping for human SMP and AI/DSP modifications."""
 
-    # Load the parquet file into a DataFrame
+    # Load data
     df = pd.read_parquet(parquet_path)
+    df_meta = pd.read_csv(smp_metadata_path)
 
+    # Build human mapping from metadata
+    mapping_records = []
+    for _, row in df_meta.iterrows():
+        pair_id = int(row['pair_number'])
+        relation = str(row['relation'])
+
+        ori_times = ast.literal_eval(row['ori_times']) if pd.notnull(row['ori_times']) else []
+        comp_times = ast.literal_eval(row['comp_times']) if pd.notnull(row['comp_times']) else []
+
+        if len(ori_times) != len(comp_times):
+            raise ValueError(
+                f"Mismatch times lengths for pair {pair_id}: ori_times={ori_times}, comp_times={comp_times}"
+            )
+
+        for o_time, c_time in zip(ori_times, comp_times):
+            mapping_records.append({
+                'pair_id': pair_id,
+                'ori_time': int(o_time),
+                'comp_time': int(c_time),
+                'relation': relation,
+            })
+
+    df_human_mapping = pd.DataFrame(mapping_records)
+
+    # Parse filename schema
     def parse_filename(filename):
-        name = filename.replace('.wav', '')
-        parts = name.split('_')
-        
-        # parts = ['pair', '1', 'ori', '0s', 'musicgen'] (generated)
-        # parts = ['pair', '1', 'ori', '0s'] (original)
-        
+        clean = filename.replace('.wav', '')
+        parts = clean.split('_')
+
+        if len(parts) < 4:
+            raise ValueError(f"Unexpected filename format: {filename}")
+
         pair_id = int(parts[1])
         ori_comp = parts[2]
         time = int(parts[3].replace('s', ''))
-        
+
         if len(parts) == 5:
-            mod_type = parts[4] # 'musicgen', 'audioldm', 'mgeldm
+            mod_type = parts[4]
         else:
-            mod_type = 'original'
-            
+            mod_type = 'none'
+
         return pd.Series([pair_id, ori_comp, time, mod_type])
 
-    # Parse filename to extract pair_id, ori_comp, time, and mod_type
     df[['pair_id', 'ori_comp', 'time', 'mod_type']] = df['filename'].apply(parse_filename)
 
-    # Split into original and modified DataFrames
-    df_ori = df[df['mod_type'] == 'original'].copy()
-    df_mod = df[df['mod_type'] != 'original'].copy()
+    # Split data sets
+    df_pure_ori = df[(df['ori_comp'] == 'ori') & (df['mod_type'] == 'none')].copy()
+    df_smp_comp = df[(df['ori_comp'] == 'comp') & (df['mod_type'] == 'none')].copy()
+    df_ai_mod = df[df['mod_type'] != 'none'].copy()
 
-    # Merge on pair_id, ori_comp AND time to create exact positive pairs!
-    df_merged = pd.merge(
-        df_mod, 
-        df_ori, 
-        on=['pair_id', 'ori_comp', 'time'], 
-        suffixes=('_mod', '_ori')
+    # Merge 1 - Human Plagiarism via mapping
+    df_human = pd.merge(
+        df_human_mapping,
+        df_pure_ori,
+        left_on=['pair_id', 'ori_time'],
+        right_on=['pair_id', 'time'],
+        how='left',
     )
 
-    # Check if merge resulted in any pairs
-    if df_merged.empty:
-        print(f"Warning: No matching pairs found in {parquet_path}. Skipping.")
-        return
-        
+    df_human = pd.merge(
+        df_human,
+        df_smp_comp,
+        left_on=['pair_id', 'comp_time'],
+        right_on=['pair_id', 'time'],
+        how='left',
+        suffixes=('_ori', '_mod'),
+    )
 
- # Compute distances for each pair
+    df_human['final_mod_type'] = 'SMP_' + df_human['relation'].astype(str)
+    df_human = df_human.rename(columns={'ori_time': 'time'})
+
+    df_human = df_human[[
+        'pair_id',
+        'time',
+        'final_mod_type',
+        'filename_mod',
+        'filename_ori',
+        'embedding_mod',
+        'embedding_ori',
+    ]]
+
+    # Merge 2 - AI/DSP modifications
+    df_ai = pd.merge(
+        df_ai_mod,
+        df_pure_ori,
+        on=['pair_id', 'time', 'ori_comp'],
+        suffixes=('_mod', '_ori'),
+        how='inner',
+    )
+    df_ai['final_mod_type'] = df_ai['mod_type_mod']
+    df_ai = df_ai[[
+        'pair_id',
+        'time',
+        'final_mod_type',
+        'filename_mod',
+        'filename_ori',
+        'embedding_mod',
+        'embedding_ori',
+    ]]
+
+    # Combine
+    df_final = pd.concat([df_human, df_ai], axis=0, ignore_index=True, sort=False)
+
     results = []
-    for _, row in df_merged.iterrows():
-        emb_ori = np.array(row['embedding_ori'])
-        emb_mod = np.array(row['embedding_mod'])
+    for _, row in df_final.iterrows():
+        emb_mod = np.asarray(row['embedding_mod'])
+        emb_ori = np.asarray(row['embedding_ori'])
 
         eucl_dist = euclidean(emb_ori, emb_mod)
         cos_dist = cosine(emb_ori, emb_mod)
@@ -61,41 +126,35 @@ def compute_distances(parquet_path, output_csv_path):
         results.append({
             'pair_id': row['pair_id'],
             'time': row['time'],
-            'mod_type': row['mod_type_mod'],
+            'final_mod_type': row['final_mod_type'],
             'filename_mod': row['filename_mod'],
             'filename_ori': row['filename_ori'],
             'euclidean_distance': eucl_dist,
             'cosine_distance': cos_dist,
         })
 
-    # Convert results to DataFrame and sort
     df_results = pd.DataFrame(results)
-    df_results = df_results.sort_values(by=['mod_type', 'pair_id'])
+    df_results = df_results.sort_values(by=['final_mod_type', 'pair_id'])
 
-    # Create output directory if needed
     output_dir = os.path.dirname(output_csv_path)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
 
-    # Save to CSV without index
     df_results.to_csv(output_csv_path, index=False)
-    print(f"Distances computed and saved to {output_csv_path}")
 
-    # Print summary statistics
-    summary = df_results.groupby('mod_type')[['euclidean_distance', 'cosine_distance']].mean()
-    print("\nSummary of average distances by modification type:")
+    summary = df_results.groupby('final_mod_type')[['euclidean_distance', 'cosine_distance']].mean()
+    print(f"Saved distances to: {output_csv_path}")
+    print("\nSummary of average distances by final_mod_type:")
     print(summary)
 
 
 if __name__ == "__main__":
-    # Dummy paths for CLEWS and WEALY
+    SMP_CSV = "../../data/Final_dataset_pairs.csv"
     CLEWS_PARQUET = "../../data/clews_embeddings.parquet"
     CLEWS_RESULTS = "../../data/clews_distances.csv"
+
     WEALY_PARQUET = "../../data/wealy_embeddings.parquet"
     WEALY_RESULTS = "../../data/wealy_distances.csv"
 
-    # Compute distances for CLEWS
-    compute_distances(CLEWS_PARQUET, CLEWS_RESULTS)
-
-    # Compute distances for WEALY
-    compute_distances(WEALY_PARQUET, WEALY_RESULTS)
+    compute_distances(CLEWS_PARQUET, SMP_CSV, CLEWS_RESULTS)
+    compute_distances(WEALY_PARQUET, SMP_CSV, WEALY_RESULTS)
