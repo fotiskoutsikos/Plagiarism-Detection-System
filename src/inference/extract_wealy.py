@@ -2,102 +2,115 @@ import os
 import torch
 import torchaudio
 import pandas as pd
+import numpy as np
 from tqdm import tqdm
 import whisper
 from omegaconf import OmegaConf
 
-# Placeholder for the WEALY model import (commented out for now)
-# from src.utils.wealy_lib import Model as WEALYModel
+from src.utils.wealy_lib import Model as WEALYModel
 
 
-def load_audio_numpy(file_path, target_sr=16000):
-    """Load audio from file, convert to mono, resample, and return 1D numpy array."""
+def load_audio(file_path, target_sr=16000):
+    """Load audio file, convert to mono, and resample to target_sr."""
     waveform, sr = torchaudio.load(file_path)
 
-    # Convert stereo to mono by averaging channels if necessary
+    # Convert to mono by averaging channels
     if waveform.size(0) > 1:
         waveform = waveform.mean(dim=0, keepdim=True)
 
-    # Resample if needed
+    # Resample if necessary
     if sr != target_sr:
         resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=target_sr)
         waveform = resampler(waveform)
 
-    # Return as 1D numpy float32 array (squeeze to remove channel dim)
-    return waveform.squeeze().numpy().astype('float32')
+    # Return 1D waveform
+    return waveform.squeeze()
 
 
 def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_parquet, device="cuda"):
-    """Extract WEALY embeddings from audio files using Whisper hidden states."""
+    """Extract WEALY embeddings from audio files using Whisper feature extraction."""
 
     # Load WEALY config
     conf = OmegaConf.load(wealy_config)
+    working_dim = int(conf.model.working_dim)
 
-    # Load Whisper model
-    whisper_model = whisper.load_model("turbo", device=device)
+    # Load Whisper model on the specified device
+    print(f"Loading Whisper model on {device}...")
+    whisper_model = whisper.load_model("base", device=device)
 
-    # Initialize WEALY model (commented out for now)
-    # wealy_model = WEALYModel(conf.model)
-    # checkpoint = torch.load(wealy_checkpoint, map_location='cpu')
-    # wealy_model.load_state_dict(checkpoint['state_dict'], strict=False)
-    # wealy_model = wealy_model.to(device)
-    # wealy_model.eval()
+    # Initialize WEALY model
+    print("Initializing WEALY model...")
+    wealy_model = WEALYModel(conf.model)
 
-    # Collect WAV files in data_dir recursively
+    # Load WEALY checkpoint with strict=False for flexibility
+    checkpoint = torch.load(wealy_checkpoint, map_location="cpu")
+    wealy_model.load_state_dict(checkpoint["state_dict"], strict=False)
+    wealy_model = wealy_model.to(device)
+    wealy_model.eval()
+    whisper_model.eval()
+
+    # Collect all .wav files from data directory recursively
     audio_files = []
     for root, _, files in os.walk(data_dir):
         for file in files:
-            if file.lower().endswith('.wav'):
+            if file.lower().endswith(".wav"):
                 audio_files.append(os.path.join(root, file))
 
     results = []
 
-    # Inference loop
-    for file_path in tqdm(audio_files, desc="Extracting WEALY embeddings"):
-        try:
-            # Load audio as numpy array
-            audio_np = load_audio_numpy(file_path, target_sr=16000)
+    # Inference loop with no gradients
+    with torch.no_grad():
+        for file_path in tqdm(audio_files, desc="Extracting WEALY embeddings"):
+            try:
+                # Load and prepare audio
+                audio_waveform = load_audio(file_path, target_sr=16000)
+                audio_waveform = audio_waveform.to(device)
 
-            # Transcribe with Whisper to get hidden states
-            result = whisper_model.transcribe(audio_np, language="en")
+                # Pad or trim to 30 seconds (Whisper requirement)
+                audio_padded = whisper.pad_or_trim(audio_waveform.flatten())
 
-            # Extract and flatten hidden states
-            all_states = [state for chunk in result["frames_last_hidden_states"] for state in chunk]
-            whisper_features = torch.cat(all_states, dim=0)  # Concatenate along time dim
-            whisper_features = whisper_features.unsqueeze(0).to(device)  # Add batch dim: (1, Time, 1280)
+                # Convert to log-mel spectrogram
+                mel = whisper.log_mel_spectrogram(audio_padded).to(device)
 
-            # Pass to WEALY model (commented out for now)
-            # z, _ = wealy_model.embed(whisper_features)
-            # z_vector = z.squeeze().cpu().numpy()
+                # Add batch dimension
+                mel = mel.unsqueeze(0)  # Shape: (1, n_mels, time_steps)
 
-            # Dummy vector for now (512-dimensional)
-            z_vector = [0.0] * 512
+                # Extract Whisper encoder features
+                audio_features = whisper_model.encoder(mel)  # Shape: (1, time_steps, encoder_dim)
 
-            results.append({
-                "filename": os.path.basename(file_path),
-                "embedding": z_vector,
-            })
+                # Pass through WEALY model to get final embedding
+                embedding = wealy_model(audio_features)  # Shape: (1, embedding_dim)
 
-        except Exception as e:
-            print(f"Warning: failed to process {file_path}: {e}")
-            continue
+                # Convert to 1D numpy array
+                z_vector = embedding.squeeze(0).cpu().numpy()
 
-    # Save results in a single Parquet file
+                results.append({
+                    "filename": os.path.basename(file_path),
+                    "embedding": z_vector.tolist(),
+                })
+
+            except Exception as e:
+                print(f"Warning: Failed to process {file_path}: {e}")
+                continue
+
+    # Convert results to DataFrame
     df = pd.DataFrame(results)
 
+    # Create output directory if needed
     output_dir = os.path.dirname(output_parquet)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
 
-    df.to_parquet(output_parquet, engine='pyarrow')
-    print(f"WEALY embeddings extraction complete. Saved to {output_parquet}")
+    # Save to Parquet
+    df.to_parquet(output_parquet, engine="pyarrow")
+    print(f"WEALY embedding extraction complete. Saved {len(df)} embeddings to {output_parquet}")
 
 
 if __name__ == "__main__":
-    # Example usage with dummy paths
-    data_dir = "../../data/segments/"
-    wealy_checkpoint = "../../models/wealy/checkpoint.pt"
-    wealy_config = "../../configs/wealy.yaml"
-    output_parquet = "../../data/wealy_embeddings.parquet"
+    # Paths relative to project root
+    data_dir = "data/segment_smp/audio/"
+    wealy_checkpoint = "models/wealy/checkpoint.pt"
+    wealy_config = "configs/extraction/wealy.yaml"
+    output_parquet = "data/wealy_embeddings.parquet"
 
     extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_parquet, device="cuda")

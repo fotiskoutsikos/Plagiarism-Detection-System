@@ -193,11 +193,11 @@ def plot_interactive_trajectories(df, output_path):
 
 
 if __name__ == '__main__':
-    # Placeholder paths
-    DISTANCES_CSV = '../../data/distances.csv'
-    SEGMENTS_METADATA_CSV = '../../data/segments_metadata.csv'
-    OUTPUT_STATIC_PNG = '../../plots/umap_static_trajectories.png'
-    OUTPUT_INTERACTIVE_HTML = '../../plots/umap_interactive_trajectories.html'
+    # Paths relative to project root
+    DISTANCES_CSV = 'data/clews_distances.csv'  # Change to 'data/wealy_distances.csv' to plot WEALY
+    SEGMENTS_METADATA_CSV = 'data/segments_metadata.csv'
+    OUTPUT_STATIC_PNG = 'plots/umap_static_trajectories.png'
+    OUTPUT_INTERACTIVE_HTML = 'plots/umap_interactive_trajectories.html'
 
     # Load and prepare data
     print("Loading and preparing data...")

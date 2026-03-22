@@ -149,12 +149,18 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
 
 
 if __name__ == "__main__":
-    SMP_CSV = "../../data/Final_dataset_pairs.csv"
-    CLEWS_PARQUET = "../../data/clews_embeddings.parquet"
-    CLEWS_RESULTS = "../../data/clews_distances.csv"
+    # Paths relative to project root
+    SMP_CSV = "data/Final_dataset_pairs.csv"
+    CLEWS_PARQUET = "data/clews_embeddings.parquet"
+    CLEWS_RESULTS = "data/clews_distances.csv"
 
-    WEALY_PARQUET = "../../data/wealy_embeddings.parquet"
-    WEALY_RESULTS = "../../data/wealy_distances.csv"
+    WEALY_PARQUET = "data/wealy_embeddings.parquet"
+    WEALY_RESULTS = "data/wealy_distances.csv"
 
+    # Compute distances for CLEWS embeddings
+    print("Calculating distances for CLEWS...")
     compute_distances(CLEWS_PARQUET, SMP_CSV, CLEWS_RESULTS)
+
+    # Compute distances for WEALY embeddings
+    print("\nCalculating distances for WEALY...")
     compute_distances(WEALY_PARQUET, SMP_CSV, WEALY_RESULTS)
