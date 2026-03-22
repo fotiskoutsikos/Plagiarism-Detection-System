@@ -1,0 +1,5 @@
+data:
+  samplerate: 16000
+
+model:
+  zdim: 1024
