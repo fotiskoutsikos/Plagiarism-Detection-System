@@ -51,9 +51,9 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
 
     # Define target folders to search for audio files
     target_folders = [
-        "data/segment_smp/audio",      # segments from the original SMP dataset
-        "data/generated_audio",        # generated audio files
-        "data/dsp_variants"            # DSP variants
+        "data/segment_smp/audio",               # segments from the original SMP dataset
+        "data/generated_audio/musicgen",        # generated audio files
+        "data/dsp_variants/musicgen"            # DSP variants
     ]
 
     audio_files = []
