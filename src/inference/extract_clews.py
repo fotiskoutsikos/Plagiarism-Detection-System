@@ -88,24 +88,32 @@ def extract_embeddings(data_dir, checkpoint_path, config_path, output_parquet, d
     print(f"Remaining files to process: {len(audio_files)}")
 
     results = []
+    checkpoint_every = 200 
 
-    # Inference loop with no_grad for memory efficiency
     with torch.no_grad():
-        for file_path in tqdm(audio_files, desc="Extracting CLEWS embeddings"):
+        for i, file_path in enumerate(tqdm(audio_files, desc="Extracting CLEWS embeddings")):
             try:
-                # Load and prepare audio
                 waveform = load_audio(file_path, target_sr=target_sr)
                 waveform = waveform.to(device)
 
-                # Forward pass through CLEWS model
                 z = model(waveform, shingle_hop=20.0, shingle_len=20.0)
-
                 z_vector = z.squeeze(0).cpu().numpy()
 
                 results.append({
                     "filename": os.path.basename(file_path),
                     "embedding": z_vector.tolist(),
                 })
+
+                # CHECKPOINTING
+                if (i + 1) % checkpoint_every == 0:
+                    temp_new_df = pd.DataFrame(results)
+                    if existing_df is not None:
+                        checkpoint_df = pd.concat([existing_df, temp_new_df], ignore_index=True)
+                    else:
+                        checkpoint_df = temp_new_df
+                    
+                    checkpoint_df.to_parquet(output_parquet, engine="pyarrow")
+                    print(f"\n[Checkpoint] Saved {len(checkpoint_df)} embeddings so far...")
 
             except Exception as e:
                 print(f"Warning: Failed to process {file_path}: {e}")

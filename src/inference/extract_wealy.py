@@ -28,12 +28,11 @@ def load_audio(file_path, target_sr=16000):
 
 
 def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_parquet, device="cuda"):
-    """Extract WEALY embeddings from audio files using Whisper feature extraction."""
+    """Extract WEALY embeddings from audio files using Whisper feature extraction with periodic saving."""
 
     # Load WEALY config
     conf = OmegaConf.load(wealy_config)
-    working_dim = int(conf.model.working_dim)
-
+    
     # Load Whisper model on the specified device
     print(f"Loading Whisper model on {device}...")
     whisper_model = whisper.load_model("base", device=device)
@@ -52,16 +51,14 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
     wealy_model.eval()
     whisper_model.eval()
 
-    # Define target folders to search for audio files
+    # Define target folders
     target_folders = [
-        "data/segment_smp/audio",               # segments from the original SMP dataset
-        "data/generated_audio/musicgen",        # generated audio files
-        "data/dsp_variants/musicgen"            # DSP variants
+        "data/segment_smp/audio",
+        "data/generated_audio/musicgen",
+        "data/dsp_variants/musicgen"
     ]
 
     audio_files = []
-    
-    # Search only in the specified folders
     for folder in target_folders:
         if os.path.exists(folder):
             for root, _, files in os.walk(folder):
@@ -69,9 +66,9 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
                     if file.lower().endswith(".wav"):
                         audio_files.append(os.path.join(root, file))
         else:
-            print(f"Warning: The folder {folder} does not exist and will be ignored.")
+            print(f"Warning: The folder {folder} does not exist.")
 
-    # Load existing parquet if it exists to resume from where we left off
+    # Load existing parquet to resume
     existing_df = None
     processed_files = set()
     if os.path.exists(output_parquet):
@@ -85,10 +82,10 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
     print(f"Remaining files to process: {len(audio_files)}")
 
     results = []
+    checkpoint_every = 200 
 
-    # Inference loop with no gradients
     with torch.no_grad():
-        for file_path in tqdm(audio_files, desc="Extracting WEALY embeddings"):
+        for i, file_path in enumerate(tqdm(audio_files, desc="Extracting WEALY embeddings")):
             try:
                 # Load and prepare audio
                 audio_waveform = load_audio(file_path, target_sr=16000)
@@ -96,20 +93,13 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
 
                 # Pad or trim to 30 seconds (Whisper requirement)
                 audio_padded = whisper.pad_or_trim(audio_waveform.flatten())
-
-                # Convert to log-mel spectrogram
                 mel = whisper.log_mel_spectrogram(audio_padded).to(device)
+                mel = mel.unsqueeze(0) 
 
-                # Add batch dimension
-                mel = mel.unsqueeze(0)  # Shape: (1, n_mels, time_steps)
-
-                # Extract Whisper encoder features
-                audio_features = whisper_model.encoder(mel)  # Shape: (1, time_steps, encoder_dim)
-
-                # Pass through WEALY model to get final embedding
+                # Extract Whisper encoder features and pass through WEALY
+                audio_features = whisper_model.encoder(mel)
                 embedding = wealy_model(audio_features)
 
-                # Force shape [1, 512] -> [512]
                 z_vector = embedding.squeeze(0).cpu().numpy()
 
                 results.append({
@@ -117,38 +107,40 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
                     "embedding": z_vector.tolist(),
                 })
 
+                # CHECKPOINTING
+                if (i + 1) % checkpoint_every == 0:
+                    temp_new_df = pd.DataFrame(results)
+                    if existing_df is not None:
+                        checkpoint_df = pd.concat([existing_df, temp_new_df], ignore_index=True)
+                    else:
+                        checkpoint_df = temp_new_df
+                    
+                    output_dir = os.path.dirname(output_parquet)
+                    if output_dir and not os.path.exists(output_dir):
+                        os.makedirs(output_dir, exist_ok=True)
+                        
+                    checkpoint_df.to_parquet(output_parquet, engine="pyarrow")
+
             except Exception as e:
                 print(f"Warning: Failed to process {file_path}: {e}")
                 continue
 
-    # Convert results to DataFrame
+    # Final save to capture everything
     if results:
         new_df = pd.DataFrame(results)
-        
-        # Append to existing DataFrame if it exists
         if existing_df is not None:
             df = pd.concat([existing_df, new_df], ignore_index=True)
-            print(f"Appended {len(new_df)} new embeddings to existing {len(existing_df)} embeddings.")
         else:
             df = new_df
-    else:
-        # No new results, use existing if available
-        if existing_df is not None:
-            df = existing_df
-            print("No new files to process. Using existing embeddings.")
-        else:
-            df = pd.DataFrame()
-            print("No embeddings found.")
-
-    # Create output directory if needed
-    output_dir = os.path.dirname(output_parquet)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
-
-    # Save to Parquet
-    df.to_parquet(output_parquet, engine="pyarrow")
-    print(f"WEALY embedding extraction complete. Saved {len(df)} embeddings to {output_parquet}")
-
+        
+        output_dir = os.path.dirname(output_parquet)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir, exist_ok=True)
+        
+        df.to_parquet(output_parquet, engine="pyarrow")
+        print(f"WEALY extraction complete. Total: {len(df)} embeddings in {output_parquet}")
+    elif existing_df is not None:
+        print("No new files processed. Existing parquet remains unchanged.")
 
 if __name__ == "__main__":
     # Paths relative to project root
