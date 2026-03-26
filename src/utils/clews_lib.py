@@ -1,195 +1,209 @@
-import torch
 import math
-import torch.nn as nn
-import torch.nn.functional as F
+import torch
 from einops import rearrange
 from nnAudio import features
 
-# TENSOR OPS 
-def force_length(x: torch.Tensor, length: int, dim: int = -1, pad_mode: str = "constant", allow_longer: bool = False) -> torch.Tensor:
-    """
-    Ensure x has at least `length` along dim. If shorter, pad; if longer:
-    - if allow_longer=False => crop
-    - if allow_longer=True => keep as-is
-    """
-    orig_len = x.size(dim)
-    if orig_len == length:
-        return x
 
-    if orig_len < length:
-        pad_amt = length - orig_len
+# TENSOR OPS
+def force_length(x, length, dim=-1, pad_mode="repeat", cut_mode="start", allow_longer=False):
+    assert pad_mode in ("repeat", "zeros", "crazy")
+    assert cut_mode in ("start", "end", "random")
+    
+    if x.size(dim) == length or (x.size(dim) > length and allow_longer):
+        return x
+        
+    aux = x.clone()
+    while aux.size(dim) < length:
         if pad_mode == "repeat":
-            # tile end section to pad
-            if orig_len == 0:
-                pad_tensor = x.new_zeros(*x.shape[:dim], pad_amt, *x.shape[dim + 1 :])
-            else:
-                repeat_tile = x.narrow(dim, orig_len - 1, 1).expand(*x.shape[:dim], pad_amt, *x.shape[dim + 1 :])
-                pad_tensor = repeat_tile
-        else:
-            pad_tensor = x.new_zeros(*x.shape[:dim], pad_amt, *x.shape[dim + 1 :])
-        return torch.cat([x, pad_tensor], dim=dim)
+            aux = torch.cat([aux, x], dim=dim)
+        elif pad_mode == "zeros":
+            aux = torch.cat([aux, torch.zeros_like(x)], dim=dim)
+        elif pad_mode == "crazy":
+            r = torch.randint(0, 4, (1,)).item()
+            if r == 0:
+                aux = torch.cat([aux, x], dim=dim)
+            elif r == 1:
+                aux = torch.cat([x, aux], dim=dim)
+            elif r == 2:
+                aux = torch.cat([aux, torch.zeros_like(x)], dim=dim)
+            elif r == 3:
+                aux = torch.cat([torch.zeros_like(x), aux], dim=dim)
+                
+    if not allow_longer and aux.size(-1) > length:
+        if dim != -1:
+            aux = aux.transpose(dim, -1)
+        if cut_mode == "start":
+            aux = aux[..., :length]
+        elif cut_mode == "end":
+            aux = aux[..., -length:]
+        elif cut_mode == "random":
+            r = torch.randint(0, aux.size(-1) - length + 1, (1,)).item()
+            aux = aux[..., r : r + length]
+        if dim != -1:
+            aux = aux.transpose(-1, dim)
+            
+    return aux
 
-    if orig_len > length:
-        if allow_longer:
-            return x
-        return x.narrow(dim, 0, length)
-
-    return x
-
-
-def get_frames(x: torch.Tensor, frame_length: int, hop_length: int, pad_mode: str = "constant") -> torch.Tensor:
-    """
-    Slice signal into overlapping frames.
-    x: [B, T] or [T]
-    returns: [B, n_frames, frame_length]
-    """
-    if x.ndim == 1:
-        x = x.unsqueeze(0)
-
-    batch, total = x.shape
-    if total < frame_length:
-        x = force_length(x, frame_length, dim=1, pad_mode=pad_mode, allow_longer=False)
-        total = x.shape[1]
-
-    n_frames = 1 + max(0, math.floor((total - frame_length) / hop_length))
-    if n_frames <= 0:
-        # at least one frame
-        x = force_length(x, frame_length, dim=1, pad_mode=pad_mode, allow_longer=False)
-        n_frames = 1
-
-    frames = x.unfold(1, frame_length, hop_length)  # [B, n_frames, frame_length]
-    if frames.shape[1] != n_frames:
-        # fallback to manual frame counting and pad
-        desired = n_frames
-        if frames.shape[1] < desired:
-            pad_frames = desired - frames.shape[1]
-            last = frames[:, -1:].expand(batch, pad_frames, frame_length)
-            frames = torch.cat([frames, last], dim=1)
-    return frames.contiguous()
+def get_frames(x, length, step, dim=-1, pad_end=True, pad_mode="zeros", cut_mode="start"):
+    if pad_end:
+        newlength = max(int(math.ceil((x.size(dim) - length) / step)), 0) * step + length
+        x = force_length(x, newlength, dim=dim, pad_mode=pad_mode, cut_mode=cut_mode, allow_longer=False)
+    return x.unfold(dim, length, step)
 
 
-# LAYERS 
-class CQTPrepare(nn.Module):
-    """Simple CQT preparation block. Applies power and scaling."""
-    def __init__(self, pow: float = 1.0):
+# LAYERS
+class CQTPrepare(torch.nn.Module):
+    def __init__(self, pow=0.5, norm="max2d", noise=True, affine=True, eps=1e-6):
         super().__init__()
+        assert norm in ("max1d", "max2d", "mean2d")
         self.pow = pow
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # x expected non-negative magnitude tensors
-        x = x.abs() + 1e-8
-        if self.pow != 1.0:
-            x = x.pow(self.pow)
-        return x
-
-
-class PadConv2d(nn.Module):
-    """Conv2d with explicit pad mode on the spatial dims."""
-    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, bias=True, pad_mode="reflect"):
-        super().__init__()
-        self.pad_size = padding
-        self.pad_mode = pad_mode
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=0, bias=bias)
-
-    def forward(self, x):
-        if self.pad_size > 0:
-            x = F.pad(x, (self.pad_size, self.pad_size, self.pad_size, self.pad_size), mode=self.pad_mode)
-        return self.conv(x)
-
-
-class InstanceBatchNorm2d(nn.Module):
-    """Blend of InstanceNorm2d and BatchNorm2d for robust normalization."""
-    def __init__(self, num_features, eps=1e-5, momentum=0.1, affine=True):
-        super().__init__()
-        self.inst = nn.InstanceNorm2d(num_features, eps=eps, momentum=momentum, affine=affine, track_running_stats=False)
-        self.batch = nn.BatchNorm2d(num_features, eps=eps, momentum=momentum, affine=affine, track_running_stats=True)
-        self.alpha = nn.Parameter(torch.tensor(0.5))
-
-    def forward(self, x):
-        out_inst = self.inst(x)
-        out_batch = self.batch(x)
-        return self.alpha * out_inst + (1.0 - self.alpha) * out_batch
-
-
-class SqueezeExcitation2d(nn.Module):
-    """Squeeze-and-Excitation 2D."""
-    def __init__(self, channels, reduction=16):
-        super().__init__()
-        self.fc1 = nn.Linear(channels, max(channels // reduction, 1), bias=False)
-        self.relu = nn.ReLU(inplace=True)
-        self.fc2 = nn.Linear(max(channels // reduction, 1), channels, bias=False)
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, x: torch.Tensor):
-        b, c, _, _ = x.shape
-        y = x.mean(dim=[2, 3])
-        y = self.fc1(y)
-        y = self.relu(y)
-        y = self.fc2(y)
-        y = self.sigmoid(y).view(b, c, 1, 1)
-        return x * y
-
-
-class MyIBNResBlock(nn.Module):
-    """Residual block with IBN and optional downsampling."""
-    def __init__(self, in_channels, out_channels, stride=1):
-        super().__init__()
-        self.conv1 = PadConv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1)
-        self.norm1 = InstanceBatchNorm2d(out_channels)
-        self.relu = nn.ReLU(inplace=True)
-        self.conv2 = PadConv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
-        self.norm2 = InstanceBatchNorm2d(out_channels)
-        self.se = SqueezeExcitation2d(out_channels)
-        self.downsample = None
-        if stride != 1 or in_channels != out_channels:
-            self.downsample = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, bias=False),
-                InstanceBatchNorm2d(out_channels),
-            )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        identity = x
-        out = self.conv1(x)
-        out = self.norm1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.norm2(out)
-        out = self.se(out)
-
-        if self.downsample is not None:
-            identity = self.downsample(x)
-
-        out += identity
-        out = self.relu(out)
-        return out
-
-
-class GeMPool(nn.Module):
-    """Generalized mean pooling."""
-    def __init__(self, p: float = 3.0, eps: float = 1e-6):
-        super().__init__()
-        self.p = nn.Parameter(torch.tensor(p, dtype=torch.float32))
+        self.norm = norm
+        self.noise = noise
+        self.affine = affine
+        if self.affine:
+            self.gain = torch.nn.Parameter(torch.ones(1))
+            self.bias = torch.nn.Parameter(torch.zeros(1))
         self.eps = eps
 
-    def forward(self, x: torch.Tensor):
-        return F.adaptive_avg_pool2d((x.clamp(min=self.eps).pow(self.p)), 1).pow(1.0 / self.p).view(x.size(0), x.size(1))
+    def forward(self, h):
+        h = h.clamp(min=0).pow(self.pow)
+        h = self.normalize(h)
+        if self.noise and self.training:
+            h = h + self.eps * torch.rand_like(h)
+            h = self.normalize(h)
+        if self.affine:
+            h = self.gain * h + self.bias
+        return h
+
+    def normalize(self, h):
+        h = h - h.min(2, keepdim=True)[0].min(3, keepdim=True)[0]
+        if self.norm == "max2d":
+            h = h / (h.max(2, keepdim=True)[0].max(3, keepdim=True)[0] + self.eps)
+        elif self.norm == "max1d":
+            h = h / (h.max(2, keepdim=True)[0] + self.eps)
+        elif self.norm == "mean2d":
+            h = h / (h.mean((2, 3), keepdim=True) + self.eps)
+        return h
+
+class PadConv2d(torch.nn.Module):
+    def __init__(self, nin, nout, kern, stride=1, bias=True):
+        super().__init__()
+        assert kern % 2 == 1
+        pad = kern // 2
+        self.conv = torch.nn.Conv2d(nin, nout, kern, stride=stride, padding=pad, bias=bias)
+
+    def forward(self, h):
+        return self.conv(h)
+
+class InstanceBatchNorm2d(torch.nn.Module):
+    def __init__(self, ncha, affine=True):
+        super().__init__()
+        assert ncha % 2 == 0
+        self.bn = torch.nn.BatchNorm2d(ncha // 2, affine=affine)
+        self.inst = torch.nn.InstanceNorm2d(ncha // 2, affine=affine)
+
+    def forward(self, h):
+        h1, h2 = torch.chunk(h, 2, dim=1)
+        h1 = self.bn(h1)
+        h2 = self.inst(h2)
+        h = torch.cat([h1, h2], dim=1)
+        return h
+
+class SqueezeExcitation2d(torch.nn.Module):
+    def __init__(self, ncha, r=2):
+        super().__init__()
+        self.pooling = torch.nn.AdaptiveAvgPool2d((1, 1))
+        nmid = max(1, int(ncha / r))
+        self.mlp = torch.nn.Sequential(
+            torch.nn.Linear(ncha, nmid, bias=False),
+            torch.nn.ReLU(inplace=True),
+            torch.nn.Linear(nmid, ncha, bias=False),
+            torch.nn.Sigmoid(),
+        )
+
+    def forward(self, h):
+        s = self.pooling(h).transpose(1, -1)
+        s = self.mlp(s).transpose(-1, 1)
+        return h * s
+
+class MyIBNResBlock(torch.nn.Module):
+    def __init__(self, ncin, ncout, factor=0.5, kern=3, stride=1, ibn="pre", se="none"):
+        super().__init__()
+        ncmid = max(1, int(max(ncin, ncout) * factor))
+        ncmid += ncmid % 2
+        tmp = []
+        if ibn == "pre":
+            tmp += [InstanceBatchNorm2d(ncin)]
+        else:
+            tmp += [torch.nn.BatchNorm2d(ncin)]
+        if se == "pre":
+            tmp += [SqueezeExcitation2d(ncin)]
+            
+        tmp += [
+            torch.nn.ReLU(inplace=True),
+            PadConv2d(ncin, ncmid, kern, stride=stride, bias=False),
+        ]
+        
+        if ibn == "post":
+            tmp += [InstanceBatchNorm2d(ncmid)]
+        else:
+            tmp += [torch.nn.BatchNorm2d(ncmid)]
+            
+        tmp += [
+            torch.nn.ReLU(inplace=True),
+            PadConv2d(ncmid, ncout, kern, bias=False),
+        ]
+        
+        if se == "post":
+            tmp += [SqueezeExcitation2d(ncout)]
+            
+        self.convs = torch.nn.Sequential(*tmp)
+        
+        if ncin != ncout or stride != 1:
+            self.skip = torch.nn.Sequential(
+                torch.nn.BatchNorm2d(ncin),
+                torch.nn.ReLU(inplace=True),
+                PadConv2d(ncin, ncout, kern, stride=stride, bias=False),
+            )
+        else:
+            self.skip = torch.nn.Identity()
+            
+        self.gain = torch.nn.Parameter(torch.zeros(1))
+
+    def forward(self, h):
+        return self.gain * self.convs(h) + self.skip(h)
+
+class GeMPool(torch.nn.Module):
+    def __init__(self, ncha=1, init=3, eps=1e-6):
+        super().__init__()
+        self.flatten = torch.nn.Flatten(start_dim=2, end_dim=-1)
+        self.softplus = torch.nn.Softplus()
+        pinit = math.log(math.exp(init - 1) - 1)
+        self.p = torch.nn.Parameter(pinit * torch.ones(1, ncha, 1))
+        self.eps = eps
+
+    def forward(self, h):
+        h = self.flatten(h)
+        pow = 1 + self.softplus(self.p)
+        h = h.clamp(min=self.eps).pow(pow)
+        h = h.mean(-1).pow(1 / pow.squeeze(-1))
+        return h
 
 
-# MAIN MODEL 
+# MAIN MODEL
 class Model(torch.nn.Module):
-    """Standalone CLEWS feature extractor (inference-only)."""
-    def __init__(self, conf, sr=16000):
+    def __init__(self, conf, sr=16000, eps=1e-6):
         super().__init__()
         self.sr = sr
-
-        # Shingling configuration
+        self.eps = eps
+        
+        # Shingling
         self.shingling_len = conf.shingling.len
         self.shingling_hop = conf.shingling.hop
-        self.minlen = self.shingling_len
-
-        # Constant-Q transform frontend
-        self.cqt = nn.Sequential(
+        self.minlen = self.shingling_len 
+        
+        # CQT
+        self.cqt = torch.nn.Sequential(
             features.CQT1992v2(
                 sr=self.sr,
                 hop_length=int(conf.cqt.hoplen * sr),
@@ -199,58 +213,51 @@ class Model(torch.nn.Module):
                 trainable=False,
                 verbose=False,
             ),
-            nn.AvgPool1d(int(conf.cqt.pool), stride=int(conf.cqt.pool)),
+            torch.nn.AvgPool1d(int(conf.cqt.pool), stride=int(conf.cqt.pool)),
         )
-
-        # Frontend conv block
+        
+        # Model - Frontend
         ncha0, ncha = conf.frontend.channels
-        self.frontend = nn.Sequential(
+        self.frontend = torch.nn.Sequential(
             CQTPrepare(pow=float(conf.frontend.cqtpow)),
-            nn.Conv2d(1, ncha0, kernel_size=(12, 3), stride=(1, 2), bias=False),
-            nn.BatchNorm2d(ncha0),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(ncha0, ncha, kernel_size=(12, 3), stride=2, bias=False),
+            torch.nn.Conv2d(1, ncha0, (12, 3), stride=(1, 2), bias=False),
+            torch.nn.BatchNorm2d(ncha0),
+            torch.nn.ReLU(inplace=True),
+            torch.nn.Conv2d(ncha0, ncha, (12, 3), stride=2, bias=False),
         )
-
-        # Backbone residual blocks
-        blocks = []
-        in_channels = ncha
+        
+        # Model - Backbone
+        aux = []
         for nb, nc, st in zip(conf.backbone.blocks, conf.backbone.channels, conf.backbone.down):
-            blocks.append(MyIBNResBlock(in_channels, nc, stride=st))
+            aux += [MyIBNResBlock(ncha, nc, stride=st)]
             for _ in range(nb - 1):
-                blocks.append(MyIBNResBlock(nc, nc, stride=1))
-            in_channels = nc
-        self.backbone = nn.Sequential(*blocks)
-
-        # Pooling and projection
+                aux += [MyIBNResBlock(nc, nc)]
+            ncha = nc
+        self.backbone = torch.nn.Sequential(*aux)
+        
+        # Pooling & projection
         self.pool = GeMPool()
-        self.proj = nn.Sequential(
-            nn.BatchNorm1d(in_channels),
-            nn.Linear(in_channels, int(conf.zdim), bias=False),
+        self.proj = torch.nn.Sequential(
+            torch.nn.BatchNorm1d(ncha),
+            torch.nn.Linear(ncha, int(conf.zdim), bias=False),
         )
 
-    def get_shingle_params(self):
-        """Returns currently configured shingle length and hop in seconds."""
-        return self.shingling_len, self.shingling_hop
-
-    def prepare(self, h: torch.Tensor, shingle_len=None, shingle_hop=None) -> torch.Tensor:
-        """Convert raw waveform [B, T] into CQT tensor [B, S, C, T]."""
-        assert h.ndim == 2, "Input must be [B, T]"
+    def prepare(self, h, shingle_len=None, shingle_hop=None):
+        assert h.ndim == 2
         slen = self.shingling_len if shingle_len is None else shingle_len
         shop = self.shingling_hop if shingle_hop is None else shingle_hop
-
+        
         h = get_frames(h, int(self.sr * slen), int(self.sr * shop), pad_mode="repeat")
         h = force_length(h, int(self.sr * self.minlen), dim=-1, pad_mode="repeat", allow_longer=True)
-
+        
         s = h.size(1)
         h = rearrange(h, "b s t -> (b s) t")
         h = self.cqt(h)
         h = rearrange(h, "(b s) c t -> b s c t", s=s)
         return h
 
-    def embed(self, h: torch.Tensor) -> torch.Tensor:
-        """Take CQT tensor [B, S, C, T] and produce [B, S, zdim] embeddings."""
-        assert h.ndim == 4, "CQT input must be [B, S, C, T]"
+    def embed(self, h):
+        assert h.ndim == 4
         s = h.size(1)
         h = rearrange(h, "b s c t -> (b s) 1 c t")
         h = self.frontend(h)
@@ -258,11 +265,10 @@ class Model(torch.nn.Module):
         h = self.pool(h)
         z = self.proj(h)
         z = rearrange(z, "(b s) c -> b s c", s=s)
-        return z
+        return z, None 
 
-    def forward(self, h: torch.Tensor, shingle_len=None, shingle_hop=None):
-        """Forward inference path: prepare -> embed."""
+    def forward(self, h, shingle_len=None, shingle_hop=None):
         with torch.inference_mode():
             h = self.prepare(h, shingle_len=shingle_len, shingle_hop=shingle_hop)
-        z = self.embed(h)
+            z, _ = self.embed(h)
         return z

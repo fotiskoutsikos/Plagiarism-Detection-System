@@ -42,9 +42,12 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
     print("Initializing WEALY model...")
     wealy_model = WEALYModel(conf.model)
 
-    # Load WEALY checkpoint with strict=False for flexibility
-    checkpoint = torch.load(wealy_checkpoint, map_location="cpu")
-    wealy_model.load_state_dict(checkpoint["state_dict"], strict=False)
+    # Load WEALY checkpoint
+    checkpoint = torch.load(wealy_checkpoint, map_location="cpu", weights_only=False)
+    state_dict = checkpoint["state_dict"] if "state_dict" in checkpoint else checkpoint
+    clean_state_dict = {k.replace("model.", "", 1) if k.startswith("model.") else k: v for k, v in state_dict.items()}
+
+    wealy_model.load_state_dict(clean_state_dict, strict=False)
     wealy_model = wealy_model.to(device)
     wealy_model.eval()
     whisper_model.eval()
@@ -104,9 +107,9 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
                 audio_features = whisper_model.encoder(mel)  # Shape: (1, time_steps, encoder_dim)
 
                 # Pass through WEALY model to get final embedding
-                embedding = wealy_model(audio_features)  # Shape: (1, embedding_dim)
+                embedding = wealy_model(audio_features)
 
-                # Convert to 1D numpy array
+                # Force shape [1, 512] -> [512]
                 z_vector = embedding.squeeze(0).cpu().numpy()
 
                 results.append({

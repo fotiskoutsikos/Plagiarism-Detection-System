@@ -33,8 +33,25 @@ def extract_embeddings(data_dir, checkpoint_path, config_path, output_parquet, d
 
     # Initialize CLEWS model
     model = CLEWSModel(conf.model)
-    checkpoint = torch.load(checkpoint_path, map_location="cpu")
-    model.load_state_dict(checkpoint["state_dict"], strict=False)
+    # Load checkpoint
+    checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+    
+    if "state_dict" in checkpoint:
+        state_dict = checkpoint["state_dict"]
+    elif "model" in checkpoint:
+        state_dict = checkpoint["model"]
+    else:
+        state_dict = checkpoint
+
+    clean_state_dict = {}
+    for k, v in state_dict.items():
+        if k.startswith("model."):
+            clean_state_dict[k.replace("model.", "", 1)] = v
+        else:
+            clean_state_dict[k] = v
+
+    # Load model
+    model.load_state_dict(clean_state_dict, strict=False)
     model = model.to(device)
     model.eval()
 
@@ -83,8 +100,7 @@ def extract_embeddings(data_dir, checkpoint_path, config_path, output_parquet, d
                 # Forward pass through CLEWS model
                 z = model(waveform, shingle_hop=20.0, shingle_len=20.0)
 
-                # Convert to 1D numpy array
-                z_vector = z.squeeze().cpu().numpy()
+                z_vector = z.squeeze(0).cpu().numpy()
 
                 results.append({
                     "filename": os.path.basename(file_path),
