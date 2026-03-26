@@ -1,8 +1,28 @@
 data:
-  samplerate: 16000
+  samplerate: 16000     
 
 model:
-  zdim: 1024
+  name: "clews"
   shingling:
-    len: 20.0
-    hop: 20.0
+    len: 20             
+    hop: 20
+  cqt:
+    hoplen: 0.02        
+    noctaves: 7
+    nbinsoct: 12
+    fscale: 1
+    pool: 5             
+  frontend:
+    cqtpow: 0.5
+    channels: [128,256]
+  backbone:
+    blocks: [3,4,6,3]
+    channels: [256,512,1024,2048]
+    down: [1,2,2,1]
+  zdim: 1024
+  loss:
+    redux:
+      pos: "bpwr-5"
+      neg: "min"
+    gamma: 5
+    epsilon: 1e-6
