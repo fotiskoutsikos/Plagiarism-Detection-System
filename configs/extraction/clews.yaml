@@ -3,3 +3,6 @@ data:
 
 model:
   zdim: 1024
+  shingling:
+    len: 20.0
+    hop: 20.0

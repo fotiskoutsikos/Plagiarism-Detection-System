@@ -38,12 +38,37 @@ def extract_embeddings(data_dir, checkpoint_path, config_path, output_parquet, d
     model = model.to(device)
     model.eval()
 
-    # Collect WAV files in data_dir recursively
+    # Define target folders to search for audio files
+    target_folders = [
+        "data/segment_smp/audio",      # segments from the original SMP dataset
+        "data/generated_audio",        # generated audio files
+        "data/dsp_variants"            # DSP variants
+    ]
+
     audio_files = []
-    for root, _, files in os.walk(data_dir):
-        for file in files:
-            if file.lower().endswith(".wav"):
-                audio_files.append(os.path.join(root, file))
+    
+    # Search only in the specified folders
+    for folder in target_folders:
+        if os.path.exists(folder):
+            for root, _, files in os.walk(folder):
+                for file in files:
+                    if file.lower().endswith(".wav"):
+                        audio_files.append(os.path.join(root, file))
+        else:
+            print(f"Warning: The folder {folder} does not exist and will be ignored.")
+
+    # Load existing parquet if it exists to resume from where we left off
+    existing_df = None
+    processed_files = set()
+    if os.path.exists(output_parquet):
+        print(f"Loading existing parquet file: {output_parquet}")
+        existing_df = pd.read_parquet(output_parquet)
+        processed_files = set(existing_df["filename"].tolist())
+        print(f"Found {len(processed_files)} already processed files.")
+
+    # Filter out already processed files
+    audio_files = [f for f in audio_files if os.path.basename(f) not in processed_files]
+    print(f"Remaining files to process: {len(audio_files)}")
 
     results = []
 
@@ -71,7 +96,23 @@ def extract_embeddings(data_dir, checkpoint_path, config_path, output_parquet, d
                 continue
 
     # Save results to Parquet file
-    df = pd.DataFrame(results)
+    if results:
+        new_df = pd.DataFrame(results)
+        
+        # Append to existing DataFrame if it exists
+        if existing_df is not None:
+            df = pd.concat([existing_df, new_df], ignore_index=True)
+            print(f"Appended {len(new_df)} new embeddings to existing {len(existing_df)} embeddings.")
+        else:
+            df = new_df
+    else:
+        # No new results, use existing if available
+        if existing_df is not None:
+            df = existing_df
+            print("No new files to process. Using existing embeddings.")
+        else:
+            df = pd.DataFrame()
+            print("No embeddings found.")
 
     output_dir = os.path.dirname(output_parquet)
     if output_dir and not os.path.exists(output_dir):
