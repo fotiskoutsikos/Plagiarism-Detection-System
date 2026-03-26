@@ -48,8 +48,8 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         ori_comp = parts[2]
         time = int(parts[3].replace('s', ''))
 
-        if len(parts) == 5:
-            mod_type = parts[4]
+        if len(parts) >= 5:
+            mod_type = "_".join(parts[4:])
         else:
             mod_type = 'none'
 
@@ -112,8 +112,45 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         'embedding_ori',
     ]]
 
+    # Merge 3 - Negative Pairs (Baseline)
+    df_negative = df_pure_ori.copy().reset_index(drop=True)
+
+    # Find all pair_ids
+    unique_pairs = sorted(df_negative['pair_id'].unique())
+
+    # Mapping: pair_id -> next pair_id (circular shift)
+    target_pairs = unique_pairs[1:] + [unique_pairs[0]]
+    pair_shift_map = dict(zip(unique_pairs, target_pairs))
+
+    # Get the first segment of each target pair_id to use as baseline comparison
+    df_first_segments = df_negative.groupby('pair_id').first().reset_index()
+
+    # Map each negative pair to its target pair_id
+    df_negative['target_pair_id'] = df_negative['pair_id'].map(pair_shift_map)
+
+    # Merge original embeddings
+    df_baseline_merged = pd.merge(
+        df_negative,
+        df_first_segments,
+        left_on='target_pair_id',
+        right_on='pair_id',
+        suffixes=('_ori', '_mod') # ori: the original segment, mod: the baseline segment from another pair
+    )
+
+    df_baseline = pd.DataFrame({
+        'pair_id': df_baseline_merged['pair_id_ori'],
+        'time': df_baseline_merged['time_ori'],
+        'final_mod_type': 'Negative_Baseline',
+        'filename_mod': df_baseline_merged['filename_mod'],  # The baseline segment from another pair
+        'filename_ori': df_baseline_merged['filename_ori'],  # Original segment
+        'embedding_mod': df_baseline_merged['embedding_mod'],
+        'embedding_ori': df_baseline_merged['embedding_ori']
+    })
+
     # Combine
-    df_final = pd.concat([df_human, df_ai], axis=0, ignore_index=True, sort=False)
+    df_final = pd.concat([df_human, df_ai, df_baseline], axis=0, ignore_index=True, sort=False)
+
+
 
     results = []
     for _, row in df_final.iterrows():

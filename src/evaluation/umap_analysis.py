@@ -8,28 +8,43 @@ import umap
 import plotly.graph_objects as go
 
 
-def load_and_prepare_data(distances_csv_path, segments_metadata_path):
-    """Load distances and metadata, parse embeddings, and merge song titles."""
+def load_and_prepare_data(distances_csv_path, embeddings_parquet_path, segments_metadata_path):
+    """Load distances, merge with parquet embeddings, and attach song titles."""
 
     # Load distances CSV
     df = pd.read_csv(distances_csv_path)
 
-    # Parse embeddings from string to numpy array
-    def parse_embedding(emb_str):
-        if isinstance(emb_str, str):
-            return np.array(ast.literal_eval(emb_str))
-        else:
-            return np.array(emb_str)
+    # Load embeddings from Parquet
+    df_emb = pd.read_parquet(embeddings_parquet_path)
+    
+    # Ensure embeddings are numpy arrays for UMAP
+    df_emb['embedding'] = df_emb['embedding'].apply(lambda x: np.array(x) if isinstance(x, (list, np.ndarray)) else x)
 
-    df['embedding_ori'] = df['embedding_ori'].apply(parse_embedding)
-    df['embedding_mod'] = df['embedding_mod'].apply(parse_embedding)
+    # Merge original embeddings
+    df = df.merge(
+        df_emb[['filename', 'embedding']],
+        left_on='filename_ori',
+        right_on='filename',
+        how='left'
+    ).rename(columns={'embedding': 'embedding_ori'}).drop(columns=['filename'])
 
-    # Load metadata and clean duplicates
+    # Merge modified embeddings
+    df = df.merge(
+        df_emb[['filename', 'embedding']],
+        left_on='filename_mod',
+        right_on='filename',
+        how='left'
+    ).rename(columns={'embedding': 'embedding_mod'}).drop(columns=['filename'])
+
+    # Drop rows with missing embeddings
+    df = df.dropna(subset=['embedding_ori', 'embedding_mod'])
+
+    # Load metadata and remove duplicates
     df_meta = pd.read_csv(segments_metadata_path)
     df_meta = df_meta.drop_duplicates(subset=['pair_number'], keep='first')
     df_meta = df_meta.rename(columns={'pair_number': 'pair_id', 'title': 'song_title'})
 
-    # Merge metadata into main dataframe
+    # Final merge for song titles
     df = df.merge(df_meta[['pair_id', 'song_title']], on='pair_id', how='left')
 
     return df
@@ -193,15 +208,16 @@ def plot_interactive_trajectories(df, output_path):
 
 
 if __name__ == '__main__':
-    # Paths relative to project root
-    DISTANCES_CSV = 'data/clews_distances.csv'  # Change to 'data/wealy_distances.csv' to plot WEALY
+# Paths relative to project root
+    DISTANCES_CSV = 'data/clews_distances.csv'  
+    EMBEDDINGS_PARQUET = 'data/clews_embeddings.parquet'
     SEGMENTS_METADATA_CSV = 'data/segments_metadata.csv'
     OUTPUT_STATIC_PNG = 'plots/umap_static_trajectories.png'
     OUTPUT_INTERACTIVE_HTML = 'plots/umap_interactive_trajectories.html'
 
     # Load and prepare data
     print("Loading and preparing data...")
-    df = load_and_prepare_data(DISTANCES_CSV, SEGMENTS_METADATA_CSV)
+    df = load_and_prepare_data(DISTANCES_CSV, EMBEDDINGS_PARQUET, SEGMENTS_METADATA_CSV)
 
     # Fit UMAP
     print("Fitting UMAP...")
