@@ -1,3 +1,4 @@
+import argparse
 import os
 import ast
 import pandas as pd
@@ -185,19 +186,34 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
     print(summary)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
+    parser = argparse.ArgumentParser(description="Compute distances (Metric Learning) for CLEWS/WEALY.")
+    parser.add_argument(
+        "--model", 
+        type=str, 
+        choices=['clews', 'wealy', 'all'], 
+        default='all',
+        help="Choose model (clews, wealy, or all)"
+    )
+    args = parser.parse_args()
+
     # Paths relative to project root
     SMP_CSV = "data/Final_dataset_pairs.csv"
-    CLEWS_PARQUET = "data/clews_embeddings.parquet"
-    CLEWS_RESULTS = "data/clews_distances.csv"
 
-    WEALY_PARQUET = "data/wealy_embeddings.parquet"
-    WEALY_RESULTS = "data/wealy_distances.csv"
+    if args.model in ['clews', 'all']:
+        CLEWS_PARQUET = "data/clews_embeddings.parquet"
+        CLEWS_RESULTS = "data/clews_distances.csv"
+        print("Calculating distances for CLEWS...")
+        if os.path.exists(CLEWS_PARQUET):
+            compute_distances(CLEWS_PARQUET, SMP_CSV, CLEWS_RESULTS)
+        else:
+            print(f"Error: File {CLEWS_PARQUET} not found.")
 
-    # Compute distances for CLEWS embeddings
-    print("Calculating distances for CLEWS...")
-    compute_distances(CLEWS_PARQUET, SMP_CSV, CLEWS_RESULTS)
-
-    # Compute distances for WEALY embeddings
-    print("\nCalculating distances for WEALY...")
-    compute_distances(WEALY_PARQUET, SMP_CSV, WEALY_RESULTS)
+    if args.model in ['wealy', 'all']:
+        WEALY_PARQUET = "data/wealy_embeddings.parquet"
+        WEALY_RESULTS = "data/wealy_distances.csv"
+        print("\nCalculating distances for WEALY...")
+        if os.path.exists(WEALY_PARQUET):
+            compute_distances(WEALY_PARQUET, SMP_CSV, WEALY_RESULTS)
+        else:
+            print(f"Error: File {WEALY_PARQUET} not found.")
