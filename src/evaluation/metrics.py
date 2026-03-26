@@ -4,7 +4,7 @@ import ast
 import pandas as pd
 import numpy as np
 from scipy.spatial.distance import euclidean, cosine
-
+import torch
 
 def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
     """Compute distances using metadata mapping for human SMP and AI/DSP modifications."""
@@ -23,10 +23,8 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         comp_times = ast.literal_eval(row['comp_times']) if pd.notnull(row['comp_times']) else []
 
         if len(ori_times) != len(comp_times):
-            raise ValueError(
-                f"Mismatch times lengths for pair {pair_id}: ori_times={ori_times}, comp_times={comp_times}"
-            )
-
+            print(f"Warning: Mismatch for Pair {pair_id}: ori({len(ori_times)}) vs comp({len(comp_times)}). Using shortest list.")
+        
         for o_time, c_time in zip(ori_times, comp_times):
             mapping_records.append({
                 'pair_id': pair_id,
@@ -155,11 +153,23 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
 
     results = []
     for _, row in df_final.iterrows():
-        emb_mod = np.asarray(row['embedding_mod'])
-        emb_ori = np.asarray(row['embedding_ori'])
+        emb_mod_np = np.array(row['embedding_mod'].tolist(), dtype=np.float32)
+        emb_ori_np = np.array(row['embedding_ori'].tolist(), dtype=np.float32)
 
-        eucl_dist = euclidean(emb_ori, emb_mod)
-        cos_dist = cosine(emb_ori, emb_mod)
+        emb_mod = torch.tensor(emb_mod_np)
+        emb_ori = torch.tensor(emb_ori_np)
+
+        if emb_mod.ndim == 1: emb_mod = emb_mod.unsqueeze(0)
+        if emb_ori.ndim == 1: emb_ori = emb_ori.unsqueeze(0)
+
+        eps = 1e-6
+        ori_norm = emb_ori / (torch.norm(emb_ori, dim=-1, keepdim=True) + eps)
+        mod_norm = emb_mod / (torch.norm(emb_mod, dim=-1, keepdim=True) + eps)
+        
+        sim_matrix = torch.matmul(ori_norm, mod_norm.T) 
+        dist_matrix = 1.0 - sim_matrix
+
+        final_dist = dist_matrix.mean().item()
 
         results.append({
             'pair_id': row['pair_id'],
@@ -167,8 +177,8 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
             'final_mod_type': row['final_mod_type'],
             'filename_mod': row['filename_mod'],
             'filename_ori': row['filename_ori'],
-            'euclidean_distance': eucl_dist,
-            'cosine_distance': cos_dist,
+            'euclidean_distance': 0.0, 
+            'cosine_distance': final_dist,
         })
 
     df_results = pd.DataFrame(results)

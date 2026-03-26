@@ -35,7 +35,7 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
     
     # Load Whisper model on the specified device
     print(f"Loading Whisper model on {device}...")
-    whisper_model = whisper.load_model("base", device=device)
+    whisper_model = whisper.load_model("turbo", device=device)
 
     # Initialize WEALY model
     print("Initializing WEALY model...")
@@ -93,7 +93,7 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
 
                 # Pad or trim to 30 seconds (Whisper requirement)
                 audio_padded = whisper.pad_or_trim(audio_waveform.flatten())
-                mel = whisper.log_mel_spectrogram(audio_padded).to(device)
+                mel = whisper.log_mel_spectrogram(audio_padded, n_mels=whisper_model.dims.n_mels).to(device)
                 mel = mel.unsqueeze(0) 
 
                 # Extract Whisper encoder features and pass through WEALY
@@ -120,6 +120,7 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
                         os.makedirs(output_dir, exist_ok=True)
                         
                     checkpoint_df.to_parquet(output_parquet, engine="pyarrow")
+                    print(f"\n[Checkpoint] Saved {len(checkpoint_df)} embeddings so far...")
 
             except Exception as e:
                 print(f"Warning: Failed to process {file_path}: {e}")

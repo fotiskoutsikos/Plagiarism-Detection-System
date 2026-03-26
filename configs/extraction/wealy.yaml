@@ -3,9 +3,11 @@ data:
 
 model:
   input_channels: 1280
-  working_dim: 512
+  hidden_dim: 512             
+  zdim: 512                   
   num_transformer_blocks: 4
   num_heads: 8
-  dropout_rate: 0.1
+  ff_dim: 2048                
+  dropout: 0.1               
   shingle_size: 1500
   shingle_hop: 150
