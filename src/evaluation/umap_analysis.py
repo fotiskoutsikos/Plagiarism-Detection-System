@@ -53,6 +53,9 @@ def load_and_prepare_data(distances_csv_path, embeddings_parquet_path, segments_
 def fit_umap(df):
     """Fit UMAP on combined embeddings and project to 2D."""
 
+    # Keep stable ordering to preserve ori/mod alignment in split coordinates
+    df = df.sort_values(['pair_id', 'time', 'ori_comp']).reset_index(drop=True)
+
     # Stack all embeddings into a single array to ensure shared projection space
     embedding_vectors = []
 
@@ -61,6 +64,9 @@ def fit_umap(df):
         embedding_vectors.append(row['embedding_mod'])
 
     X_all = np.vstack(embedding_vectors)
+
+    # Normalize embedding vectors before UMAP (cosine metric assumes normalized data)
+    X_all = X_all / (np.linalg.norm(X_all, axis=1, keepdims=True) + 1e-8)
 
     # Fit UMAP reducer
     reducer = umap.UMAP(n_components=2, random_state=42, metric='cosine')

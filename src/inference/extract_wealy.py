@@ -6,14 +6,17 @@ import numpy as np
 from tqdm import tqdm
 import whisper
 from omegaconf import OmegaConf
-
 from src.utils.wealy_lib import Model as WEALYModel
 
+decoder_hidden_states = []
+
+def hook_fn(module, input, output):
+    """Hook to capture decoder hidden states before token sampling."""
+    decoder_hidden_states.append(output[0].detach().cpu())
 
 def load_audio(file_path, target_sr=16000):
     """Load audio file, convert to mono, and resample to target_sr."""
     waveform, sr = torchaudio.load(file_path)
-
     # Convert to mono by averaging channels
     if waveform.size(0) > 1:
         waveform = waveform.mean(dim=0, keepdim=True)
@@ -26,16 +29,18 @@ def load_audio(file_path, target_sr=16000):
     # Return 1D waveform
     return waveform.squeeze()
 
-
 def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_parquet, device="cuda"):
-    """Extract WEALY embeddings from audio files using Whisper feature extraction with periodic saving."""
-
+    """Extract WEALY embeddings from audio files using Whisper DECODER latents."""
     # Load WEALY config
     conf = OmegaConf.load(wealy_config)
-    
+
     # Load Whisper model on the specified device
     print(f"Loading Whisper model on {device}...")
     whisper_model = whisper.load_model("turbo", device=device)
+
+    # Register hook for decoder hidden states
+    decoder_hidden_states.clear()
+    hook = whisper_model.decoder.register_forward_hook(hook_fn)
 
     # Initialize WEALY model
     print("Initializing WEALY model...")
@@ -46,7 +51,8 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
     state_dict = checkpoint["state_dict"] if "state_dict" in checkpoint else checkpoint
     clean_state_dict = {k.replace("model.", "", 1) if k.startswith("model.") else k: v for k, v in state_dict.items()}
 
-    wealy_model.load_state_dict(clean_state_dict, strict=False)
+
+    wealy_model.load_state_dict(clean_state_dict, strict=True) 
     wealy_model = wealy_model.to(device)
     wealy_model.eval()
     whisper_model.eval()
@@ -82,7 +88,7 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
     print(f"Remaining files to process: {len(audio_files)}")
 
     results = []
-    checkpoint_every = 200 
+    checkpoint_every = 200
 
     with torch.no_grad():
         for i, file_path in enumerate(tqdm(audio_files, desc="Extracting WEALY embeddings")):
@@ -94,13 +100,40 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
                 # Pad or trim to 30 seconds (Whisper requirement)
                 audio_padded = whisper.pad_or_trim(audio_waveform.flatten())
                 mel = whisper.log_mel_spectrogram(audio_padded, n_mels=whisper_model.dims.n_mels).to(device)
-                mel = mel.unsqueeze(0) 
+                mel = mel.unsqueeze(0)
 
-                # Extract Whisper encoder features and pass through WEALY
-                audio_features = whisper_model.encoder(mel)
-                embedding = wealy_model(audio_features)
+                # Extract DECODER latents using hook
+                decoder_hidden_states.clear()  # Clear previous hook outputs
+                
+                # Whisper decode with lyrics prompt
+                options = whisper.DecodingOptions(
+                    initial_prompt="lyrics: ",  # lyrics prompt
+                    language=None,  # Auto-detect
+                    without_timestamps=True,
+                    fp16=False  # stability
+                )
+                
+                # Run decoder
+                result = whisper.decode(whisper_model, mel, options)
+                
+                # Collect decoder hidden states from hook
+                if len(decoder_hidden_states) > 0:
+                    # Take the last layer's hidden states (shape: [1, seq_len, 1280])
+                    decoder_latents = decoder_hidden_states[-1]  # [1, seq_len, 1280]
+                    decoder_latents = decoder_latents.squeeze(0)  # [seq_len, 1280]
+                else:
+                    # Fallback: skip file αν το hook απέτυχε
+                    print(f"Warning: Hook failed for {file_path}, SKIPPING")
+                    continue
+
+                # Pass decoder latents through WEALY
+                decoder_latents = decoder_latents.unsqueeze(0).to(device)  # [1, seq_len, 1280]
+                embedding = wealy_model(decoder_latents)  # [1, 512]
 
                 z_vector = embedding.squeeze(0).cpu().numpy()
+
+                #  L2 normalization
+                z_vector = z_vector / (np.linalg.norm(z_vector) + 1e-8) 
 
                 results.append({
                     "filename": os.path.basename(file_path),
@@ -126,6 +159,9 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
                 print(f"Warning: Failed to process {file_path}: {e}")
                 continue
 
+    # Remove hook
+    hook.remove()
+
     # Final save to capture everything
     if results:
         new_df = pd.DataFrame(results)
@@ -149,5 +185,4 @@ if __name__ == "__main__":
     wealy_checkpoint = "models/wealy/checkpoint.pt"
     wealy_config = "configs/extraction/wealy.yaml"
     output_parquet = "data/wealy_embeddings.parquet"
-
     extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_parquet, device="cuda")

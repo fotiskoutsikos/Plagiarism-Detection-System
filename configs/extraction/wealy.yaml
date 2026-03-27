@@ -1,13 +1,13 @@
+# configs/extraction/wealy.yaml
 data:
   samplerate: 16000
-
 model:
   input_channels: 1280
-  hidden_dim: 512             
-  zdim: 512                   
+  hidden_dim: 768        
+  zdim: 512
   num_transformer_blocks: 4
-  num_heads: 8
-  ff_dim: 2048                
-  dropout: 0.1               
+  num_heads: 12          
+  ff_dim: 1024           
+  dropout: 0.1
   shingle_size: 1500
   shingle_hop: 150

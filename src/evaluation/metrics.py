@@ -37,22 +37,26 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
 
     # Parse filename schema
     def parse_filename(filename):
-        clean = filename.replace('.wav', '')
-        parts = clean.split('_')
+        try:
+            clean = filename.replace('.wav', '')
+            parts = clean.split('_')
 
-        if len(parts) < 4:
-            raise ValueError(f"Unexpected filename format: {filename}")
+            if len(parts) < 4:
+                raise ValueError(f"Unexpected filename format: {filename}")
 
-        pair_id = int(parts[1])
-        ori_comp = parts[2]
-        time = int(parts[3].replace('s', ''))
+            pair_id = int(parts[1])
+            ori_comp = parts[2]
+            time = int(parts[3].replace('s', ''))
 
-        if len(parts) >= 5:
-            mod_type = "_".join(parts[4:])
-        else:
-            mod_type = 'none'
+            if len(parts) >= 5:
+                mod_type = "_".join(parts[4:])
+            else:
+                mod_type = 'none'
 
-        return pd.Series([pair_id, ori_comp, time, mod_type])
+            return pd.Series([pair_id, ori_comp, time, mod_type])
+        except Exception as e:
+            print(f"Warning: Could not parse filename '{filename}': {e}")
+            return pd.Series([None, None, None, None])
 
     df[['pair_id', 'ori_comp', 'time', 'mod_type']] = df['filename'].apply(parse_filename)
 
@@ -177,7 +181,7 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
             'final_mod_type': row['final_mod_type'],
             'filename_mod': row['filename_mod'],
             'filename_ori': row['filename_ori'],
-            'euclidean_distance': 0.0, 
+            'euclidean_distance': torch.dist(emb_ori, emb_mod).item(),
             'cosine_distance': final_dist,
         })
 

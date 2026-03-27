@@ -2,17 +2,18 @@ import pandas as pd
 import numpy as np
 import os
 
-def calculate_late_fusion(clews_csv, wealy_csv, output_csv, alpha=0.5):
+def calculate_late_fusion(clews_csv, wealy_csv, output_csv, alpha=0.5, beta=0.5):
     """
     Apply Late Fusion to CLEWS and WEALY distances.
-    Formula: Distance = alpha * CLEWS_dist + (1 - alpha) * WEALY_dist
+    Formula: Distance = alpha * d_clews + beta * d_wealy
     Args:
         clews_csv (str): Path to CLEWS distances CSV.
         wealy_csv (str): Path to WEALY distances CSV.
         output_csv (str): Path to save the fused results CSV.
-        alpha (float): Weight for CLEWS distance in fusion (0 <= alpha <= 1).
+        alpha (float): Weight for CLEWS distance in fusion.
+        beta (float): Weight for WEALY distance in fusion.
     """
-    print(f"\n--- Starting Fusion with Alpha = {alpha} ---")
+    print(f"\nStarting Fusion with alpha = {alpha}, beta = {beta}...")
     
     # Load both CSVs
     df_clews = pd.read_csv(clews_csv)
@@ -31,11 +32,26 @@ def calculate_late_fusion(clews_csv, wealy_csv, output_csv, alpha=0.5):
         df_clews, 
         df_wealy[merge_cols + ['dist_wealy']], 
         on=merge_cols, 
-        how='inner' # Inner join ensures only songs that passed both models
+        how='outer' # Use outer join to avoid selection bias when one model fails
     )
 
-    # Fusion
-    df_merged['fused_distance'] = (alpha * df_merged['dist_clews']) + ((1.0 - alpha) * df_merged['dist_wealy'])
+    # Impute missing values from one model with the mean of that model (or by another strategy)
+    df_merged['dist_clews'] = df_merged['dist_clews'].fillna(df_merged['dist_clews'].mean())
+    df_merged['dist_wealy'] = df_merged['dist_wealy'].fillna(df_merged['dist_wealy'].mean())
+
+    # Min-Max normalization for consistent scale before late fusion
+    for col in ['dist_clews', 'dist_wealy']:
+        min_val = df_merged[col].min()
+        max_val = df_merged[col].max()
+        df_merged[col] = (df_merged[col] - min_val) / (max_val - min_val + 1e-8)
+
+    # Fusion with independent weights
+    df_merged['fused_distance'] = (alpha * df_merged['dist_clews']) + (beta * df_merged['dist_wealy'])
+
+    # Normalize fused distance to [0,1] for comparability
+    min_val = df_merged['fused_distance'].min()
+    max_val = df_merged['fused_distance'].max()
+    df_merged['fused_distance'] = (df_merged['fused_distance'] - min_val) / (max_val - min_val + 1e-8)
 
     # Save results
     output_dir = os.path.dirname(output_csv)
@@ -55,10 +71,14 @@ if __name__ == "__main__":
     # Files created by metrics.py
     CLEWS_CSV_PATH = "data/clews_distances.csv"
     WEALY_CSV_PATH = "data/wealy_distances.csv"
-    
-    # Loop to test multiple alphas
-    alphas_to_test = [0.2, 0.5, 0.8]
-    
-    for a in alphas_to_test:
-        OUT_PATH = f"data/fusion_results_alpha_{a}.csv"
-        calculate_late_fusion(CLEWS_CSV_PATH, WEALY_CSV_PATH, OUT_PATH, alpha=a)
+
+    # Grid search for independent alpha/beta weights
+    alphas = [0.2, 0.5, 0.8]
+    betas = [0.2, 0.5, 0.8]
+
+    for a in alphas:
+        for b in betas:
+            OUT_PATH = f"data/fusion_results_a{a}_b{b}.csv"
+            calculate_late_fusion(CLEWS_CSV_PATH, WEALY_CSV_PATH, OUT_PATH, alpha=a, beta=b)
+
+    print("Grid search completed. Fused outputs are saved under data/fusion_results_a*_b*.csv")

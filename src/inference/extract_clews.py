@@ -4,6 +4,7 @@ import torchaudio
 import pandas as pd
 from tqdm import tqdm
 from omegaconf import OmegaConf
+import numpy as np
 
 from src.utils.clews_lib import Model as CLEWSModel
 
@@ -51,7 +52,7 @@ def extract_embeddings(data_dir, checkpoint_path, config_path, output_parquet, d
             clean_state_dict[k] = v
 
     # Load model
-    model.load_state_dict(clean_state_dict, strict=False)
+    model.load_state_dict(clean_state_dict, strict=True)
     model = model.to(device)
     model.eval()
 
@@ -96,8 +97,11 @@ def extract_embeddings(data_dir, checkpoint_path, config_path, output_parquet, d
                 waveform = load_audio(file_path, target_sr=target_sr)
                 waveform = waveform.to(device)
 
-                z = model(waveform, shingle_hop=20.0, shingle_len=20.0)
+                shingle_hop = float(conf.model.shingling.hop)
+                shingle_len = float(conf.model.shingling.len)
+                z = model(waveform, shingle_hop=shingle_hop, shingle_len=shingle_len)
                 z_vector = z.squeeze(0).cpu().numpy()
+                z_vector = z_vector / (np.linalg.norm(z_vector) + 1e-8)
 
                 results.append({
                     "filename": os.path.basename(file_path),
