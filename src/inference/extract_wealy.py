@@ -48,11 +48,26 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
 
     # Load WEALY checkpoint
     checkpoint = torch.load(wealy_checkpoint, map_location="cpu", weights_only=False)
-    state_dict = checkpoint["state_dict"] if "state_dict" in checkpoint else checkpoint
-    clean_state_dict = {k.replace("model.", "", 1) if k.startswith("model.") else k: v for k, v in state_dict.items()}
+
+    # Extract model state dict from checkpoint structure
+    if "model" in checkpoint:
+        state_dict = checkpoint["model"]
+    elif "state_dict" in checkpoint:
+        state_dict = checkpoint["state_dict"]
+    else:
+        state_dict = checkpoint
+
+    # Clean DDP prefixes if they exist
+    clean_state_dict = {}
+    for k, v in state_dict.items():
+        if k.startswith("module."):
+            clean_state_dict[k.replace("module.", "", 1)] = v
+        else:
+            clean_state_dict[k] = v
 
 
-    wealy_model.load_state_dict(clean_state_dict, strict=True) 
+    # Load model
+    wealy_model.load_state_dict(clean_state_dict, strict=True)
     wealy_model = wealy_model.to(device)
     wealy_model.eval()
     whisper_model.eval()
