@@ -11,8 +11,11 @@ from src.utils.wealy_lib import Model as WEALYModel
 decoder_hidden_states = []
 
 def hook_fn(module, input, output):
-    """Hook to capture decoder hidden states before token sampling."""
-    decoder_hidden_states.append(output[0].detach().cpu())
+    """Hook to capture ONLY the last decoder hidden states."""
+    if isinstance(output, tuple):
+        decoder_hidden_states.append(output[0].detach().cpu())
+    else:
+        decoder_hidden_states.append(output.detach().cpu())
 
 def load_audio(file_path, target_sr=16000):
     """Load audio file, convert to mono, and resample to target_sr."""
@@ -40,8 +43,7 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
 
     # Register hook for decoder hidden states
     decoder_hidden_states.clear()
-    hook = whisper_model.decoder.register_forward_hook(hook_fn)
-
+    hook = whisper_model.decoder.ln.register_forward_hook(hook_fn)
     # Initialize WEALY model
     print("Initializing WEALY model...")
     wealy_model = WEALYModel(conf.model)
@@ -65,9 +67,18 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
         else:
             clean_state_dict[k] = v
 
+    # Load model, with fallback for missing buffers
+    try:
+        wealy_model.load_state_dict(clean_state_dict, strict=True)
+    except RuntimeError as e:
+        print(f"Warning: strict load_state_dict failed, retrying with strict=False: {e}")
+        missing_buffers = [k for k in wealy_model.state_dict().keys() if k not in clean_state_dict]
+        if missing_buffers:
+            print(f"Filling missing keys from model init: {missing_buffers}")
+            for k in missing_buffers:
+                clean_state_dict[k] = wealy_model.state_dict()[k]
+        wealy_model.load_state_dict(clean_state_dict, strict=False)
 
-    # Load model
-    wealy_model.load_state_dict(clean_state_dict, strict=True)
     wealy_model = wealy_model.to(device)
     wealy_model.eval()
     whisper_model.eval()
@@ -105,6 +116,14 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
     results = []
     checkpoint_every = 200
 
+    # Decoding Options for Whisper
+    options = whisper.DecodingOptions(
+        task="transcribe",
+        language=None, # Το αφήνουμε None για auto-detect
+        without_timestamps=True,
+        fp16=False
+    )
+
     with torch.no_grad():
         for i, file_path in enumerate(tqdm(audio_files, desc="Extracting WEALY embeddings")):
             try:
@@ -117,37 +136,26 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
                 mel = whisper.log_mel_spectrogram(audio_padded, n_mels=whisper_model.dims.n_mels).to(device)
                 mel = mel.unsqueeze(0)
 
-                # Extract DECODER latents using hook
-                decoder_hidden_states.clear()  # Clear previous hook outputs
-                
-                # Whisper decode with lyrics prompt
-                options = whisper.DecodingOptions(
-                    initial_prompt="lyrics: ",  # lyrics prompt
-                    language=None,  # Auto-detect
-                    without_timestamps=True,
-                    fp16=False  # stability
-                )
-                
-                # Run decoder
+                decoder_hidden_states.clear()
+
                 result = whisper.decode(whisper_model, mel, options)
                 
-                # Collect decoder hidden states from hook
-                if len(decoder_hidden_states) > 0:
-                    # Take the last layer's hidden states (shape: [1, seq_len, 1280])
-                    decoder_latents = decoder_hidden_states[-1]  # [1, seq_len, 1280]
-                    decoder_latents = decoder_latents.squeeze(0)  # [seq_len, 1280]
-                else:
-                    # Fallback: skip file αν το hook απέτυχε
-                    print(f"Warning: Hook failed for {file_path}, SKIPPING")
+                if len(decoder_hidden_states) == 0:
+                    print(f"\nWarning: No hidden states captured for {file_path}, SKIPPING")
                     continue
 
+                decoder_latents = decoder_hidden_states[-1].clone()
+                decoder_latents = decoder_latents.to(device)
+
+                if len(decoder_latents.shape) == 2:
+                    decoder_latents = decoder_latents.unsqueeze(0)
+
                 # Pass decoder latents through WEALY
-                decoder_latents = decoder_latents.unsqueeze(0).to(device)  # [1, seq_len, 1280]
                 embedding = wealy_model(decoder_latents)  # [1, 512]
 
                 z_vector = embedding.squeeze(0).cpu().numpy()
 
-                #  L2 normalization
+                # L2 normalization
                 z_vector = z_vector / (np.linalg.norm(z_vector) + 1e-8) 
 
                 results.append({
@@ -171,7 +179,7 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
                     print(f"\n[Checkpoint] Saved {len(checkpoint_df)} embeddings so far...")
 
             except Exception as e:
-                print(f"Warning: Failed to process {file_path}: {e}")
+                print(f"\nWarning: Failed to process {file_path}: {e}")
                 continue
 
     # Remove hook
