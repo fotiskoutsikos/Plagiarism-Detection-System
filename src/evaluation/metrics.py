@@ -11,6 +11,7 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
 
     # Load data
     df = pd.read_parquet(parquet_path)
+    df = df.drop_duplicates(subset=['filename'], keep='last').reset_index(drop=True)
     df_meta = pd.read_csv(smp_metadata_path)
 
     # Build human mapping from metadata
@@ -22,16 +23,15 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         ori_times = ast.literal_eval(row['ori_times']) if pd.notnull(row['ori_times']) else []
         comp_times = ast.literal_eval(row['comp_times']) if pd.notnull(row['comp_times']) else []
 
-        if len(ori_times) != len(comp_times):
-            print(f"Warning: Mismatch for Pair {pair_id}: ori({len(ori_times)}) vs comp({len(comp_times)}). Using shortest list.")
-        
-        for o_time, c_time in zip(ori_times, comp_times):
-            mapping_records.append({
-                'pair_id': pair_id,
-                'ori_time': int(o_time),
-                'comp_time': int(c_time),
-                'relation': relation,
-            })
+        # Nested loop to create a record for each combination of ori_time and comp_time
+        for o_time in ori_times:
+            for c_time in comp_times:
+                mapping_records.append({
+                    'pair_id': pair_id,
+                    'ori_time': int(o_time),
+                    'comp_time': int(c_time),
+                    'relation': relation,
+                })
 
     df_human_mapping = pd.DataFrame(mapping_records)
 
@@ -58,12 +58,18 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
             print(f"Warning: Could not parse filename '{filename}': {e}")
             return pd.Series([None, None, None, None])
 
-    df[['pair_id', 'ori_comp', 'time', 'mod_type']] = df['filename'].apply(parse_filename)
+    # Apply parse_filename to extract metadata columns correctly
+    parsed_meta = df['filename'].apply(parse_filename)
+    parsed_meta.columns = ['pair_id', 'ori_comp', 'time', 'mod_type']
+    df = pd.concat([df, parsed_meta], axis=1)
 
     # Split data sets
     df_pure_ori = df[(df['ori_comp'] == 'ori') & (df['mod_type'] == 'none')].copy()
     df_smp_comp = df[(df['ori_comp'] == 'comp') & (df['mod_type'] == 'none')].copy()
     df_ai_mod = df[df['mod_type'] != 'none'].copy()
+    
+    # All base segments (both ori and comp) without modifications for AI/DSP comparison
+    df_all_base = df[df['mod_type'] == 'none'].copy()
 
     # Merge 1 - Human Plagiarism via mapping
     df_human = pd.merge(
@@ -71,7 +77,7 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         df_pure_ori,
         left_on=['pair_id', 'ori_time'],
         right_on=['pair_id', 'time'],
-        how='left',
+        how='inner',
     )
 
     df_human = pd.merge(
@@ -79,40 +85,35 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         df_smp_comp,
         left_on=['pair_id', 'comp_time'],
         right_on=['pair_id', 'time'],
-        how='left',
+        how='inner',
         suffixes=('_ori', '_mod'),
     )
 
     df_human['final_mod_type'] = 'SMP_' + df_human['relation'].astype(str)
-    df_human = df_human.rename(columns={'ori_time': 'time'})
+    
+    # Keep original time for human pairs
+    df_human['time'] = df_human['time_ori']
 
     df_human = df_human[[
-        'pair_id',
-        'time',
-        'final_mod_type',
-        'filename_mod',
-        'filename_ori',
-        'embedding_mod',
-        'embedding_ori',
+        'pair_id', 'time', 'final_mod_type',
+        'filename_mod', 'filename_ori',
+        'embedding_mod', 'embedding_ori',
     ]]
 
     # Merge 2 - AI/DSP modifications
     df_ai = pd.merge(
         df_ai_mod,
-        df_pure_ori,
+        df_all_base,
         on=['pair_id', 'time', 'ori_comp'],
         suffixes=('_mod', '_ori'),
         how='inner',
     )
+    
     df_ai['final_mod_type'] = df_ai['mod_type_mod']
     df_ai = df_ai[[
-        'pair_id',
-        'time',
-        'final_mod_type',
-        'filename_mod',
-        'filename_ori',
-        'embedding_mod',
-        'embedding_ori',
+        'pair_id', 'time', 'final_mod_type',
+        'filename_mod', 'filename_ori',
+        'embedding_mod', 'embedding_ori',
     ]]
 
     # Merge 3 - Negative Pairs (Baseline)
