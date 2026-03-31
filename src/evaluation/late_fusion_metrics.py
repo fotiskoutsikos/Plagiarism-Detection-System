@@ -33,15 +33,14 @@ def calculate_late_fusion(clews_csv, wealy_csv, output_csv, alpha=0.5):
         max_val = df_merged[col].max()
         df_merged[col] = (df_merged[col] - min_val) / (max_val - min_val + 1e-8)
 
-    # Fusion (Convex Combination)
-    df_merged['fused_distance'] = (alpha * df_merged['dist_clews']) + (beta * df_merged['dist_wealy'])
+    df_merged['cosine_distance'] = (alpha * df_merged['dist_clews']) + (beta * df_merged['dist_wealy'])
 
     # Save results
     output_dir = os.path.dirname(output_csv)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
         
-    final_cols = merge_cols + ['dist_clews', 'dist_wealy', 'fused_distance']
+    final_cols = merge_cols + ['dist_clews', 'dist_wealy', 'cosine_distance']
     df_final = df_merged[final_cols]
     
     df_final.to_csv(output_csv, index=False)

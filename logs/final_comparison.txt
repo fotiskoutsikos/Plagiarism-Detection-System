@@ -1,0 +1,35 @@
+Executing Final Comparison...
+======================================================================
+FINAL COMPREHENSIVE COMPARISON
+======================================================================
+
+Loaded models: ['clews', 'wealy', 'fusion', 'fusion_alpha']
+
+==========================================================================================
+FINAL MODEL COMPARISON
+==========================================================================================
+Model             Accuracy  Precision     Recall   F1-Score    Threshold    N Samples
+------------------------------------------------------------------------------------------
+CLEWS               0.5534     0.5461     0.6326     0.5862       0.8440        34332
+WEALY               0.5193     0.5285     0.3586     0.4273       0.7810        34332
+Fusion (α=0.55)     0.5536     0.5408     0.7101     0.6140       0.6771        34334
+==========================================================================================
+
+Overall results saved to: results/final_model_comparison.csv
+Per-category results saved to: results/final_per_category_comparison.csv
+
+======================================================================
+SUMMARY STATISTICS
+======================================================================
+
+Best Single Model: CLEWS (F1 = 0.5862)
+Fusion Model:      Fusion (α=0.55) (F1 = 0.6140)
+Absolute Improvement:  +0.0279
+Relative Improvement:  +4.75%
+
+✓ Fusion provides statistically significant improvement!
+
+======================================================================
+FINAL COMPARISON COMPLETE
+======================================================================
+Success!

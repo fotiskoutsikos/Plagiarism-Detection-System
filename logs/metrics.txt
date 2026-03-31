@@ -3,43 +3,69 @@ Calculating distances for CLEWS...
 Saved distances to: data/clews_distances.csv
 
 Summary of average distances by final_mod_type:
-                           euclidean_distance  cosine_distance
-final_mod_type                                                
-Negative_Baseline                    1.342410         0.903975
-SMP_plag                             1.020296         0.554974
-SMP_plag_doubt                       1.093653         0.607145
-SMP_remake                           0.794385         0.367840
-musicgen                             1.250099         0.789442
-musicgen_pitchD2                     1.274877         0.819837
-musicgen_pitchD4                     1.280731         0.827549
-musicgen_pitchD4_tempo090            1.579455         0.832435
-musicgen_pitchU2                     1.271195         0.815084
-musicgen_pitchU4                     1.281935         0.828588
-musicgen_pitchU4_tempo110            1.288295         0.836430
-musicgen_tempo090                    1.546342         0.796289
-musicgen_tempo095                    1.473974         0.794168
-musicgen_tempo105                    1.255011         0.795260
-musicgen_tempo110                    1.253639         0.793352
+                                    euclidean_distance  cosine_distance
+final_mod_type                                                         
+Negative_SMP_plag                             1.027727         0.562460
+Negative_SMP_plag_doubt                       1.099309         0.613560
+Negative_SMP_remake                           0.810985         0.382439
+Negative_musicgen                             1.290429         0.839123
+Negative_musicgen_pitchD2                     1.310972         0.864836
+Negative_musicgen_pitchD4                     1.316465         0.872218
+Negative_musicgen_pitchD4_tempo090            1.617604         0.874362
+Negative_musicgen_pitchU2                     1.307620         0.860388
+Negative_musicgen_pitchU4                     1.315180         0.870117
+Negative_musicgen_pitchU4_tempo110            1.319165         0.875262
+Negative_musicgen_tempo090                    1.590737         0.844481
+Negative_musicgen_tempo095                    1.518471         0.843504
+Negative_musicgen_tempo105                    1.294445         0.843976
+Negative_musicgen_tempo110                    1.292233         0.841050
+SMP_plag                                      1.020296         0.554974
+SMP_plag_doubt                                1.093653         0.607145
+SMP_remake                                    0.794385         0.367840
+musicgen                                      1.250099         0.789442
+musicgen_pitchD2                              1.274877         0.819837
+musicgen_pitchD4                              1.280731         0.827549
+musicgen_pitchD4_tempo090                     1.579455         0.832435
+musicgen_pitchU2                              1.271195         0.815084
+musicgen_pitchU4                              1.281935         0.828588
+musicgen_pitchU4_tempo110                     1.288295         0.836430
+musicgen_tempo090                             1.546342         0.796289
+musicgen_tempo095                             1.473974         0.794168
+musicgen_tempo105                             1.255011         0.795260
+musicgen_tempo110                             1.253639         0.793352
 
 Calculating distances for WEALY...
 Saved distances to: data/wealy_distances.csv
 
 Summary of average distances by final_mod_type:
-                           euclidean_distance  cosine_distance
-final_mod_type                                                
-Negative_Baseline                    1.284585         0.836412
-SMP_plag                             1.316300         0.881302
-SMP_plag_doubt                       1.261006         0.805127
-SMP_remake                           1.236113         0.790773
-musicgen                             1.162718         0.705932
-musicgen_pitchD2                     1.229506         0.773479
-musicgen_pitchD4                     1.247088         0.792412
-musicgen_pitchD4_tempo090            1.283134         0.832222
-musicgen_pitchU2                     1.228542         0.774092
-musicgen_pitchU4                     1.237756         0.783545
-musicgen_pitchU4_tempo110            1.262489         0.809351
-musicgen_tempo090                    1.235720         0.781098
-musicgen_tempo095                    1.229376         0.774725
-musicgen_tempo105                    1.227271         0.772153
-musicgen_tempo110                    1.232285         0.776226
+                                    euclidean_distance  cosine_distance
+final_mod_type                                                         
+Negative_SMP_plag                             1.317818         0.882799
+Negative_SMP_plag_doubt                       1.261014         0.805199
+Negative_SMP_remake                           1.239468         0.793341
+Negative_musicgen                             1.218917         0.761995
+Negative_musicgen_pitchD2                     1.257424         0.803275
+Negative_musicgen_pitchD4                     1.262049         0.809203
+Negative_musicgen_pitchD4_tempo090            1.294860         0.845485
+Negative_musicgen_pitchU2                     1.254705         0.800443
+Negative_musicgen_pitchU4                     1.260456         0.806732
+Negative_musicgen_pitchU4_tempo110            1.277330         0.824871
+Negative_musicgen_tempo090                    1.261780         0.807687
+Negative_musicgen_tempo095                    1.261520         0.809494
+Negative_musicgen_tempo105                    1.257921         0.804328
+Negative_musicgen_tempo110                    1.256342         0.802447
+SMP_plag                                      1.316300         0.881302
+SMP_plag_doubt                                1.261006         0.805127
+SMP_remake                                    1.236113         0.790773
+musicgen                                      1.162718         0.705932
+musicgen_pitchD2                              1.229506         0.773479
+musicgen_pitchD4                              1.247088         0.792412
+musicgen_pitchD4_tempo090                     1.283134         0.832222
+musicgen_pitchU2                              1.228542         0.774092
+musicgen_pitchU4                              1.237756         0.783545
+musicgen_pitchU4_tempo110                     1.262489         0.809351
+musicgen_tempo090                             1.235720         0.781098
+musicgen_tempo095                             1.229376         0.774725
+musicgen_tempo105                             1.227271         0.772153
+musicgen_tempo110                             1.232285         0.776226
 Success!

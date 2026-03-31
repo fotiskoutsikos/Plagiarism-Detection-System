@@ -1,0 +1,30 @@
+Executing Optimal Fusion Analysis...
+======================================================================
+FUSION WEIGHT OPTIMIZATION
+======================================================================
+
+Loading and merging distance data...
+Merged dataset: 34334 pairs
+
+Running grid search for optimal weights...
+
+======================================================================
+OPTIMAL FUSION WEIGHTS
+======================================================================
+Alpha (CLEWS):  0.55
+Beta (WEALY):   0.45
+Optimal Threshold: 0.6771
+F1-Score:       0.6140
+======================================================================
+
+Comparison with Single Models:
+  CLEWS-only:  F1 = 0.5861
+  WEALY-only:  F1 = 0.4276
+  Fusion:      F1 = 0.6140
+  Improvement: +0.0279 over best single model
+Fusion performance plot saved to: plots/fusion_performance.png
+
+======================================================================
+FUSION OPTIMIZATION COMPLETE
+======================================================================
+Success!

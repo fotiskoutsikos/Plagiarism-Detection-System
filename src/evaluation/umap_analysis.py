@@ -23,20 +23,43 @@ plt.rcParams.update({
 })
 
 def load_and_clean_data(distances_csv, embeddings_parquet):
+    # Load distances and metadata
     df = pd.read_csv(distances_csv)
     
-    df = df[df['final_mod_type'] != 'Negative_Baseline'].copy()
+
+    df = df[~df['final_mod_type'].str.startswith('Negative')].copy()
     
+    # Combine all SMP-related categories into a single "Human Plagiarism (SMP)" category
     smp_conditions = df['final_mod_type'].isin(['SMP_plag', 'SMP_plag_doubt', 'SMP_remake'])
     df.loc[smp_conditions, 'final_mod_type'] = 'Human Plagiarism (SMP)'
     
-    df_emb = pd.read_parquet(embeddings_parquet)
+    # Separate human and AI modifications
+    mask_human = df['final_mod_type'] == 'Human Plagiarism (SMP)'
+    df_human = df[mask_human].copy()
+    df_ai = df[~mask_human].copy()
     
-    df = df.merge(df_emb[['filename', 'embedding']], left_on='filename_ori', right_on='filename', how='inner')\
-           .rename(columns={'embedding': 'embedding_ori'}).drop(columns=['filename'])
-    df = df.merge(df_emb[['filename', 'embedding']], left_on='filename_mod', right_on='filename', how='inner')\
-           .rename(columns={'embedding': 'embedding_mod'}).drop(columns=['filename'])
+    # Deduplication
+    df_ai = df_ai.drop_duplicates(subset=['pair_id', 'time', 'final_mod_type']).copy()
+    df_human = df_human.drop_duplicates(subset=['pair_id', 'time', 'filename_mod', 'final_mod_type']).copy()
+    
+    # Combine back human and AI data
+    df = pd.concat([df_human, df_ai], ignore_index=True)
 
+    # Load embeddings and drop duplicates
+    df_emb = pd.read_parquet(embeddings_parquet)
+    df_emb = df_emb.drop_duplicates(subset=['filename']).copy()
+        
+    # Safe Merges
+    df = df.merge(df_emb[['filename', 'embedding']], left_on='filename_ori', right_on='filename', how='inner')
+    df = df.rename(columns={'embedding': 'embedding_ori'}).drop(columns=['filename'])
+    
+    df = df.merge(df_emb[['filename', 'embedding']], left_on='filename_mod', right_on='filename', how='inner')
+    df = df.rename(columns={'embedding': 'embedding_mod'}).drop(columns=['filename'])
+    
+    # Reset index
+    df = df.reset_index(drop=True)
+
+    # Clean and validate embeddings, ensuring consistent dimensions
     def clean_embedding(emb):
         if isinstance(emb, str):
             try: emb = ast.literal_eval(emb)
@@ -52,19 +75,31 @@ def load_and_clean_data(distances_csv, embeddings_parquet):
         try: return np.array(extract_numbers(emb), dtype=np.float32)
         except: return np.array([], dtype=np.float32)
 
+    print("Cleaning and validating embeddings...")
     df['embedding_ori'] = df['embedding_ori'].apply(clean_embedding)
     df['embedding_mod'] = df['embedding_mod'].apply(clean_embedding)
 
-    mode_dim = pd.Series([len(x) for x in df['embedding_ori']]).mode()[0]
-    valid_mask = (df['embedding_ori'].apply(len) == mode_dim) & (df['embedding_mod'].apply(len) == mode_dim)
-    df = df[valid_mask].reset_index(drop=True)
+    lens_ori = np.array([len(x) for x in df['embedding_ori']])
+    lens_mod = np.array([len(x) for x in df['embedding_mod']])
+    
+    values, counts = np.unique(lens_ori, return_counts=True)
+    mode_dim = values[np.argmax(counts)]
+    
+    valid_mask = (lens_ori == mode_dim) & (lens_mod == mode_dim)
+    
+    df = df.iloc[valid_mask].reset_index(drop=True)
+    print(f"Kept {len(df)} completely valid modification pairs (Dimension: {mode_dim}).")
     
     return df
 
-def plot_academic_trajectories_grid(df_all, output_path, title):
+
+
+def plot_trajectories_grid(df_all, output_path, title):
     
-    unique_segments = df_all[['pair_id', 'time']].drop_duplicates()
-    sampled_segments = unique_segments.sample(n=9, random_state=42).reset_index(drop=True)
+    df_originals = df_all[df_all['filename_ori'].str.contains('_ori_')]
+    unique_segments = df_originals[['pair_id', 'time']].drop_duplicates()
+    
+    sampled_segments = unique_segments.sample(n=9).reset_index(drop=True)
     
     fig, axes = plt.subplots(3, 3, figsize=(16, 16))
     axes = axes.flatten()
@@ -148,7 +183,7 @@ def plot_academic_trajectories_grid(df_all, output_path, title):
     plt.subplots_adjust(bottom=0.15, hspace=0.2, wspace=0.15)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     fig.savefig(output_path, bbox_inches="tight")
-    print(f"[OK] Saved High-Resolution Local Network Grid to: {output_path}")
+    print(f"Success! Plot saved at: {output_path}")
     plt.close()
 
 if __name__ == '__main__':
@@ -158,6 +193,6 @@ if __name__ == '__main__':
     print("=== Analyzing CLEWS ===")
     if os.path.exists(CLEWS_DISTANCES) and os.path.exists(CLEWS_EMBEDDINGS):
         df_clews = load_and_clean_data(CLEWS_DISTANCES, CLEWS_EMBEDDINGS)
-        plot_academic_trajectories_grid(df_clews, 
-                                        output_path='plots/clews_umap_grid.png', 
+        plot_trajectories_grid(df_clews, 
+                                        output_path='plots/clews_umap_plot.png', 
                                         title="CLEWS Latent Space Topology (Local Ecosystem per Track)")
