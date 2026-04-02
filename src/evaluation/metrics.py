@@ -1,10 +1,32 @@
 import argparse
 import os
+import sys
 import ast
+import importlib.util
+from pathlib import Path
 import pandas as pd
 import numpy as np
 from scipy.spatial.distance import euclidean, cosine
 import torch
+import torch.nn.functional as F
+
+# Resolve repository root and load logging_util without relying on src package path
+repo_root = Path(__file__).resolve()
+for _ in range(6):
+    if (repo_root / "src").exists():
+        break
+    repo_root = repo_root.parent
+
+logging_util_path = repo_root / "src" / "utils" / "logging_util.py"
+spec = importlib.util.spec_from_file_location("logging_util", str(logging_util_path))
+if spec is None or spec.loader is None:
+    raise FileNotFoundError(f"Could not load logging_util from {logging_util_path}")
+logging_util = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(logging_util)
+setup_logging = logging_util.setup_logging
+
+# Initialize logging for this script (logs/metrics.txt)
+setup_logging(__file__)
 
 def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
     """Compute distances using metadata mapping for human SMP and AI/DSP modifications."""
@@ -161,8 +183,8 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         eps = 1e-6
         ori_norm = emb_ori / (torch.norm(emb_ori, dim=-1, keepdim=True) + eps)
         mod_norm = emb_mod / (torch.norm(emb_mod, dim=-1, keepdim=True) + eps)
-        
-        sim_matrix = torch.matmul(ori_norm, mod_norm.T) 
+
+        sim_matrix = torch.matmul(ori_norm, mod_norm.T)
         dist_matrix = 1.0 - sim_matrix
 
         final_dist = dist_matrix.mean().item()
@@ -208,7 +230,7 @@ if __name__ == "__main__":
 
     if args.model in ['clews', 'all']:
         CLEWS_PARQUET = "data/clews_embeddings.parquet"
-        CLEWS_RESULTS = "data/clews_distances.csv"
+        CLEWS_RESULTS = "results/distances/clews_distances.csv"
         print("Calculating distances for CLEWS...")
         if os.path.exists(CLEWS_PARQUET):
             compute_distances(CLEWS_PARQUET, SMP_CSV, CLEWS_RESULTS)
@@ -217,7 +239,7 @@ if __name__ == "__main__":
 
     if args.model in ['wealy', 'all']:
         WEALY_PARQUET = "data/wealy_embeddings.parquet"
-        WEALY_RESULTS = "data/wealy_distances.csv"
+        WEALY_RESULTS = "results/distances/wealy_distances.csv"
         print("\nCalculating distances for WEALY...")
         if os.path.exists(WEALY_PARQUET):
             compute_distances(WEALY_PARQUET, SMP_CSV, WEALY_RESULTS)

@@ -1,0 +1,45 @@
+2026-04-02 22:06:35 [INFO] Logging initialized for dsp_modifications, file: logs\dsp_modifications.txt
+2026-04-02 22:06:35 [INFO] Logging initialized for dsp_modifications, file: logs\dsp_modifications.txt
+======================================================================
+MODIFICATION INTENSITY ANALYSIS
+======================================================================
+
+[1/2] CLEWS Intensity Analysis
+
+CLEWS Correlation Results:
+  PITCH:
+    Correlation: -0.0473
+    P-value: 0.000053
+    N samples: 7314
+    Significance: [✓] Significant
+  TEMPO:
+    Correlation: -0.0649
+    P-value: 0.000000
+    N samples: 7314
+    Significance: [✓] Significant
+Intensity plot saved to: plots/dsp/clews_intensity_analysis.png
+CLEWS failure rate saved to: results/dsp/clews_failure_rate.csv
+CLEWS advanced failure analysis saved to: results/dsp/clews_failure_advanced.csv
+CLEWS neighborhood similarity saved to: results/dsp/clews_neighborhood_similarity.csv
+
+[2/2] WEALY Intensity Analysis
+
+WEALY Correlation Results:
+  PITCH:
+    Correlation: -0.0652
+    P-value: 0.000000
+    N samples: 7314
+    Significance: [✓] Significant
+  TEMPO:
+    Correlation: -0.0507
+    P-value: 0.000015
+    N samples: 7314
+    Significance: [✓] Significant
+Intensity plot saved to: plots/dsp/wealy_intensity_analysis.png
+WEALY failure rate saved to: results/dsp/wealy_failure_rate.csv
+WEALY advanced failure analysis saved to: results/dsp/wealy_failure_advanced.csv
+WEALY neighborhood similarity saved to: results/dsp/wealy_neighborhood_similarity.csv
+
+======================================================================
+INTENSITY ANALYSIS COMPLETE
+======================================================================

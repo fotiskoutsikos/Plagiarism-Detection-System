@@ -1,6 +1,7 @@
-Starting Metric Learning...
+2026-04-02 19:50:30 [INFO] Logging initialized for metrics, file: logs\metrics.txt
+2026-04-02 19:50:30 [INFO] Logging initialized for metrics, file: logs\metrics.txt
 Calculating distances for CLEWS...
-Saved distances to: data/clews_distances.csv
+Saved distances to: results/distances/clews_distances.csv
 
 Summary of average distances by final_mod_type:
                                     euclidean_distance  cosine_distance
@@ -35,7 +36,7 @@ musicgen_tempo105                             1.255011         0.795260
 musicgen_tempo110                             1.253639         0.793352
 
 Calculating distances for WEALY...
-Saved distances to: data/wealy_distances.csv
+Saved distances to: results/distances/wealy_distances.csv
 
 Summary of average distances by final_mod_type:
                                     euclidean_distance  cosine_distance
@@ -68,4 +69,3 @@ musicgen_tempo090                             1.235720         0.781098
 musicgen_tempo095                             1.229376         0.774725
 musicgen_tempo105                             1.227271         0.772153
 musicgen_tempo110                             1.232285         0.776226
-Success!

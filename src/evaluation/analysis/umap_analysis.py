@@ -126,7 +126,7 @@ def plot_trajectories_grid(df_all, output_path, title):
         X_local = np.vstack([X_ori_local[0:1], X_mod_local]) 
         X_local = X_local / (np.linalg.norm(X_local, axis=1, keepdims=True) + 1e-8)
         
-        reducer = umap.UMAP(n_neighbors=4, min_dist=0.8, metric='cosine', random_state=42)
+        reducer = umap.UMAP(n_neighbors=4, min_dist=0.8, metric='cosine', random_state=40)
         X_2d = reducer.fit_transform(X_local)
         
         ori_x, ori_y = X_2d[0, 0], X_2d[0, 1]
@@ -187,12 +187,12 @@ def plot_trajectories_grid(df_all, output_path, title):
     plt.close()
 
 if __name__ == '__main__':
-    CLEWS_DISTANCES = 'data/clews_distances.csv'
+    CLEWS_DISTANCES = 'results/distances/clews_distances.csv'
     CLEWS_EMBEDDINGS = 'data/clews_embeddings.parquet'
     
     print("=== Analyzing CLEWS ===")
     if os.path.exists(CLEWS_DISTANCES) and os.path.exists(CLEWS_EMBEDDINGS):
         df_clews = load_and_clean_data(CLEWS_DISTANCES, CLEWS_EMBEDDINGS)
         plot_trajectories_grid(df_clews, 
-                                        output_path='plots/clews_umap_plot.png', 
+                                        output_path='plots/umap/clews_umap_plot.png', 
                                         title="CLEWS Latent Space Topology (Local Ecosystem per Track)")

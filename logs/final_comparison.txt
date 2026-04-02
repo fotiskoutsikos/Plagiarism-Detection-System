@@ -1,35 +1,34 @@
-Executing Final Comparison...
+2026-04-03 01:03:31 [INFO] Logging initialized for final_comparison, file: logs\final_comparison.txt
+2026-04-03 01:03:31 [INFO] Logging initialized for final_comparison, file: logs\final_comparison.txt
 ======================================================================
-FINAL COMPREHENSIVE COMPARISON
+FINAL COMPREHENSIVE AGGREGATION
 ======================================================================
 
-Loaded models: ['clews', 'wealy', 'fusion', 'fusion_alpha']
-
 ==========================================================================================
-FINAL MODEL COMPARISON
+FINAL MODEL COMPARISON (BINARY CLASSIFICATION)
 ==========================================================================================
-Model             Accuracy  Precision     Recall   F1-Score    Threshold    N Samples
+Model            Precision     Recall   F1-Score    Threshold    ROC-AUC
 ------------------------------------------------------------------------------------------
-CLEWS               0.5534     0.5461     0.6326     0.5862       0.8440        34332
-WEALY               0.5193     0.5285     0.3586     0.4273       0.7810        34332
-Fusion (α=0.55)     0.5536     0.5408     0.7101     0.6140       0.6771        34334
+CLEWS               0.5465     0.6185     0.5803       0.8391     0.0000
+WEALY               0.5331     0.2954     0.3801       0.7499     0.0000
+FUSION              0.5410     0.7019     0.6111       0.6750     0.0000
 ==========================================================================================
 
-Overall results saved to: results/final_model_comparison.csv
-Per-category results saved to: results/final_per_category_comparison.csv
-
 ======================================================================
-SUMMARY STATISTICS
+SUMMARY STATISTICS & FUSION IMPACT
 ======================================================================
 
-Best Single Model: CLEWS (F1 = 0.5862)
-Fusion Model:      Fusion (α=0.55) (F1 = 0.6140)
-Absolute Improvement:  +0.0279
-Relative Improvement:  +4.75%
+Best Single Model: CLEWS (F1 = 0.5803)
+Fusion Model:      FUSION (F1 = 0.6111)
+Absolute Improvement:  +0.0308
+Relative Improvement:  +5.30%
 
-✓ Fusion provides statistically significant improvement!
+[✓] Fusion provides a significant improvement over the best single model!
+
+[SUCCESS] Final comparison saved to: results/final_binary_comparison.csv
+
+(Note: Attribution integration is currently disabled via 'ENABLE_ATTRIBUTION_MERGE' flag.)
 
 ======================================================================
 FINAL COMPARISON COMPLETE
 ======================================================================
-Success!

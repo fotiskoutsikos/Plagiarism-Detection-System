@@ -1,30 +1,11 @@
-Executing Optimal Fusion Analysis...
-======================================================================
-FUSION WEIGHT OPTIMIZATION
-======================================================================
-
-Loading and merging distance data...
-Merged dataset: 34334 pairs
-
-Running grid search for optimal weights...
-
-======================================================================
-OPTIMAL FUSION WEIGHTS
-======================================================================
-Alpha (CLEWS):  0.55
-Beta (WEALY):   0.45
-Optimal Threshold: 0.6771
-F1-Score:       0.6140
-======================================================================
-
-Comparison with Single Models:
-  CLEWS-only:  F1 = 0.5861
-  WEALY-only:  F1 = 0.4276
-  Fusion:      F1 = 0.6140
-  Improvement: +0.0279 over best single model
-Fusion performance plot saved to: plots/fusion_performance.png
-
-======================================================================
-FUSION OPTIMIZATION COMPLETE
-======================================================================
-Success!
+2026-04-02 23:42:35 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
+2026-04-02 23:42:35 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
+Best alpha selected via OOF F1: 0.55 (OOF F1: 0.6110)
+--------------------------------------------------
+BEST WEIGHTS | Alpha (CLEWS): 0.55 | Beta (WEALY): 0.45 | OOF F1: 0.6110
+CLEWS  | F1: 0.5861 | R@1: 0.0031 | MRR: 0.0132
+WEALY  | F1: 0.4276 | R@1: 0.0029 | MRR: 0.0139
+Fusion | F1: 0.6140 | R@1: 0.0033 | MRR: 0.0141
+--------------------------------------------------
+Fusion configuration saved to: results/fusion/optimal_fusion_config.csv
+Optimization Complete. Results saved to 'results/fusion/' and 'plots/fusion/' directories.
