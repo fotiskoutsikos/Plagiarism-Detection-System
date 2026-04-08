@@ -101,7 +101,6 @@ def extract_embeddings(data_dir, checkpoint_path, config_path, output_parquet, d
                 shingle_len = float(conf.model.shingling.len)
                 z = model(waveform, shingle_hop=shingle_hop, shingle_len=shingle_len)
                 z_vector = z.squeeze(0).cpu().numpy()
-                z_vector = z_vector / (np.linalg.norm(z_vector) + 1e-8)
 
                 results.append({
                     "filename": os.path.basename(file_path),

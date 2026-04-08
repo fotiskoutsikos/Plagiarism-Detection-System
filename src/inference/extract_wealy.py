@@ -152,11 +152,7 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
 
                 # Pass decoder latents through WEALY
                 embedding = wealy_model(decoder_latents)  # [1, 512]
-
                 z_vector = embedding.squeeze(0).cpu().numpy()
-
-                # L2 normalization
-                z_vector = z_vector / (np.linalg.norm(z_vector) + 1e-8) 
 
                 results.append({
                     "filename": os.path.basename(file_path),
