@@ -58,9 +58,13 @@ def extract_embeddings(data_dir, checkpoint_path, config_path, output_parquet, d
 
     # Define target folders to search for audio files
     target_folders = [
-        "data/segment_smp/audio",               # segments from the original SMP dataset
-        "data/generated_audio/musicgen",        # generated audio files
-        "data/dsp_variants/musicgen"            # DSP variants
+        "data/segment_smp/audio",                # segments from the original SMP dataset
+        "data/generated_audio/musicgen",         # generated audio files (musicgen)
+        "data/dsp_variants/musicgen",            # DSP variants (musicgen)
+        "data/generated_audio/audioldm2",        # generated audio files (audioldm2)
+        "data/dsp_variants/audioldm2"            # DSP variants (audioldm2)
+        # "data/generated_audio/mgeldm",          # generated audio files (mgeldm)
+        # "data/dsp_variants/mgeldm"              # DSP variants (mgeldm)
     ]
 
     audio_files = []
