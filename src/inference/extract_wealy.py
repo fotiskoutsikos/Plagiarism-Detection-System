@@ -83,11 +83,15 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
     wealy_model.eval()
     whisper_model.eval()
 
-    # Define target folders
+    # Define target folders to search for audio files
     target_folders = [
-        "data/segment_smp/audio",
-        "data/generated_audio/musicgen",
-        "data/dsp_variants/musicgen"
+        "data/segment_smp/audio",                # segments from the original SMP dataset
+        "data/generated_audio/musicgen",         # generated audio files (musicgen)
+        "data/dsp_variants/musicgen",            # DSP variants (musicgen)
+        "data/generated_audio/audioldm2",        # generated audio files (audioldm2)
+        "data/dsp_variants/audioldm2"            # DSP variants (audioldm2)
+        # "data/generated_audio/mgeldm",          # generated audio files (mgeldm)
+        # "data/dsp_variants/mgeldm"              # DSP variants (mgeldm)
     ]
 
     audio_files = []
