@@ -131,13 +131,15 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
 
     with torch.no_grad():
         for i, file_path in enumerate(tqdm(audio_files, desc="Extracting WEALY embeddings")):
+            print(f"Loading: {os.path.basename(file_path)} ...", end=" ", flush=True)
+
             try:
                 file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
             except OSError:
                 tqdm.write(f"\nCouldn't find : {file_path}")
                 continue
 
-            if file_size_mb > 15.0 or file_size_mb == 0:
+            if file_size_mb > 3.0 or file_size_mb == 0:
                 tqdm.write(f"\nIgnoring file ({file_size_mb:.2f} MB): {os.path.basename(file_path)}")
                 continue
             
