@@ -1,2 +1,2 @@
-model,alpha,beta,optimal_threshold,f1_score
-Fusion,0.55,0.44999999999999996,0.6770693340068009,0.6109774321825688
+clews_metric,wealy_metric,alpha,beta,internal_val_f1_score
+pearson_distance,euclidean_distance,0.4,0.6,0.7735

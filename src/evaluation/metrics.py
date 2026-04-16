@@ -1,12 +1,10 @@
 import argparse
 import os
 import sys
-import ast
 import importlib.util
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from scipy.spatial.distance import euclidean, cosine
 import torch
 import torch.nn.functional as F
 
@@ -25,152 +23,58 @@ logging_util = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(logging_util)
 setup_logging = logging_util.setup_logging
 
+# Import centralized utilities
+sys.path.insert(0, str(repo_root / "src"))
+from utils.dataset_builder import build_positive_pairs
+
 # Initialize logging for this script (logs/metrics.txt)
 setup_logging(__file__)
 
+
 def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
-    """Compute distances using metadata mapping for human SMP and AI/DSP modifications."""
+    """Compute distances separating plagiarism positive cases and 1-to-K hard negative pairs."""
 
-    # Load data
-    df = pd.read_parquet(parquet_path)
-    df = df.drop_duplicates(subset=['filename'], keep='last').reset_index(drop=True)
-    df_meta = pd.read_csv(smp_metadata_path)
+    # Build positive pairs using centralized utility
+    df_positives = build_positive_pairs(parquet_path, smp_metadata_path)
 
-    # Build human mapping from metadata
-    mapping_records = []
-    for _, row in df_meta.iterrows():
-        pair_id = int(row['pair_number'])
-        relation = str(row['relation'])
-
-        ori_times = ast.literal_eval(row['ori_times']) if pd.notnull(row['ori_times']) else []
-        comp_times = ast.literal_eval(row['comp_times']) if pd.notnull(row['comp_times']) else []
-
-        # Nested loop to create a record for each combination of ori_time and comp_time
-        for o_time in ori_times:
-            for c_time in comp_times:
-                mapping_records.append({
-                    'pair_id': pair_id,
-                    'ori_time': int(o_time),
-                    'comp_time': int(c_time),
-                    'relation': relation,
-                })
-
-    df_human_mapping = pd.DataFrame(mapping_records)
-
-    # Parse filename schema
-    def parse_filename(filename):
-        try:
-            clean = filename.replace('.wav', '')
-            parts = clean.split('_')
-
-            if len(parts) < 4:
-                raise ValueError(f"Unexpected filename format: {filename}")
-
-            pair_id = int(parts[1])
-            ori_comp = parts[2]
-            time = int(parts[3].replace('s', ''))
-
-            if len(parts) >= 5:
-                mod_type = "_".join(parts[4:])
-            else:
-                mod_type = 'none'
-
-            return pd.Series([pair_id, ori_comp, time, mod_type])
-        except Exception as e:
-            print(f"Warning: Could not parse filename '{filename}': {e}")
-            return pd.Series([None, None, None, None])
-
-    # Apply parse_filename to extract metadata columns correctly
-    parsed_meta = df['filename'].apply(parse_filename)
-    parsed_meta.columns = ['pair_id', 'ori_comp', 'time', 'mod_type']
-    df = pd.concat([df, parsed_meta], axis=1)
-
-    # Split data sets
-    df_pure_ori = df[(df['ori_comp'] == 'ori') & (df['mod_type'] == 'none')].copy()
-    df_smp_comp = df[(df['ori_comp'] == 'comp') & (df['mod_type'] == 'none')].copy()
-    df_ai_mod = df[df['mod_type'] != 'none'].copy()
+    # 1-to-K Hard Negatives (Same Modification Type)
+    print(f"\n--- Generating 1-to-K Hard Negative pairs ({len(df_positives)} Positives) ---")
+    K_NEGATIVES = 5  # Αναλογία 1 θετικό προς 5 αρνητικά
+    negatives = []
     
-    # All base segments (both ori and comp) without modifications for AI/DSP comparison
-    df_all_base = df[df['mod_type'] == 'none'].copy()
+    for mod_type, group in df_positives.groupby('final_mod_type'):
+        n_samples = len(group)
+        if n_samples < 2: 
+            continue 
+        
+        group = group.sort_values(by=['pair_id', 'time']).reset_index(drop=True)
+        indices = np.arange(n_samples)
+        
+        actual_K = min(K_NEGATIVES, n_samples - 1)
+        
+        for k in range(1, actual_K + 1):
+            shifted_indices = (indices + k) % n_samples
+            
+            group_neg = group.copy()
+            group_neg['filename_mod'] = group['filename_mod'].iloc[shifted_indices].values
+            group_neg['embedding_mod'] = group['embedding_mod'].iloc[shifted_indices].values
+            group_neg['pair_id_mod'] = group['pair_id'].iloc[shifted_indices].values
+            
+            group_neg = group_neg[group_neg['pair_id'] != group_neg['pair_id_mod']].copy()
+            
+            group_neg['final_mod_type'] = 'Negative_' + str(mod_type)
+            group_neg = group_neg.drop(columns=['pair_id_mod'])
+            negatives.append(group_neg)
 
-    # Merge 1 - Human Plagiarism via mapping
-    df_human = pd.merge(
-        df_human_mapping,
-        df_pure_ori,
-        left_on=['pair_id', 'ori_time'],
-        right_on=['pair_id', 'time'],
-        how='inner',
-    )
+    df_negatives = pd.concat(negatives, ignore_index=True) if negatives else pd.DataFrame()
+    df_all_pairs = pd.concat([df_positives, df_negatives], ignore_index=True)
 
-    df_human = pd.merge(
-        df_human,
-        df_smp_comp,
-        left_on=['pair_id', 'comp_time'],
-        right_on=['pair_id', 'time'],
-        how='inner',
-        suffixes=('_ori', '_mod'),
-    )
+    df_all_pairs = df_all_pairs.drop_duplicates(subset=['filename_ori', 'filename_mod', 'final_mod_type']).reset_index(drop=True)
 
-    df_human['final_mod_type'] = 'SMP_' + df_human['relation'].astype(str)
-    
-    # Keep original time for human pairs
-    df_human['time'] = df_human['time_ori']
-
-    df_human = df_human[[
-        'pair_id', 'time', 'final_mod_type',
-        'filename_mod', 'filename_ori',
-        'embedding_mod', 'embedding_ori',
-    ]]
-
-    # Merge 2 - AI/DSP modifications
-    df_ai = pd.merge(
-        df_ai_mod,
-        df_all_base,
-        on=['pair_id', 'time', 'ori_comp'],
-        suffixes=('_mod', '_ori'),
-        how='inner',
-    )
-    
-    df_ai['final_mod_type'] = df_ai['mod_type_mod']
-    df_ai = df_ai[[
-        'pair_id', 'time', 'final_mod_type',
-        'filename_mod', 'filename_ori',
-        'embedding_mod', 'embedding_ori',
-    ]]
-
-    # Merge 3 - Hard Negative Pairs per modification type (modality-matched)
-    df_positives = pd.concat([df_human, df_ai], axis=0, ignore_index=True, sort=False)
-
-    hard_negatives = []
-    for mod_type, df_mod in df_positives.groupby('final_mod_type'):
-        df_mod = df_mod.reset_index(drop=True)
-        if len(df_mod) < 2:
-            continue
-
-        df_mod_shifted = df_mod.shift(-1)
-        df_mod_shifted.loc[len(df_mod) - 1] = df_mod.loc[0]
-
-        df_hard = pd.DataFrame({
-            'pair_id': df_mod['pair_id'],
-            'time': df_mod['time'],
-            'final_mod_type': 'Negative_' + str(mod_type),
-            'filename_mod': df_mod_shifted['filename_mod'],
-            'filename_ori': df_mod['filename_ori'],
-            'embedding_mod': df_mod_shifted['embedding_mod'],
-            'embedding_ori': df_mod['embedding_ori'],
-        })
-
-        hard_negatives.append(df_hard)
-
-    df_hard_negatives = pd.concat(hard_negatives, axis=0, ignore_index=True, sort=False) if hard_negatives else pd.DataFrame(columns=df_positives.columns)
-
-    # Combine positives with new hard negatives baseline
-    df_final = pd.concat([df_positives, df_hard_negatives], axis=0, ignore_index=True, sort=False)
-
-
-
+    # Compute distances for ALL cases
+    print(f"--- Computing Distances Matrix ({len(df_positives)} Positives + {len(df_negatives)} Negatives) ---")
     results = []
-    for _, row in df_final.iterrows():
+    for _, row in df_all_pairs.iterrows():
         emb_mod_np = np.array(row['embedding_mod'].tolist(), dtype=np.float32)
         emb_ori_np = np.array(row['embedding_ori'].tolist(), dtype=np.float32)
 
@@ -180,14 +84,33 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         if emb_mod.ndim == 1: emb_mod = emb_mod.unsqueeze(0)
         if emb_ori.ndim == 1: emb_ori = emb_ori.unsqueeze(0)
 
+        # Min-length truncation for safe execution
+        min_t = min(emb_ori.shape[0], emb_mod.shape[0])
+        emb_ori = emb_ori[:min_t]
+        emb_mod = emb_mod[:min_t]
+
         eps = 1e-6
         ori_norm = emb_ori / (torch.norm(emb_ori, dim=-1, keepdim=True) + eps)
         mod_norm = emb_mod / (torch.norm(emb_mod, dim=-1, keepdim=True) + eps)
 
+        # -- Cosine Distance --
         sim_matrix = torch.matmul(ori_norm, mod_norm.T)
         dist_matrix = 1.0 - sim_matrix
-
         final_dist = dist_matrix.mean().item()
+
+
+        # -- Manhattan / L1 Distance --
+        manhattan_dist = torch.dist(emb_ori, emb_mod, p=1).item()
+
+        # -- Pearson Correlation Distance --
+        ori_centered = emb_ori - emb_ori.mean(dim=-1, keepdim=True)
+        mod_centered = emb_mod - emb_mod.mean(dim=-1, keepdim=True)
+        
+        ori_c_norm = ori_centered / (torch.norm(ori_centered, dim=-1, keepdim=True) + eps)
+        mod_c_norm = mod_centered / (torch.norm(mod_centered, dim=-1, keepdim=True) + eps)
+        
+        pearson_sim_matrix = torch.matmul(ori_c_norm, mod_c_norm.T)
+        pearson_dist = 1.0 - pearson_sim_matrix.mean().item()
 
         results.append({
             'pair_id': row['pair_id'],
@@ -197,6 +120,8 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
             'filename_ori': row['filename_ori'],
             'euclidean_distance': torch.dist(emb_ori, emb_mod).item(),
             'cosine_distance': final_dist,
+            'manhattan_distance': manhattan_dist,
+            'pearson_distance': pearson_dist,
         })
 
     df_results = pd.DataFrame(results)
@@ -207,11 +132,20 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         os.makedirs(output_dir, exist_ok=True)
 
     df_results.to_csv(output_csv_path, index=False)
+    print(f"Saved Pairwise Distances to: {output_csv_path}")
 
-    summary = df_results.groupby('final_mod_type')[['euclidean_distance', 'cosine_distance']].mean()
-    print(f"Saved distances to: {output_csv_path}")
-    print("\nSummary of average distances by final_mod_type:")
-    print(summary)
+    # Export full summary without truncation
+    summary = df_results.groupby('final_mod_type')[[
+        'euclidean_distance', 'cosine_distance', 'manhattan_distance', 'pearson_distance'
+    ]].mean()
+    
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print("\nSummary of average distances by modification type:")
+        print(summary)
+        
+    summary_csv_path = output_csv_path.replace('.csv', '_summary.csv')
+    summary.to_csv(summary_csv_path)
+    print(f"Saved full summary to: {summary_csv_path}")
 
 
 if __name__ == "__main__":    
@@ -230,8 +164,9 @@ if __name__ == "__main__":
 
     if args.model in ['clews', 'all']:
         CLEWS_PARQUET = "data/clews_embeddings.parquet"
-        CLEWS_RESULTS = "results/distances/clews_distances.csv"
-        print("Calculating distances for CLEWS...")
+        CLEWS_RESULTS = "results/distances/clews_distances.csv" 
+        
+        print("\n=== Calculating distances for CLEWS ===")
         if os.path.exists(CLEWS_PARQUET):
             compute_distances(CLEWS_PARQUET, SMP_CSV, CLEWS_RESULTS)
         else:
@@ -240,7 +175,8 @@ if __name__ == "__main__":
     if args.model in ['wealy', 'all']:
         WEALY_PARQUET = "data/wealy_embeddings.parquet"
         WEALY_RESULTS = "results/distances/wealy_distances.csv"
-        print("\nCalculating distances for WEALY...")
+        
+        print("\n=== Calculating distances for WEALY ===")
         if os.path.exists(WEALY_PARQUET):
             compute_distances(WEALY_PARQUET, SMP_CSV, WEALY_RESULTS)
         else:

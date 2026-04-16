@@ -1,71 +1,310 @@
-2026-04-02 19:50:30 [INFO] Logging initialized for metrics, file: logs\metrics.txt
-2026-04-02 19:50:30 [INFO] Logging initialized for metrics, file: logs\metrics.txt
-Calculating distances for CLEWS...
-Saved distances to: results/distances/clews_distances.csv
+2026-04-16 21:49:23 [INFO] Logging initialized for metrics, file: logs\metrics.txt
+2026-04-16 21:49:23 [INFO] Logging initialized for metrics, file: logs\metrics.txt
 
-Summary of average distances by final_mod_type:
-                                    euclidean_distance  cosine_distance
-final_mod_type                                                         
-Negative_SMP_plag                             1.027727         0.562460
-Negative_SMP_plag_doubt                       1.099309         0.613560
-Negative_SMP_remake                           0.810985         0.382439
-Negative_musicgen                             1.290429         0.839123
-Negative_musicgen_pitchD2                     1.310972         0.864836
-Negative_musicgen_pitchD4                     1.316465         0.872218
-Negative_musicgen_pitchD4_tempo090            1.617604         0.874362
-Negative_musicgen_pitchU2                     1.307620         0.860388
-Negative_musicgen_pitchU4                     1.315180         0.870117
-Negative_musicgen_pitchU4_tempo110            1.319165         0.875262
-Negative_musicgen_tempo090                    1.590737         0.844481
-Negative_musicgen_tempo095                    1.518471         0.843504
-Negative_musicgen_tempo105                    1.294445         0.843976
-Negative_musicgen_tempo110                    1.292233         0.841050
-SMP_plag                                      1.020296         0.554974
-SMP_plag_doubt                                1.093653         0.607145
-SMP_remake                                    0.794385         0.367840
-musicgen                                      1.250099         0.789442
-musicgen_pitchD2                              1.274877         0.819837
-musicgen_pitchD4                              1.280731         0.827549
-musicgen_pitchD4_tempo090                     1.579455         0.832435
-musicgen_pitchU2                              1.271195         0.815084
-musicgen_pitchU4                              1.281935         0.828588
-musicgen_pitchU4_tempo110                     1.288295         0.836430
-musicgen_tempo090                             1.546342         0.796289
-musicgen_tempo095                             1.473974         0.794168
-musicgen_tempo105                             1.255011         0.795260
-musicgen_tempo110                             1.253639         0.793352
+=== Calculating distances for CLEWS ===
 
-Calculating distances for WEALY...
-Saved distances to: results/distances/wealy_distances.csv
+--- Generating 1-to-K Hard Negative pairs (42765 Positives) ---
+--- Computing Distances Matrix (42765 Positives + 27709 Negatives) ---
+Saved Pairwise Distances to: results/distances/clews_distances.csv
 
-Summary of average distances by final_mod_type:
-                                    euclidean_distance  cosine_distance
-final_mod_type                                                         
-Negative_SMP_plag                             1.317818         0.882799
-Negative_SMP_plag_doubt                       1.261014         0.805199
-Negative_SMP_remake                           1.239468         0.793341
-Negative_musicgen                             1.218917         0.761995
-Negative_musicgen_pitchD2                     1.257424         0.803275
-Negative_musicgen_pitchD4                     1.262049         0.809203
-Negative_musicgen_pitchD4_tempo090            1.294860         0.845485
-Negative_musicgen_pitchU2                     1.254705         0.800443
-Negative_musicgen_pitchU4                     1.260456         0.806732
-Negative_musicgen_pitchU4_tempo110            1.277330         0.824871
-Negative_musicgen_tempo090                    1.261780         0.807687
-Negative_musicgen_tempo095                    1.261520         0.809494
-Negative_musicgen_tempo105                    1.257921         0.804328
-Negative_musicgen_tempo110                    1.256342         0.802447
-SMP_plag                                      1.316300         0.881302
-SMP_plag_doubt                                1.261006         0.805127
-SMP_remake                                    1.236113         0.790773
-musicgen                                      1.162718         0.705932
-musicgen_pitchD2                              1.229506         0.773479
-musicgen_pitchD4                              1.247088         0.792412
-musicgen_pitchD4_tempo090                     1.283134         0.832222
-musicgen_pitchU2                              1.228542         0.774092
-musicgen_pitchU4                              1.237756         0.783545
-musicgen_pitchU4_tempo110                     1.262489         0.809351
-musicgen_tempo090                             1.235720         0.781098
-musicgen_tempo095                             1.229376         0.774725
-musicgen_tempo105                             1.227271         0.772153
-musicgen_tempo110                             1.232285         0.776226
+Summary of average distances by modification type:
+                                     euclidean_distance  cosine_distance  \
+final_mod_type                                                             
+Negative_SMP_plag                             64.546320         0.951612   
+Negative_SMP_plag_doubt                       59.447359         0.859954   
+Negative_SMP_remake                           62.942336         0.874758   
+Negative_audioldm2_none                       63.426933         0.941774   
+Negative_audioldm2_pitchD2                    63.403742         0.943994   
+Negative_audioldm2_pitchD4                    63.037806         0.941038   
+Negative_audioldm2_pitchD4_tempo090           63.054474         0.941892   
+Negative_audioldm2_pitchU2                    62.864064         0.935125   
+Negative_audioldm2_pitchU4                    63.127006         0.932324   
+Negative_audioldm2_pitchU4_tempo110           62.988748         0.930966   
+Negative_audioldm2_tempo090                   63.450095         0.941347   
+Negative_audioldm2_tempo095                   63.747984         0.945698   
+Negative_audioldm2_tempo105                   63.373970         0.940098   
+Negative_audioldm2_tempo110                   63.446130         0.941229   
+Negative_musicgen_none                        62.629527         0.947338   
+Negative_musicgen_pitchD2                     62.906416         0.958026   
+Negative_musicgen_pitchD4                     62.708934         0.953873   
+Negative_musicgen_pitchD4_tempo090            62.750422         0.956371   
+Negative_musicgen_pitchU2                     62.926156         0.952423   
+Negative_musicgen_pitchU4                     62.813694         0.951376   
+Negative_musicgen_pitchU4_tempo110            62.951998         0.951607   
+Negative_musicgen_tempo090                    62.626613         0.948258   
+Negative_musicgen_tempo095                    62.748351         0.952783   
+Negative_musicgen_tempo105                    62.756575         0.948722   
+Negative_musicgen_tempo110                    62.720333         0.947091   
+Negative_none_pitchD2                         63.101309         0.914061   
+Negative_none_pitchD4                         62.974889         0.919525   
+Negative_none_pitchD4_tempo090                62.986880         0.921993   
+Negative_none_pitchU2                         62.913058         0.914056   
+Negative_none_pitchU4                         62.778898         0.912259   
+Negative_none_pitchU4_tempo110                62.696077         0.913237   
+Negative_none_tempo090                        62.866936         0.914066   
+Negative_none_tempo095                        63.014422         0.915812   
+Negative_none_tempo105                        62.787259         0.914125   
+Negative_none_tempo110                        62.769960         0.912501   
+SMP_plag                                      47.641391         0.554974   
+SMP_plag_doubt                                49.608276         0.607145   
+SMP_remake                                    36.847793         0.367839   
+audioldm2_none                                62.789438         0.927637   
+audioldm2_pitchD2                             62.926905         0.934779   
+audioldm2_pitchD4                             62.613552         0.934420   
+audioldm2_pitchD4_tempo090                    62.647429         0.939489   
+audioldm2_pitchU2                             62.390714         0.923612   
+audioldm2_pitchU4                             62.648023         0.923276   
+audioldm2_pitchU4_tempo110                    62.607892         0.922605   
+audioldm2_tempo090                            62.906130         0.932490   
+audioldm2_tempo095                            63.026296         0.931808   
+audioldm2_tempo105                            62.968104         0.931506   
+audioldm2_tempo110                            62.877361         0.929844   
+musicgen_none                                 56.858329         0.789441   
+musicgen_pitchD2                              57.837015         0.819837   
+musicgen_pitchD4                              58.093133         0.827549   
+musicgen_pitchD4_tempo090                     58.062382         0.829409   
+musicgen_pitchU2                              57.837045         0.815084   
+musicgen_pitchU4                              58.343811         0.828588   
+musicgen_pitchU4_tempo110                     58.753526         0.836429   
+musicgen_tempo090                             56.869332         0.792996   
+musicgen_tempo095                             56.873891         0.793382   
+musicgen_tempo105                             57.098643         0.795260   
+musicgen_tempo110                             57.108135         0.793351   
+none_pitchD2                                  19.669883         0.116400   
+none_pitchD4                                  19.643547         0.124661   
+none_pitchD4_tempo090                         24.406792         0.172800   
+none_pitchU2                                  19.298816         0.111678   
+none_pitchU4                                  19.394959         0.118953   
+none_pitchU4_tempo110                         24.334714         0.167558   
+none_tempo090                                 14.874931         0.058483   
+none_tempo095                                 12.035683         0.038072   
+none_tempo105                                 12.713028         0.041944   
+none_tempo110                                 14.908957         0.056626   
+
+                                     manhattan_distance  pearson_distance  
+final_mod_type                                                             
+Negative_SMP_plag                           1630.838498          0.951824  
+Negative_SMP_plag_doubt                     1507.394742          0.859800  
+Negative_SMP_remake                         1587.312757          0.874715  
+Negative_audioldm2_none                     1606.922357          0.941762  
+Negative_audioldm2_pitchD2                  1607.638696          0.944012  
+Negative_audioldm2_pitchD4                  1597.329597          0.941020  
+Negative_audioldm2_pitchD4_tempo090         1599.137009          0.941855  
+Negative_audioldm2_pitchU2                  1594.652449          0.935046  
+Negative_audioldm2_pitchU4                  1600.501742          0.932256  
+Negative_audioldm2_pitchU4_tempo110         1598.121432          0.930917  
+Negative_audioldm2_tempo090                 1608.114584          0.941323  
+Negative_audioldm2_tempo095                 1615.339172          0.945672  
+Negative_audioldm2_tempo105                 1605.633584          0.940064  
+Negative_audioldm2_tempo110                 1607.864046          0.941203  
+Negative_musicgen_none                      1586.277738          0.947339  
+Negative_musicgen_pitchD2                   1593.490475          0.958052  
+Negative_musicgen_pitchD4                   1589.165475          0.953929  
+Negative_musicgen_pitchD4_tempo090          1590.730946          0.956406  
+Negative_musicgen_pitchU2                   1593.470872          0.952438  
+Negative_musicgen_pitchU4                   1591.515480          0.951391  
+Negative_musicgen_pitchU4_tempo110          1595.303660          0.951591  
+Negative_musicgen_tempo090                  1586.318401          0.948236  
+Negative_musicgen_tempo095                  1589.464212          0.952782  
+Negative_musicgen_tempo105                  1589.858905          0.948727  
+Negative_musicgen_tempo110                  1589.228117          0.947074  
+Negative_none_pitchD2                       1595.184844          0.914064  
+Negative_none_pitchD4                       1592.354575          0.919512  
+Negative_none_pitchD4_tempo090              1592.092831          0.921991  
+Negative_none_pitchU2                       1590.042424          0.914022  
+Negative_none_pitchU4                       1587.442420          0.912195  
+Negative_none_pitchU4_tempo110              1585.479343          0.913150  
+Negative_none_tempo090                      1589.600572          0.914037  
+Negative_none_tempo095                      1593.125223          0.915772  
+Negative_none_tempo105                      1587.711645          0.914076  
+Negative_none_tempo110                      1586.823068          0.912443  
+SMP_plag                                    1206.349761          0.555004  
+SMP_plag_doubt                              1255.652691          0.607144  
+SMP_remake                                   932.352797          0.367798  
+audioldm2_none                              1591.182910          0.927630  
+audioldm2_pitchD2                           1595.048780          0.934781  
+audioldm2_pitchD4                           1586.701924          0.934392  
+audioldm2_pitchD4_tempo090                  1588.097132          0.939469  
+audioldm2_pitchU2                           1581.117138          0.923598  
+audioldm2_pitchU4                           1588.082918          0.923255  
+audioldm2_pitchU4_tempo110                  1587.728427          0.922585  
+audioldm2_tempo090                          1594.697695          0.932493  
+audioldm2_tempo095                          1597.888518          0.931807  
+audioldm2_tempo105                          1596.306793          0.931503  
+audioldm2_tempo110                          1594.316862          0.929841  
+musicgen_none                               1441.643107          0.789438  
+musicgen_pitchD2                            1466.539820          0.819822  
+musicgen_pitchD4                            1473.575863          0.827561  
+musicgen_pitchD4_tempo090                   1473.072481          0.829431  
+musicgen_pitchU2                            1466.105844          0.815052  
+musicgen_pitchU4                            1480.237388          0.828519  
+musicgen_pitchU4_tempo110                   1490.281611          0.836358  
+musicgen_tempo090                           1442.084203          0.792998  
+musicgen_tempo095                           1441.973045          0.793388  
+musicgen_tempo105                           1447.481973          0.795258  
+musicgen_tempo110                           1447.857050          0.793356  
+none_pitchD2                                 500.359049          0.116397  
+none_pitchD4                                 499.787340          0.124638  
+none_pitchD4_tempo090                        620.285139          0.172778  
+none_pitchU2                                 490.975687          0.111674  
+none_pitchU4                                 493.429443          0.118912  
+none_pitchU4_tempo110                        618.431468          0.167506  
+none_tempo090                                377.145802          0.058482  
+none_tempo095                                305.211468          0.038070  
+none_tempo105                                322.485732          0.041943  
+none_tempo110                                378.228417          0.056624  
+Saved full summary to: results/distances/clews_distances_summary.csv
+
+=== Calculating distances for WEALY ===
+
+--- Generating 1-to-K Hard Negative pairs (42765 Positives) ---
+--- Computing Distances Matrix (42765 Positives + 27709 Negatives) ---
+Saved Pairwise Distances to: results/distances/wealy_distances.csv
+
+Summary of average distances by modification type:
+                                     euclidean_distance  cosine_distance  \
+final_mod_type                                                             
+Negative_SMP_plag                             27.519941         0.901254   
+Negative_SMP_plag_doubt                       27.517263         0.853304   
+Negative_SMP_remake                           26.041556         0.808967   
+Negative_audioldm2_none                       25.841047         0.838158   
+Negative_audioldm2_pitchD2                    25.605664         0.827029   
+Negative_audioldm2_pitchD4                    25.505629         0.827856   
+Negative_audioldm2_pitchD4_tempo090           25.894266         0.844456   
+Negative_audioldm2_pitchU2                    25.689560         0.831651   
+Negative_audioldm2_pitchU4                    25.141914         0.820700   
+Negative_audioldm2_pitchU4_tempo110           25.505693         0.844168   
+Negative_audioldm2_tempo090                   26.311943         0.849461   
+Negative_audioldm2_tempo095                   26.366794         0.853142   
+Negative_audioldm2_tempo105                   26.078228         0.841626   
+Negative_audioldm2_tempo110                   25.839071         0.842811   
+Negative_musicgen_none                        26.355519         0.848661   
+Negative_musicgen_pitchD2                     26.069759         0.837702   
+Negative_musicgen_pitchD4                     26.115257         0.846878   
+Negative_musicgen_pitchD4_tempo090            26.229144         0.855633   
+Negative_musicgen_pitchU2                     26.150495         0.850084   
+Negative_musicgen_pitchU4                     25.939691         0.845644   
+Negative_musicgen_pitchU4_tempo110            25.755599         0.848412   
+Negative_musicgen_tempo090                    26.989259         0.866708   
+Negative_musicgen_tempo095                    26.706033         0.862948   
+Negative_musicgen_tempo105                    26.614550         0.855496   
+Negative_musicgen_tempo110                    26.351996         0.850467   
+Negative_none_pitchD2                         26.273407         0.815275   
+Negative_none_pitchD4                         26.221997         0.820791   
+Negative_none_pitchD4_tempo090                26.666060         0.841092   
+Negative_none_pitchU2                         26.199378         0.812392   
+Negative_none_pitchU4                         26.085195         0.813486   
+Negative_none_pitchU4_tempo110                26.512757         0.833758   
+Negative_none_tempo090                        26.662211         0.825468   
+Negative_none_tempo095                        26.532318         0.825165   
+Negative_none_tempo105                        26.617971         0.821648   
+Negative_none_tempo110                        26.505616         0.826522   
+SMP_plag                                      26.917165         0.881302   
+SMP_plag_doubt                                26.611984         0.805126   
+SMP_remake                                    25.385203         0.790773   
+audioldm2_none                                25.063444         0.811324   
+audioldm2_pitchD2                             25.047261         0.821721   
+audioldm2_pitchD4                             25.040525         0.827132   
+audioldm2_pitchD4_tempo090                    25.442238         0.845807   
+audioldm2_pitchU2                             24.916823         0.815076   
+audioldm2_pitchU4                             24.713590         0.810153   
+audioldm2_pitchU4_tempo110                    25.058142         0.837398   
+audioldm2_tempo090                            25.794395         0.838332   
+audioldm2_tempo095                            25.716702         0.837687   
+audioldm2_tempo105                            25.602435         0.836913   
+audioldm2_tempo110                            25.333667         0.830583   
+musicgen_none                                 23.459692         0.705931   
+musicgen_pitchD2                              24.468829         0.773479   
+musicgen_pitchD4                              24.727215         0.792411   
+musicgen_pitchD4_tempo090                     25.432924         0.832222   
+musicgen_pitchU2                              24.386311         0.774091   
+musicgen_pitchU4                              24.479353         0.783544   
+musicgen_pitchU4_tempo110                     24.727031         0.809350   
+musicgen_tempo090                             25.014432         0.781098   
+musicgen_tempo095                             24.910528         0.774725   
+musicgen_tempo105                             24.779621         0.772153   
+musicgen_tempo110                             24.745369         0.776226   
+none_pitchD2                                  17.153752         0.414906   
+none_pitchD4                                  19.179082         0.502229   
+none_pitchD4_tempo090                         21.601014         0.596852   
+none_pitchU2                                  16.207724         0.374798   
+none_pitchU4                                  16.793472         0.398593   
+none_pitchU4_tempo110                         20.245690         0.537434   
+none_tempo090                                 16.999541         0.400282   
+none_tempo095                                 16.952137         0.398858   
+none_tempo105                                 17.069148         0.402880   
+none_tempo110                                 17.408976         0.417471   
+
+                                     manhattan_distance  pearson_distance  
+final_mod_type                                                             
+Negative_SMP_plag                            496.430501          0.901129  
+Negative_SMP_plag_doubt                      496.590461          0.853155  
+Negative_SMP_remake                          470.980725          0.808727  
+Negative_audioldm2_none                      466.844662          0.838028  
+Negative_audioldm2_pitchD2                   462.790153          0.826830  
+Negative_audioldm2_pitchD4                   460.967520          0.827793  
+Negative_audioldm2_pitchD4_tempo090          468.485553          0.844394  
+Negative_audioldm2_pitchU2                   464.228791          0.831532  
+Negative_audioldm2_pitchU4                   454.767720          0.820581  
+Negative_audioldm2_pitchU4_tempo110          460.775341          0.844031  
+Negative_audioldm2_tempo090                  475.276114          0.849367  
+Negative_audioldm2_tempo095                  476.895480          0.853021  
+Negative_audioldm2_tempo105                  471.498060          0.841501  
+Negative_audioldm2_tempo110                  466.782725          0.842731  
+Negative_musicgen_none                       476.672628          0.848532  
+Negative_musicgen_pitchD2                    472.188398          0.837580  
+Negative_musicgen_pitchD4                    472.923877          0.846769  
+Negative_musicgen_pitchD4_tempo090           474.044956          0.855592  
+Negative_musicgen_pitchU2                    473.285678          0.850004  
+Negative_musicgen_pitchU4                    469.584099          0.845553  
+Negative_musicgen_pitchU4_tempo110           466.114926          0.848260  
+Negative_musicgen_tempo090                   488.035144          0.866529  
+Negative_musicgen_tempo095                   482.966096          0.862866  
+Negative_musicgen_tempo105                   481.091534          0.855371  
+Negative_musicgen_tempo110                   476.417175          0.850346  
+Negative_none_pitchD2                        475.114037          0.815119  
+Negative_none_pitchD4                        474.319844          0.820629  
+Negative_none_pitchD4_tempo090               481.955335          0.840934  
+Negative_none_pitchU2                        473.481453          0.812247  
+Negative_none_pitchU4                        471.588009          0.813344  
+Negative_none_pitchU4_tempo110               479.380095          0.833680  
+Negative_none_tempo090                       482.138936          0.825340  
+Negative_none_tempo095                       479.936543          0.825083  
+Negative_none_tempo105                       481.143631          0.821515  
+Negative_none_tempo110                       479.269865          0.826444  
+SMP_plag                                     485.863703          0.881173  
+SMP_plag_doubt                               480.878453          0.804955  
+SMP_remake                                   458.807893          0.790604  
+audioldm2_none                               452.769317          0.811179  
+audioldm2_pitchD2                            452.428531          0.821585  
+audioldm2_pitchD4                            452.508948          0.826998  
+audioldm2_pitchD4_tempo090                   459.865544          0.845635  
+audioldm2_pitchU2                            450.199781          0.814896  
+audioldm2_pitchU4                            446.576046          0.810041  
+audioldm2_pitchU4_tempo110                   452.654728          0.837250  
+audioldm2_tempo090                           466.044383          0.838218  
+audioldm2_tempo095                           464.999584          0.837513  
+audioldm2_tempo105                           462.707627          0.836756  
+audioldm2_tempo110                           457.573553          0.830428  
+musicgen_none                                423.959345          0.705815  
+musicgen_pitchD2                             442.313033          0.773340  
+musicgen_pitchD4                             446.942717          0.792302  
+musicgen_pitchD4_tempo090                    459.772982          0.832078  
+musicgen_pitchU2                             440.715337          0.773964  
+musicgen_pitchU4                             442.681242          0.783402  
+musicgen_pitchU4_tempo110                    447.007323          0.809204  
+musicgen_tempo090                            452.375421          0.781033  
+musicgen_tempo095                            450.358369          0.774631  
+musicgen_tempo105                            448.109064          0.771995  
+musicgen_tempo110                            446.998607          0.776128  
+none_pitchD2                                 310.177162          0.414845  
+none_pitchD4                                 346.799301          0.502144  
+none_pitchD4_tempo090                        390.400147          0.596745  
+none_pitchU2                                 292.891942          0.374795  
+none_pitchU4                                 303.527633          0.398560  
+none_pitchU4_tempo110                        365.842562          0.537366  
+none_tempo090                                307.358700          0.400208  
+none_tempo095                                306.388890          0.398777  
+none_tempo105                                308.588657          0.402826  
+none_tempo110                                314.802994          0.417406  
+Saved full summary to: results/distances/wealy_distances_summary.csv

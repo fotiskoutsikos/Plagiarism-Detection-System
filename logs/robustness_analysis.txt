@@ -1,0 +1,40 @@
+2026-04-16 19:51:25 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
+2026-04-16 19:51:25 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
+2026-04-16 19:51:25 [INFO] ======================================================================
+2026-04-16 19:51:25 [INFO] ======================================================================
+2026-04-16 19:51:25 [INFO] ROBUSTNESS & F1-DEGRADATION ANALYSIS
+2026-04-16 19:51:25 [INFO] ROBUSTNESS & F1-DEGRADATION ANALYSIS
+2026-04-16 19:51:25 [INFO] ======================================================================
+2026-04-16 19:51:25 [INFO] ======================================================================
+2026-04-16 19:51:25 [INFO] 
+Processing EDA for CLEWS...
+2026-04-16 19:51:25 [INFO] 
+Processing EDA for CLEWS...
+2026-04-16 19:51:29 [INFO] Using official threshold for CLEWS: cosine_distance (th=1.0185)
+2026-04-16 19:51:29 [INFO] Using official threshold for CLEWS: cosine_distance (th=1.0185)
+2026-04-16 19:51:30 [INFO] Saved F1 Degradation plots for CLEWS
+2026-04-16 19:51:30 [INFO] Saved F1 Degradation plots for CLEWS
+2026-04-16 19:51:30 [INFO] 
+Processing EDA for WEALY...
+2026-04-16 19:51:30 [INFO] 
+Processing EDA for WEALY...
+2026-04-16 19:51:33 [INFO] Using official threshold for WEALY: manhattan_distance (th=700.8740)
+2026-04-16 19:51:33 [INFO] Using official threshold for WEALY: manhattan_distance (th=700.8740)
+2026-04-16 19:51:34 [INFO] Saved F1 Degradation plots for WEALY
+2026-04-16 19:51:34 [INFO] Saved F1 Degradation plots for WEALY
+2026-04-16 19:51:34 [INFO] 
+Processing EDA for FUSION...
+2026-04-16 19:51:34 [INFO] 
+Processing EDA for FUSION...
+2026-04-16 19:51:38 [INFO] Using official threshold for FUSION: pearson_distance+euclidean_distance (th=0.7225)
+2026-04-16 19:51:38 [INFO] Using official threshold for FUSION: pearson_distance+euclidean_distance (th=0.7225)
+2026-04-16 19:51:38 [INFO] Saved F1 Degradation plots for FUSION
+2026-04-16 19:51:38 [INFO] Saved F1 Degradation plots for FUSION
+2026-04-16 19:51:39 [INFO] 
+======================================================================
+2026-04-16 19:51:39 [INFO] 
+======================================================================
+2026-04-16 19:51:39 [INFO] ANALYSIS COMPLETE. F1 Degradation plots ready.
+2026-04-16 19:51:39 [INFO] ANALYSIS COMPLETE. F1 Degradation plots ready.
+2026-04-16 19:51:39 [INFO] ======================================================================
+2026-04-16 19:51:39 [INFO] ======================================================================

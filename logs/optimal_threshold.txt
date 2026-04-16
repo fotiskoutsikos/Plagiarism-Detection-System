@@ -1,69 +1,80 @@
-2026-04-03 00:33:49 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
-2026-04-03 00:33:49 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
-======================================================================
-ABLATION STUDY & THRESHOLD ANALYSIS FOR PLAGIARISM DETECTION
-======================================================================
-
-[CLEWS] Loading distances...
-[CLEWS] Evaluating Cosine Distance (5-Fold CV)...
-[cosine_distance] Fold 1/5: optimal_threshold=0.844035, AUC=0.5691, accuracy=0.5574, precision=0.5494, recall=0.6379, f1=0.5904
-[cosine_distance] Fold 2/5: optimal_threshold=0.822609, AUC=0.5713, accuracy=0.5567, precision=0.5532, recall=0.5906, f1=0.5713
-[cosine_distance] Fold 3/5: optimal_threshold=0.841818, AUC=0.5633, accuracy=0.5536, precision=0.5465, recall=0.6301, f1=0.5853
-[cosine_distance] Fold 4/5: optimal_threshold=0.844035, AUC=0.5533, accuracy=0.5421, precision=0.5367, recall=0.6149, f1=0.5732
-[cosine_distance] Fold 5/5: optimal_threshold=0.843248, AUC=0.5642, accuracy=0.5514, precision=0.5451, recall=0.6210, f1=0.5806
-[CLEWS] Evaluating Euclidean Distance (5-Fold CV)...
-[euclidean_distance] Fold 1/5: optimal_threshold=1.299258, AUC=0.5558, accuracy=0.5505, precision=0.5506, recall=0.5482, f1=0.5494
-[euclidean_distance] Fold 2/5: optimal_threshold=1.299283, AUC=0.5428, accuracy=0.5381, precision=0.5383, recall=0.5358, f1=0.5371
-[euclidean_distance] Fold 3/5: optimal_threshold=1.293726, AUC=0.5425, accuracy=0.5418, precision=0.5436, recall=0.5217, f1=0.5324
-[euclidean_distance] Fold 4/5: optimal_threshold=1.299258, AUC=0.5428, accuracy=0.5357, precision=0.5369, recall=0.5194, f1=0.5280
-[euclidean_distance] Fold 5/5: optimal_threshold=1.293961, AUC=0.5490, accuracy=0.5405, precision=0.5432, recall=0.5092, f1=0.5256
-
+2026-04-16 19:51:13 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
+2026-04-16 19:51:13 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
+2026-04-16 19:51:13 [INFO] ======================================================================
+2026-04-16 19:51:13 [INFO] ======================================================================
+2026-04-16 19:51:13 [INFO] ABLATION STUDY & THRESHOLD ANALYSIS FOR PLAGIARISM DETECTION
+2026-04-16 19:51:13 [INFO] ABLATION STUDY & THRESHOLD ANALYSIS FOR PLAGIARISM DETECTION
+2026-04-16 19:51:13 [INFO] ======================================================================
+2026-04-16 19:51:13 [INFO] ======================================================================
+2026-04-16 19:51:13 [INFO] Loading distances from results\distances\clews_distances.csv...
+2026-04-16 19:51:13 [INFO] Loading distances from results\distances\clews_distances.csv...
+2026-04-16 19:51:13 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
+2026-04-16 19:51:13 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
+2026-04-16 19:51:13 [INFO] 
 === ABLATION STUDY RESULTS (CLEWS) ===
-Metric               | AUC     | 5-Fold CV Mean F1-Score   | Opt. Threshold
-------------------------------------------------------------------------------------------
-Cosine               | 0.5642  | 0.5801                 | 0.8391
-Euclidean            | 0.5466  | 0.5345                 | 1.2971
-ROC curve saved to: plots/threshold/clews_ablation_roc.png
-
-=> WINNING METRIC: Cosine Distance
-
-[WEALY] Loading distances...
-[WEALY] Evaluating Cosine Distance (5-Fold CV)...
-[cosine_distance] Fold 1/5: optimal_threshold=0.734753, AUC=0.5315, accuracy=0.5200, precision=0.5389, recall=0.2767, f1=0.3657
-[cosine_distance] Fold 2/5: optimal_threshold=0.739544, AUC=0.5211, accuracy=0.5122, precision=0.5241, recall=0.2665, f1=0.3533
-[cosine_distance] Fold 3/5: optimal_threshold=0.781000, AUC=0.5290, accuracy=0.5214, precision=0.5327, recall=0.3493, f1=0.4219
-[cosine_distance] Fold 4/5: optimal_threshold=0.736075, AUC=0.5253, accuracy=0.5159, precision=0.5308, recall=0.2735, f1=0.3610
-[cosine_distance] Fold 5/5: optimal_threshold=0.758004, AUC=0.5248, accuracy=0.5143, precision=0.5238, recall=0.3137, f1=0.3924
-[WEALY] Evaluating Euclidean Distance (5-Fold CV)...
-[euclidean_distance] Fold 1/5: optimal_threshold=1.212232, AUC=0.5315, accuracy=0.5200, precision=0.5389, recall=0.2767, f1=0.3657
-[euclidean_distance] Fold 2/5: optimal_threshold=1.216178, AUC=0.5211, accuracy=0.5122, precision=0.5241, recall=0.2665, f1=0.3533
-[euclidean_distance] Fold 3/5: optimal_threshold=1.249800, AUC=0.5290, accuracy=0.5214, precision=0.5327, recall=0.3493, f1=0.4219
-[euclidean_distance] Fold 4/5: optimal_threshold=1.213321, AUC=0.5253, accuracy=0.5159, precision=0.5308, recall=0.2735, f1=0.3610
-[euclidean_distance] Fold 5/5: optimal_threshold=1.231263, AUC=0.5248, accuracy=0.5143, precision=0.5238, recall=0.3137, f1=0.3924
-
+2026-04-16 19:51:13 [INFO] 
+=== ABLATION STUDY RESULTS (CLEWS) ===
+2026-04-16 19:51:14 [INFO] Winning metric for CLEWS: cosine_distance (F1: 0.7629)
+Metric                                   | PR-AUC  | Mean F1    | Opt. Threshold
+--------------------------------------------------------------------------------
+Euclidean       | 0.8691  | 0.7626     | 67.6917       
+Cosine          | 0.8695  | 0.7629     | 1.0185        
+Manhattan       | 0.8682  | 0.7618     | 1730.6700     
+Pearson         | 0.8695  | 0.7625     | 1.0219        
+=> WINNING METRIC: Cosine Distance (Best F1: 0.7629)
+2026-04-16 19:51:14 [INFO] Winning metric for CLEWS: cosine_distance (F1: 0.7629)
+2026-04-16 19:51:14 [INFO] Saved PR curve plot to plots/threshold/clews_ablation_pr.png
+2026-04-16 19:51:14 [INFO] Saved PR curve plot to plots/threshold/clews_ablation_pr.png
+2026-04-16 19:51:15 [INFO] Saved distance distribution plot to plots/threshold/clews_cosine_distance_distributions.png
+2026-04-16 19:51:15 [INFO] Saved distance distribution plot to plots/threshold/clews_cosine_distance_distributions.png
+2026-04-16 19:51:15 [INFO] Loading distances from results\distances\wealy_distances.csv...
+2026-04-16 19:51:15 [INFO] Loading distances from results\distances\wealy_distances.csv...
+2026-04-16 19:51:15 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
+2026-04-16 19:51:15 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
+2026-04-16 19:51:15 [INFO] 
 === ABLATION STUDY RESULTS (WEALY) ===
-Metric               | AUC     | 5-Fold CV Mean F1-Score   | Opt. Threshold
-------------------------------------------------------------------------------------------
-Cosine               | 0.5263  | 0.3789                 | 0.7499
-Euclidean            | 0.5263  | 0.3789                 | 1.2246
-ROC curve saved to: plots/threshold/wealy_ablation_roc.png
-
-=> WINNING METRIC: Cosine Distance
-
-[FUSION] Loading distances...
-[FUSION] Evaluating Cosine Distance (5-Fold CV)...
-[cosine_distance] Fold 1/5: optimal_threshold=0.677038, AUC=0.5753, accuracy=0.5553, precision=0.5417, recall=0.7163, f1=0.6169
-[cosine_distance] Fold 2/5: optimal_threshold=0.674989, AUC=0.5720, accuracy=0.5526, precision=0.5404, recall=0.7029, f1=0.6110
-[cosine_distance] Fold 3/5: optimal_threshold=0.677069, AUC=0.5630, accuracy=0.5515, precision=0.5392, recall=0.7075, f1=0.6120
-[cosine_distance] Fold 4/5: optimal_threshold=0.677069, AUC=0.5598, accuracy=0.5487, precision=0.5376, recall=0.6969, f1=0.6070
-[cosine_distance] Fold 5/5: optimal_threshold=0.668805, AUC=0.5620, accuracy=0.5539, precision=0.5429, recall=0.6825, f1=0.6047
-[FUSION] Euclidean Distance not found. Skipping Euclidean comparison.
-ROC curve saved to: plots/threshold/fusion_roc.png
-
-=> WINNING METRIC: Cosine Distance
-
-Summary of winning metrics saved to: results/threshold/threshold_analysis_summary.csv
-
+2026-04-16 19:51:15 [INFO] 
+=== ABLATION STUDY RESULTS (WEALY) ===
+2026-04-16 19:51:15 [INFO] Winning metric for WEALY: manhattan_distance (F1: 0.7588)
+Metric                                   | PR-AUC  | Mean F1    | Opt. Threshold
+--------------------------------------------------------------------------------
+Euclidean       | 0.7677  | 0.7588     | 37.9024       
+Cosine          | 0.7650  | 0.7587     | 1.2317        
+Manhattan       | 0.7683  | 0.7588     | 700.8740      
+Pearson         | 0.7650  | 0.7588     | 1.2323        
+=> WINNING METRIC: Manhattan Distance (Best F1: 0.7588)
+2026-04-16 19:51:15 [INFO] Winning metric for WEALY: manhattan_distance (F1: 0.7588)
+2026-04-16 19:51:16 [INFO] Saved PR curve plot to plots/threshold/wealy_ablation_pr.png
+2026-04-16 19:51:16 [INFO] Saved PR curve plot to plots/threshold/wealy_ablation_pr.png
+2026-04-16 19:51:16 [INFO] Saved distance distribution plot to plots/threshold/wealy_manhattan_distance_distributions.png
+2026-04-16 19:51:16 [INFO] Saved distance distribution plot to plots/threshold/wealy_manhattan_distance_distributions.png
+2026-04-16 19:51:16 [INFO] Loading distances from results\fusion\optimal_fused_distances.csv...
+2026-04-16 19:51:16 [INFO] Loading distances from results\fusion\optimal_fused_distances.csv...
+2026-04-16 19:51:16 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
+2026-04-16 19:51:16 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
+2026-04-16 19:51:16 [INFO] 
+=== ABLATION STUDY RESULTS (FUSION) ===
+2026-04-16 19:51:16 [INFO] 
+=== ABLATION STUDY RESULTS (FUSION) ===
+2026-04-16 19:51:16 [INFO] Winning metric for FUSION: pearson_distance+euclidean_distance (F1: 0.7742)
+Metric                                   | PR-AUC  | Mean F1    | Opt. Threshold
+--------------------------------------------------------------------------------
+Pearson         | 0.8636  | 0.7742     | 0.7225        
+=> WINNING METRIC: Pearson Distance (Best F1: 0.7742)
+2026-04-16 19:51:16 [INFO] Winning metric for FUSION: pearson_distance+euclidean_distance (F1: 0.7742)
+2026-04-16 19:51:17 [INFO] Saved PR curve plot to plots/threshold/fusion_ablation_pr.png
+2026-04-16 19:51:17 [INFO] Saved PR curve plot to plots/threshold/fusion_ablation_pr.png
+2026-04-16 19:51:17 [INFO] Saved distance distribution plot to plots/threshold/fusion_pearson_distance+euclidean_distance_distributions.png
+2026-04-16 19:51:17 [INFO] Saved distance distribution plot to plots/threshold/fusion_pearson_distance+euclidean_distance_distributions.png
+2026-04-16 19:51:17 [INFO] Summary of winning metrics saved to: results/threshold/threshold_analysis_summary.csv
+2026-04-16 19:51:17 [INFO] Summary of winning metrics saved to: results/threshold/threshold_analysis_summary.csv
+2026-04-16 19:51:17 [INFO] Detailed report for ALL metrics saved to: results/threshold/all_metrics_detailed_summary.csv
+2026-04-16 19:51:17 [INFO] Detailed report for ALL metrics saved to: results/threshold/all_metrics_detailed_summary.csv
+2026-04-16 19:51:17 [INFO] 
 ======================================================================
-ANALYSIS COMPLETE
+2026-04-16 19:51:17 [INFO] 
 ======================================================================
+2026-04-16 19:51:17 [INFO] ANALYSIS COMPLETE
+2026-04-16 19:51:17 [INFO] ANALYSIS COMPLETE
+2026-04-16 19:51:17 [INFO] ======================================================================
+2026-04-16 19:51:17 [INFO] ======================================================================

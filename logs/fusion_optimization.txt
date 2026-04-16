@@ -1,11 +1,46 @@
-2026-04-02 23:42:35 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
-2026-04-02 23:42:35 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
-Best alpha selected via OOF F1: 0.55 (OOF F1: 0.6110)
---------------------------------------------------
-BEST WEIGHTS | Alpha (CLEWS): 0.55 | Beta (WEALY): 0.45 | OOF F1: 0.6110
-CLEWS  | F1: 0.5861 | R@1: 0.0031 | MRR: 0.0132
-WEALY  | F1: 0.4276 | R@1: 0.0029 | MRR: 0.0139
-Fusion | F1: 0.6140 | R@1: 0.0033 | MRR: 0.0141
---------------------------------------------------
-Fusion configuration saved to: results/fusion/optimal_fusion_config.csv
-Optimization Complete. Results saved to 'results/fusion/' and 'plots/fusion/' directories.
+2026-04-16 19:50:58 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
+2026-04-16 19:50:58 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
+2026-04-16 19:50:58 [INFO] ======================================================================
+2026-04-16 19:50:58 [INFO] ======================================================================
+2026-04-16 19:50:58 [INFO] EXHAUSTIVE FUSION OPTIMIZATION
+2026-04-16 19:50:58 [INFO] EXHAUSTIVE FUSION OPTIMIZATION
+2026-04-16 19:50:58 [INFO] ======================================================================
+2026-04-16 19:50:58 [INFO] ======================================================================
+2026-04-16 19:50:58 [INFO] Aligning datasets...
+2026-04-16 19:50:58 [INFO] Aligning datasets...
+2026-04-16 19:50:58 [INFO] Loading CLEWS from results/distances/clews_distances.csv
+2026-04-16 19:50:58 [INFO] Loading CLEWS from results/distances/clews_distances.csv
+2026-04-16 19:50:58 [INFO] Loading WEALY from results/distances/wealy_distances.csv
+2026-04-16 19:50:58 [INFO] Loading WEALY from results/distances/wealy_distances.csv
+2026-04-16 19:50:58 [INFO] Alignment: 139912 total rows → 69956 perfectly matched pairs.
+2026-04-16 19:50:58 [INFO] Alignment: 139912 total rows → 69956 perfectly matched pairs.
+2026-04-16 19:50:58 [INFO] Splitting & normalizing...
+2026-04-16 19:50:58 [INFO] Splitting & normalizing...
+2026-04-16 19:50:58 [INFO] Running exhaustive grid search (336 trials)...
+2026-04-16 19:50:58 [INFO] Running exhaustive grid search (336 trials)...
+2026-04-16 19:50:58 [INFO] Starting exhaustive grid search: 336 trials...
+2026-04-16 19:50:58 [INFO] Starting exhaustive grid search: 336 trials...
+2026-04-16 19:50:59 [INFO] Progress: 84/336 trials. Current best F1: 0.7734
+2026-04-16 19:50:59 [INFO] Progress: 84/336 trials. Current best F1: 0.7734
+2026-04-16 19:51:00 [INFO] Progress: 168/336 trials. Current best F1: 0.7734
+2026-04-16 19:51:00 [INFO] Progress: 168/336 trials. Current best F1: 0.7734
+2026-04-16 19:51:00 [INFO] Progress: 252/336 trials. Current best F1: 0.7734
+2026-04-16 19:51:00 [INFO] Progress: 252/336 trials. Current best F1: 0.7734
+2026-04-16 19:51:01 [INFO] Progress: 336/336 trials. Current best F1: 0.7735
+2026-04-16 19:51:01 [INFO] Progress: 336/336 trials. Current best F1: 0.7735
+2026-04-16 19:51:01 [INFO] Grid search complete. Best internal validation F1: 0.7735
+2026-04-16 19:51:01 [INFO] Grid search complete. Best internal validation F1: 0.7735
+2026-04-16 19:51:01 [INFO] Generating final fused distances...
+2026-04-16 19:51:01 [INFO] Generating final fused distances...
+2026-04-16 19:51:01 [INFO] Saved cleanly named fused distances to results\fusion\optimal_fused_distances.csv
+2026-04-16 19:51:01 [INFO] Saved cleanly named fused distances to results\fusion\optimal_fused_distances.csv
+2026-04-16 19:51:02 [INFO] 
+======================================================================
+2026-04-16 19:51:02 [INFO] 
+======================================================================
+2026-04-16 19:51:02 [INFO] WINNER: pearson_distance + euclidean_distance
+2026-04-16 19:51:02 [INFO] WINNER: pearson_distance + euclidean_distance
+2026-04-16 19:51:02 [INFO] WEIGHTS: α=0.40, β=0.60
+2026-04-16 19:51:02 [INFO] WEIGHTS: α=0.40, β=0.60
+2026-04-16 19:51:02 [INFO] ======================================================================
+2026-04-16 19:51:02 [INFO] ======================================================================
