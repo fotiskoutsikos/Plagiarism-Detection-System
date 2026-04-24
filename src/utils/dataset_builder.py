@@ -9,6 +9,7 @@ This module handles:
 - Parsing filename schemas for AI models and DSP modifications
 - Merging human plagiarism base pairs (ori vs comp)
 - Merging AI/DSP derivative pairs back to their unaltered bases
+- Merging comp+DSP derivatives against ori base (cross-type SMP pairs)
 """
 
 import ast
@@ -41,17 +42,20 @@ def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFr
         1. Load embeddings from parquet and remove NaN/duplicates
         2. Parse human plagiarism metadata from CSV
         3. Parse filename schema for AI models and DSP modifications
-        4. Merge 1: Human plagiarism pairs (original vs comparable version)
-        5. Merge 2: AI/DSP derivatives back to their base versions
-        6. Concatenate human plagiarism and AI/DSP pairs
+        4. Merge 1: Human plagiarism pairs (ori_base vs comp_base)
+        5. Merge 2: AI/DSP self-comparisons (any_base vs any+DSP, same ori_comp)
+                   Label: none_<dsp> or <ai_model>_<dsp>
+        5b. Merge 3: Cross-type SMP+DSP pairs (ori_base vs comp+DSP)
+                    Label: smp_<dsp>
+        6. Concatenate all positive pairs
     """
     
-    # ========== STEP 1: LOAD EMBEDDINGS ==========
+    # LOAD EMBEDDINGS
     df = pd.read_parquet(parquet_path)
     df = df.dropna(subset=['embedding']).copy()
     df = df.drop_duplicates(subset=['filename'], keep='last').reset_index(drop=True)
     
-    # ========== STEP 2: LOAD AND PARSE HUMAN PLAGIARISM METADATA ==========
+    # LOAD AND PARSE HUMAN PLAGIARISM METADATA
     df_meta = pd.read_csv(smp_metadata_path)
     
     # Build human mapping from metadata
@@ -73,7 +77,7 @@ def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFr
 
     df_human_mapping = pd.DataFrame(mapping_records)
     
-    # ========== STEP 3: PARSE FILENAME SCHEMA ==========
+    # PARSE FILENAME SCHEMA
     # Handles both AI-generated and real song DSP modifications
     def parse_filename(filename):
         """
@@ -120,7 +124,7 @@ def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFr
     parsed_meta.columns = ['pair_id', 'ori_comp', 'time', 'ai_model', 'dsp_mod']
     df = pd.concat([df, parsed_meta], axis=1)
 
-    # ========== STEP 4: MERGE 1 - HUMAN PLAGIARISM PAIRS ==========
+    # MERGE 1 - HUMAN PLAGIARISM PAIRS
     # Extract base pairs (no AI generation, no DSP modifications)
     df_bases = df[(df['ai_model'] == 'none') & (df['dsp_mod'] == 'none')].copy()
     
@@ -155,11 +159,12 @@ def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFr
         'embedding_mod', 'embedding_ori',
     ]]
 
-    # ========== STEP 5: MERGE 2 - AI AND/OR DSP MODIFICATIONS ==========
-    # Extract derivatives (AI generations and/or DSP modifications)
+    # MERGE 2 - SELF-COMPARISON (AI / DSP)
+    # Each derivative is compared to its own unaltered base (same pair_id, time, ori_comp).
+    # This covers: ori+DSP vs ori_base, comp+DSP vs comp_base, AI vs ori_base, AI+DSP vs ori_base.
+    # Label: none_<dsp> for pure DSP, <ai_model>_<dsp> for AI (with or without DSP).
     df_derivatives = df[(df['ai_model'] != 'none') | (df['dsp_mod'] != 'none')].copy()
     
-    # Merge each derivative back to its unaltered base
     df_ai_dsp = pd.merge(
         df_derivatives,
         df_bases,
@@ -168,24 +173,76 @@ def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFr
         how='inner',
     )
     
-    # Create modification type label: {ai_model}_{dsp_mod}
+    # Pure DSP self-comparisons always get none_<dsp> regardless of ori_comp.
+    # AI (with or without DSP) keeps the <ai_model>_<dsp> label.
     df_ai_dsp['final_mod_type'] = df_ai_dsp.apply(
-        lambda r: f"{r['ai_model_mod']}_{r['dsp_mod_mod']}", axis=1
+        lambda r: (
+            f"none_{r['dsp_mod_mod']}"
+            if r['ai_model_mod'] == 'none'
+            else f"{r['ai_model_mod']}_{r['dsp_mod_mod']}"
+        ),
+        axis=1,
     )
     
-    # Keep only necessary columns
     df_ai_dsp = df_ai_dsp[[
         'pair_id', 'time', 'final_mod_type',
         'filename_mod', 'filename_ori',
         'embedding_mod', 'embedding_ori',
     ]]
 
-    # ========== STEP 6: COMBINE ALL POSITIVE PAIRS ==========
+    # MERGE 3 - CROSS-TYPE SMP+DSP PAIRS
+    # ori_base vs comp+DSP: the cover has been DSP-altered, we still want to
+    # measure how far the original is from the plagiarised-and-processed version.
+    # Uses df_human_mapping to bridge the different timestamps between ori and comp.
+    # Label: smp_<dsp>  (parallel to SMP_ pairs but with DSP on top)
+    df_comp_dsp = df[
+        (df['ori_comp'] == 'comp') &
+        (df['ai_model'] == 'none') &
+        (df['dsp_mod'] != 'none')
+    ].copy()
+
+    if not df_comp_dsp.empty and not df_human_mapping.empty:
+        # Join comp+DSP derivatives to the human mapping on (pair_id, comp_time==time)
+        df_smp_dsp = pd.merge(
+            df_human_mapping,
+            df_comp_dsp,
+            left_on=['pair_id', 'comp_time'],
+            right_on=['pair_id', 'time'],
+            how='inner',
+        )
+        # Join the matching ori_base using (pair_id, ori_time)
+        df_smp_dsp = pd.merge(
+            df_smp_dsp,
+            df_pure_ori_base,
+            left_on=['pair_id', 'ori_time'],
+            right_on=['pair_id', 'time'],
+            how='inner',
+            suffixes=('_mod', '_ori'),
+        )
+
+        # After the second merge with suffixes=('_mod', '_ori'), dsp_mod becomes dsp_mod_mod
+        dsp_col = 'dsp_mod_mod' if 'dsp_mod_mod' in df_smp_dsp.columns else 'dsp_mod'
+        df_smp_dsp['final_mod_type'] = 'smp_' + df_smp_dsp[dsp_col].astype(str)
+        df_smp_dsp['time'] = df_smp_dsp['time_ori']
+
+        df_smp_dsp = df_smp_dsp[[
+            'pair_id', 'time', 'final_mod_type',
+            'filename_mod', 'filename_ori',
+            'embedding_mod', 'embedding_ori',
+        ]]
+    else:
+        df_smp_dsp = pd.DataFrame(columns=[
+            'pair_id', 'time', 'final_mod_type',
+            'filename_mod', 'filename_ori',
+            'embedding_mod', 'embedding_ori',
+        ])
+
+    # COMBINE ALL POSITIVE PAIRS
     df_positives = pd.concat(
-        [df_human, df_ai_dsp],
+        [df_human, df_ai_dsp, df_smp_dsp],
         axis=0,
         ignore_index=True,
-        sort=False
+        sort=False,
     )
     
     return df_positives

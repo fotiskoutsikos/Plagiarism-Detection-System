@@ -1,53 +1,63 @@
-2026-04-16 20:24:55 [INFO] Logging initialized for binary_classification, file: logs\binary_classification.txt
-2026-04-16 20:24:55 [INFO] Logging initialized for binary_classification, file: logs\binary_classification.txt
+2026-04-23 18:40:17 [INFO] Logging initialized for binary_classification, file: logs\binary_classification.txt
+2026-04-23 18:40:17 [INFO] Logging initialized for binary_classification, file: logs\binary_classification.txt
 ================================================================================
 STARTING BINARY CLASSIFICATION WITH OPTIMAL THRESHOLDS
 ================================================================================
 Loaded 3 optimal configurations from results/threshold/threshold_analysis_summary.csv:
-  -> CLEWS: cosine_distance (Threshold: 1.0185)
-  -> WEALY: manhattan_distance (Threshold: 700.8740)
-  -> FUSION: pearson_distance+euclidean_distance (Threshold: 0.7225)
+  -> CLEWS: manhattan_distance (Threshold: 986.3622)
+  -> WEALY: manhattan_distance (Threshold: 702.2458)
+  -> FUSION: euclidean_distance+cosine_distance (Threshold: 0.4072)
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:225: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df_all = pd.read_csv(csv_path)
 
-=========================================================================================================
+===================================================================================================================
  BINARY CLASSIFICATION PERFORMANCE: CLEWS
- Metric: cosine_distance | Threshold: <= 1.0185
-=========================================================================================================
-Modification Category          | Precision |   Recall | F1-Score |    TP |    FP |    FN |     TN
----------------------------------------------------------------------------------------------------------
-  1. Human Plagiarism (SMP)    |    14.8% |   99.9% |   25.7% |  3752 | 21678 |     5 |   5513
-  2. Original + DSP            |    36.0% |  100.0% |   52.9% | 12190 | 21678 |     0 |   5513
-  3. AI Generation (Base)      |     9.1% |   89.2% |   16.5% |  2174 | 21678 |   264 |   5513
-  4. AI + DSP                  |    50.0% |   88.8% |   63.9% | 21640 | 21678 |  2740 |   5513
-► OVERALL                      |    64.7% |   93.0% |   76.3% | 39756 | 21678 |  3009 |   5513
-=========================================================================================================
+ Metric: manhattan_distance | Threshold: <= 986.3622
+===================================================================================================================
+Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
+-------------------------------------------------------------------------------------------------------------------
+  1a. Human Plagiarism (Base)  |    53.8% |   30.6% |   39.0% |    46.7% |  1149 |   985 |  2608 | 135938
+  1b. Human Plagiarism + DSP   |    91.3% |   27.4% |   42.1% |    62.2% | 10282 |   985 | 27288 | 135938
+  2. Original + DSP            |    92.2% |   95.2% |   93.7% |    92.8% | 11605 |   985 |   585 | 135938
+  3. AI Generation (Base)      |     1.2% |    0.5% |    0.7% |     0.9% |    12 |   985 |  2426 | 135938
+  4. AI + DSP                  |     6.4% |    0.3% |    0.5% |     1.2% |    67 |   985 | 24313 | 135938
+► OVERALL                      |    95.9% |   28.8% |   44.3% |    65.4% | 23115 |   985 | 57220 | 135938
+===================================================================================================================
 
+False Positive Tier Breakdown saved to: results/binary_classification\clews_manhattan_distance_fp_tier_breakdown.csv
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:225: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df_all = pd.read_csv(csv_path)
 
-=========================================================================================================
+===================================================================================================================
  BINARY CLASSIFICATION PERFORMANCE: WEALY
- Metric: manhattan_distance | Threshold: <= 700.8740
-=========================================================================================================
-Modification Category          | Precision |   Recall | F1-Score |    TP |    FP |    FN |     TN
----------------------------------------------------------------------------------------------------------
-  1. Human Plagiarism (SMP)    |    12.1% |  100.0% |   21.7% |  3757 | 27191 |     0 |      0
-  2. Original + DSP            |    31.0% |  100.0% |   47.3% | 12189 | 27191 |     1 |      0
-  3. AI Generation (Base)      |     8.2% |  100.0% |   15.2% |  2438 | 27191 |     0 |      0
-  4. AI + DSP                  |    47.3% |  100.0% |   64.2% | 24380 | 27191 |     0 |      0
-► OVERALL                      |    61.1% |  100.0% |   75.9% | 42764 | 27191 |     1 |      0
-=========================================================================================================
+ Metric: manhattan_distance | Threshold: <= 702.2458
+===================================================================================================================
+Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
+-------------------------------------------------------------------------------------------------------------------
+  1a. Human Plagiarism (Base)  |     2.7% |  100.0% |    5.2% |     3.3% |  3757 | 136920 |     0 |      3
+  1b. Human Plagiarism + DSP   |    21.5% |  100.0% |   35.4% |    25.5% | 37570 | 136920 |     0 |      3
+  2. Original + DSP            |     8.2% |  100.0% |   15.1% |    10.0% | 12189 | 136920 |     1 |      3
+  3. AI Generation (Base)      |     1.7% |  100.0% |    3.4% |     2.2% |  2438 | 136920 |     0 |      3
+  4. AI + DSP                  |    15.1% |  100.0% |   26.3% |    18.2% | 24380 | 136920 |     0 |      3
+► OVERALL                      |    37.0% |  100.0% |   54.0% |    42.3% | 80334 | 136920 |     1 |      3
+===================================================================================================================
 
+False Positive Tier Breakdown saved to: results/binary_classification\wealy_manhattan_distance_fp_tier_breakdown.csv
 
-=========================================================================================================
+===================================================================================================================
  BINARY CLASSIFICATION PERFORMANCE: FUSION
- Metric: pearson_distance+euclidean_distance | Threshold: <= 0.7225
-=========================================================================================================
-Modification Category          | Precision |   Recall | F1-Score |    TP |    FP |    FN |     TN
----------------------------------------------------------------------------------------------------------
-  1. Human Plagiarism (SMP)    |    15.8% |   96.5% |   27.2% |  3627 | 19271 |   130 |   7920
-  2. Original + DSP            |    38.7% |  100.0% |   55.9% | 12190 | 19271 |     0 |   7920
-  3. AI Generation (Base)      |    10.2% |   89.3% |   18.2% |  2177 | 19271 |   261 |   7920
-  4. AI + DSP                  |    52.4% |   87.0% |   65.4% | 21219 | 19271 |  3161 |   7920
-► OVERALL                      |    67.0% |   91.7% |   77.5% | 39213 | 19271 |  3552 |   7920
-=========================================================================================================
+ Metric: euclidean_distance+cosine_distance | Threshold: <= 0.4072
+===================================================================================================================
+Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
+-------------------------------------------------------------------------------------------------------------------
+  1a. Human Plagiarism (Base)  |    54.4% |   85.4% |   66.5% |    58.7% |  3209 |  2689 |   548 |  43173
+  1b. Human Plagiarism + DSP   |    92.1% |   83.1% |   87.3% |    90.1% | 31215 |  2689 |  6355 |  43173
+  2. Original + DSP            |    81.9% |  100.0% |   90.1% |    85.0% | 12189 |  2689 |     1 |  43173
+  3. AI Generation (Base)      |    20.0% |   27.6% |   23.2% |    21.2% |   673 |  2689 |  1765 |  43173
+  4. AI + DSP                  |    68.2% |   23.6% |   35.1% |    49.5% |  5765 |  2689 | 18615 |  43173
+► OVERALL                      |    95.2% |   66.0% |   78.0% |    87.5% | 53051 |  2689 | 27284 |  43173
+===================================================================================================================
 
+Error: 'negative_tier' column not present; skipping FP tier analysis.
 
 [SUCCESS] Binary classification analysis saved to: results/binary_classification/

@@ -73,8 +73,10 @@ def extract_dsp_and_source_features(mod_type: str) -> dict:
     
     mod_lower = mod_type.lower()
     
-    # ========== SOURCE EXTRACTION ==========
-    if mod_lower.startswith('smp_') or mod_lower.startswith('none_'):
+    # SOURCE EXTRACTION
+    if mod_lower.startswith('smp_'):
+        source = 'Cover'
+    elif mod_lower.startswith('none_'):
         source = 'Original'
     elif 'musicgen' in mod_lower:
         source = 'MusicGen'
@@ -85,7 +87,7 @@ def extract_dsp_and_source_features(mod_type: str) -> dict:
     else:
         source = 'Original'
     
-    # ========== PITCH EXTRACTION ==========
+    # PITCH EXTRACTION
     pitch_intensity = 0.0
     pitch_match = re.search(r'pitch([ud])(\d+)', mod_lower)
     if pitch_match:
@@ -93,13 +95,13 @@ def extract_dsp_and_source_features(mod_type: str) -> dict:
         value = float(pitch_match.group(2))
         pitch_intensity = value if direction == 'u' else -value
     
-    # ========== TEMPO EXTRACTION ==========
+    # TEMPO EXTRACTION
     tempo_intensity = 1.0
     tempo_match = re.search(r'tempo(\d+)', mod_lower)
     if tempo_match:
         tempo_intensity = float(tempo_match.group(1)) / 100.0
     
-    # ========== DSP CATEGORY DETERMINATION ==========
+    # DSP CATEGORY DETERMINATION
     is_extreme = bool(pitch_match and tempo_match)
     
     if pitch_intensity == 0.0 and tempo_intensity == 1.0:
@@ -125,38 +127,36 @@ def extract_dsp_and_source_features(mod_type: str) -> dict:
 
 def get_broad_category(mod_type: str) -> str:
     """
-    Assigns modification type to one of four broad categories:
-    1. Human Plagiarism (SMP)
+    Assigns modification type to one of five broad categories:
+    1a. Human Plagiarism (Base)
+    1b. Human Plagiarism + DSP
     2. Original + DSP
     3. AI Generation (Base)
     4. AI + DSP
-    
-    Args:
-        mod_type: Modification type string (assumes 'Negative_' prefix already removed).
-    
-    Returns:
-        str: One of the four broad category strings or 'Other'.
     """
     if pd.isna(mod_type):
         return 'Other'
     
     mod_lower = str(mod_type).lower()
     
-    # ========== HUMAN PLAGIARISM ==========
-    if mod_lower.startswith('smp_'):
-        return '1. Human Plagiarism (SMP)'
+    # Check for DSP
+    has_dsp = bool(re.search(r'pitch[ud]\d+', mod_lower) or re.search(r'tempo\d+', mod_lower) or 'extreme' in mod_lower)
     
-    # ========== ORIGINAL + DSP ==========
+    # HUMAN PLAGIARISM
+    if mod_lower.startswith('smp_'):
+        if has_dsp:
+            return '1b. Human Plagiarism + DSP'
+        else:
+            return '1a. Human Plagiarism (Base)'
+    
+    # ORIGINAL + DSP
     if mod_lower.startswith('none_'):
         return '2. Original + DSP'
     
-    # ========== AI DETECTION ==========
+    # AI DETECTION
     is_ai = any(ai in mod_lower for ai in ['musicgen', 'audioldm2', 'mgeldm', 'mge-ldm'])
     
     if is_ai:
-        # Check if DSP is applied (pitch or tempo presence)
-        has_dsp = bool(re.search(r'pitch[ud]\d+', mod_lower) or re.search(r'tempo\d+', mod_lower))
-        
         if has_dsp:
             return '4. AI + DSP'
         else:

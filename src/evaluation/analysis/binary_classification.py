@@ -2,6 +2,7 @@
 Binary Classification Analysis for Plagiarism Detection (Pairwise).
 Evaluates the model using FIXED thresholds and WINNING METRICS imported from 'threshold_analysis_summary.csv'.
 Categorizes results precisely into Human, Original+DSP, AI(Base), and AI+DSP.
+Now also calculates F0.5-score and exports a False Positive Tier Breakdown.
 """
 
 import os
@@ -10,7 +11,7 @@ import pandas as pd
 import numpy as np
 import importlib.util
 from pathlib import Path
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, fbeta_score
 
 # Resolve repository root and load logging_util.py
 repo_root = Path(__file__).resolve()
@@ -74,11 +75,15 @@ def run_binary_classification_evaluation(df_all, model_name, fixed_threshold, ta
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
         f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
         
+        # Calculate F0.5 (beta=0.5) to emphasize Precision
+        f0_5 = fbeta_score(df_sub['y_true'], df_sub['y_pred'], beta=0.5, zero_division=0)
+        
         metrics_list.append({
             'Category': cat,
             'Precision': precision,
             'Recall': recall,
             'F1-Score': f1,
+            'F0.5-Score': f0_5,
             'TP': tp, 'FP': fp, 'FN': fn, 'TN': tn,
             'Total_Queries': tp + fn
         })
@@ -99,12 +104,14 @@ def run_binary_classification_evaluation(df_all, model_name, fixed_threshold, ta
         prec_s = tp_s / (tp_s + fp_s) if (tp_s + fp_s) > 0 else 0.0
         rec_s = tp_s / (tp_s + fn_s) if (tp_s + fn_s) > 0 else 0.0
         f1_s = 2 * (prec_s * rec_s) / (prec_s + rec_s) if (prec_s + rec_s) > 0 else 0.0
+        f0_5_s = fbeta_score(df_sub['y_true'], df_sub['y_pred'], beta=0.5, zero_division=0)
         
         detailed_metrics.append({
             'Modification_Type': mod,
             'Precision': prec_s,
             'Recall': rec_s,
             'F1-Score': f1_s,
+            'F0.5-Score': f0_5_s,
             'TP': tp_s, 'FP': fp_s, 'FN': fn_s, 'TN': tn_s
         })
         
@@ -119,12 +126,14 @@ def run_binary_classification_evaluation(df_all, model_name, fixed_threshold, ta
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
     f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+    f0_5 = fbeta_score(df_eval['y_true'], df_eval['y_pred'], beta=0.5, zero_division=0)
     
     metrics_list.append({
         'Category': 'OVERALL',
         'Precision': precision,
         'Recall': recall,
         'F1-Score': f1,
+        'F0.5-Score': f0_5,
         'TP': tp, 'FP': fp, 'FN': fn, 'TN': tn,
         'Total_Queries': tp + fn
     })
@@ -132,19 +141,19 @@ def run_binary_classification_evaluation(df_all, model_name, fixed_threshold, ta
     df_metrics = pd.DataFrame(metrics_list)
     
     # Print results in a formatted table
-    print(f"\n{'=' * 105}")
+    print(f"\n{'=' * 115}")
     print(f" BINARY CLASSIFICATION PERFORMANCE: {model_name.upper()}")
     print(f" Metric: {target_metric} | Threshold: <= {fixed_threshold:.4f}")
-    print(f"{'=' * 105}")
-    print(f"{'Modification Category':<30} | {'Precision':>9} | {'Recall':>8} | {'F1-Score':>8} | {'TP':>5} | {'FP':>5} | {'FN':>5} | {'TN':>6}")
-    print(f"{'-' * 105}")
+    print(f"{'=' * 115}")
+    print(f"{'Modification Category':<30} | {'Precision':>9} | {'Recall':>8} | {'F1-Score':>8} | {'F0.5-Score':>9} | {'TP':>5} | {'FP':>5} | {'FN':>5} | {'TN':>6}")
+    print(f"{'-' * 115}")
 
     for _, row in df_metrics.iterrows():
         is_overall = row['Category'] == 'OVERALL'
         prefix = "► " if is_overall else "  "
-        print(f"{prefix}{row['Category']:<28} | {row['Precision']:>8.1%} | {row['Recall']:>7.1%} | {row['F1-Score']:>7.1%} | {row['TP']:>5} | {row['FP']:>5} | {row['FN']:>5} | {row['TN']:>6}")
+        print(f"{prefix}{row['Category']:<28} | {row['Precision']:>8.1%} | {row['Recall']:>7.1%} | {row['F1-Score']:>7.1%} | {row['F0.5-Score']:>8.1%} | {row['TP']:>5} | {row['FP']:>5} | {row['FN']:>5} | {row['TN']:>6}")
 
-    print(f"{'=' * 105}\n")
+    print(f"{'=' * 115}\n")
     
     # Save results to CSV
     os.makedirs(OUTPUT_DIRS['binary_classification'], exist_ok=True)
@@ -158,6 +167,22 @@ def run_binary_classification_evaluation(df_all, model_name, fixed_threshold, ta
     df_summary['Applied_Threshold'] = fixed_threshold
     
     df_summary.to_csv(summary_path, index=False, mode='a', header=not os.path.exists(summary_path))
+
+    # False Positive Tier Breakdown 
+    # Check if 'negative_tier' column exists (from metrics.py)
+    if 'negative_tier' in df_eval.columns:
+        false_positives_df = df_eval[(df_eval['y_true'] == 0) & (df_eval['y_pred'] == 1)]
+        if not false_positives_df.empty:
+            # Group by broad category and tier
+            fp_breakdown = false_positives_df.groupby(['category_grouped', 'negative_tier']).size().reset_index(name='FP_Count')
+            fp_breakdown_path = os.path.join(OUTPUT_DIRS['binary_classification'], f"{model_name.lower()}_{target_metric}_fp_tier_breakdown.csv")
+            fp_breakdown.to_csv(fp_breakdown_path, index=False)
+            print(f"False Positive Tier Breakdown saved to: {fp_breakdown_path}")
+        else:
+            print("Error: No False Positives found – perfect separation!")
+    else:
+        print("Error: 'negative_tier' column not present; skipping FP tier analysis.")
+    # =============================================================
 
     return df_metrics
 

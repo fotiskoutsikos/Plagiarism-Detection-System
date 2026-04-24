@@ -1,13 +1,13 @@
 """
 Exhaustive Fusion Optimization for Plagiarism Detection.
 Performs grid search over 16 metric combinations × 21 alpha weights (336 trials).
-Optimizes strictly for F1-Score via Precision-Recall curve thresholding.
+Optimizes strictly for F0.5-Score via Precision-Recall curve thresholding.
 
 Design Principles:
 1. Data Alignment: Strict inner merge on identical pairs. Mismatches are dropped.
 2. Normalization: Min-Max scaling to [0, 1].
 3. Exhaustive Search: 4 CLEWS metrics × 4 WEALY metrics × 21 alpha weights = 336 trials.
-4. Winner Selection: Absolute max F1-Score wins. Outputs full grid CSV + winning fused distances.
+4. Winner Selection: Absolute max F0.5-Score wins. Outputs full grid CSV + winning fused distances.
 """
 
 import os
@@ -19,7 +19,7 @@ import itertools
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_recall_curve, f1_score
+from sklearn.metrics import precision_recall_curve, f1_score, fbeta_score
 from sklearn.model_selection import train_test_split
 import logging
 
@@ -112,10 +112,28 @@ def normalize_with_train_stats(df_train: pd.DataFrame, df_val: pd.DataFrame,
     return df_train, df_val, norm_stats
 
 
-def find_internal_f1_threshold(distances: np.ndarray, y_true) -> float:
+def _fbeta_score_curve(precision: np.ndarray, recall: np.ndarray, beta: float) -> np.ndarray:
+    """
+    Compute F-beta scores along a PR curve.
+
+    F_beta = (1 + beta²) * P * R / (beta² * P + R)
+
+    beta < 1  → weights Precision more  (e.g. beta=0.5 → Precision 4x recall)
+    beta = 1  → harmonic mean of P and R (standard F1)
+    beta > 1  → weights Recall more
+    """
+    beta_sq = beta ** 2
+    numerator   = (1 + beta_sq) * precision * recall
+    denominator = (beta_sq * precision) + recall
+    return np.divide(numerator, denominator,
+                     out=np.zeros_like(numerator), where=denominator != 0)
+
+
+def find_internal_fbeta_threshold(distances: np.ndarray, y_true, beta: float = 0.5) -> float:
     """
     INTERNAL USE ONLY: Finds the optimal threshold for the validation split 
     to score the current Alpha value during grid search.
+    Optimizes for maximum F-beta score (default beta=0.5 for precision-weighted).
     """
     y_true = np.asarray(y_true)
     
@@ -126,13 +144,11 @@ def find_internal_f1_threshold(distances: np.ndarray, y_true) -> float:
     scores = -distances
     precision, recall, thresholds = precision_recall_curve(y_true, scores)
     
-    # F1 calculation with zero-division protection
-    numerator = 2 * precision * recall
-    denominator = precision + recall
-    f1_scores = np.divide(numerator, denominator, out=np.zeros_like(numerator), where=denominator != 0)
+    # F-beta calculation with zero-division protection
+    fbeta_scores = _fbeta_score_curve(precision, recall, beta)
     
-    if len(f1_scores) > 1:
-        optimal_idx = np.argmax(f1_scores[:-1])
+    if len(fbeta_scores) > 1:
+        optimal_idx = np.argmax(fbeta_scores[:-1])
     else:
         return float(np.median(distances))
         
@@ -144,7 +160,7 @@ def run_exhaustive_grid_search(df_train: pd.DataFrame, df_val: pd.DataFrame) -> 
     Exhaustive search over 16 metric combos × 21 alphas (336 trials).
     """
     results = []
-    best_f1 = -1.0
+    best_f05 = -1.0
     best_config = None
     
     # Generate all 16 metric combinations: 4 CLEWS × 4 WEALY
@@ -174,29 +190,29 @@ def run_exhaustive_grid_search(df_train: pd.DataFrame, df_val: pd.DataFrame) -> 
             train_fused = alpha * dist_c_train + beta * dist_w_train
             
             # Internal scoring mechanism to evaluate this alpha
-            opt_th = find_internal_f1_threshold(train_fused, y_train)
+            opt_th = find_internal_fbeta_threshold(train_fused, y_train, beta=0.5)
             
             val_fused = alpha * dist_c_val + beta * dist_w_val
             y_val_pred = (val_fused <= opt_th).astype(int)
-            val_f1 = f1_score(np.asarray(y_val), y_val_pred, zero_division=0)
+            val_f05 = fbeta_score(np.asarray(y_val), y_val_pred, beta=0.5, zero_division=0)
             
             trial_res = {
                 'clews_metric': m_c,
                 'wealy_metric': m_w,
                 'alpha': round(float(alpha), 2),
                 'beta': round(float(beta), 2),
-                'internal_val_f1_score': round(float(val_f1), 4)
+                'internal_val_f05_score': round(float(val_f05), 4)
             }
             results.append(trial_res)
             
-            if val_f1 > best_f1:
-                best_f1 = val_f1
+            if val_f05 > best_f05:
+                best_f05 = val_f05
                 best_config = trial_res.copy()
                 
         if trial_idx % 4 == 0:
-            logger.info(f"Progress: {trial_idx * len(ALPHA_VALUES)}/{total_trials} trials. Current best F1: {best_f1:.4f}")
+            logger.info(f"Progress: {trial_idx * len(ALPHA_VALUES)}/{total_trials} trials. Current best F0.5: {best_f05:.4f}")
             
-    logger.info(f"Grid search complete. Best internal validation F1: {best_f1:.4f}")
+    logger.info(f"Grid search complete. Best internal validation F0.5: {best_f05:.4f}")
     return pd.DataFrame(results), best_config
 
 
@@ -252,7 +268,7 @@ def save_results(all_results: pd.DataFrame, best_config: Optional[dict], df_fina
     pivot = all_results.pivot_table(
         index='clews_metric', 
         columns='wealy_metric', 
-        values='internal_val_f1_score', 
+        values='internal_val_f05_score', 
         aggfunc='max'
     )
     im = ax.imshow(pivot.values, cmap='viridis', aspect='auto')
@@ -262,20 +278,20 @@ def save_results(all_results: pd.DataFrame, best_config: Optional[dict], df_fina
     ax.set_yticklabels(pivot.index)
     ax.set_xlabel('WEALY Metric')
     ax.set_ylabel('CLEWS Metric')
-    ax.set_title('Max Validation F1-Score per Metric Pair')
+    ax.set_title('Max Validation F0.5-Score per Metric Pair')
     
     for i in range(len(pivot.index)):
         for j in range(len(pivot.columns)):
             val = pivot.values[i, j]
             ax.text(j, i, f'{val:.3f}', ha='center', va='center', color='white', fontsize=8)
     
-    plt.colorbar(im, ax=ax, label='Internal F1-Score')
+    plt.colorbar(im, ax=ax, label='Internal F0.5-Score')
     fig.tight_layout()
-    plot_path = Path(output_plots) / 'fusion_heatmap_max_f1.png'
+    plot_path = Path(output_plots) / 'fusion_heatmap_max_fbeta_score.png'
     fig.savefig(plot_path, dpi=300, bbox_inches='tight')
     plt.close(fig)
 
-    # Alpha vs F1 Curve
+    # Alpha vs F-beta-Score Curve
     best_m_c = best_config['clews_metric']
     best_m_w = best_config['wealy_metric']
     
@@ -285,17 +301,17 @@ def save_results(all_results: pd.DataFrame, best_config: Optional[dict], df_fina
     ]
     
     fig2, ax2 = plt.subplots(figsize=(10, 6))
-    ax2.plot(df_best_pair['alpha'], df_best_pair['internal_val_f1_score'], marker='o', linestyle='-', color='purple', lw=2)
+    ax2.plot(df_best_pair['alpha'], df_best_pair['internal_val_f05_score'], marker='o', linestyle='-', color='purple', lw=2)
     ax2.axvline(x=best_config['alpha'], color='red', linestyle='--', label=f"Optimal α = {best_config['alpha']:.2f}")
     
     ax2.set_xlabel('Weight CLEWS (α)', fontsize=12)
-    ax2.set_ylabel('Internal Validation F1-Score', fontsize=12)
-    ax2.set_title(f'F1-Score vs Alpha\n({best_m_c} & {best_m_w})', fontsize=14, fontweight='bold')
+    ax2.set_ylabel('Internal Validation F0.5-Score', fontsize=12)
+    ax2.set_title(f'F0.5-Score vs Alpha\n({best_m_c} & {best_m_w})', fontsize=14, fontweight='bold')
     ax2.legend()
     ax2.grid(True, alpha=0.3)
     
     fig2.tight_layout()
-    plot_path2 = Path(output_plots) / 'fusion_f1_vs_alpha.png'
+    plot_path2 = Path(output_plots) / 'fusion_fbeta_score_vs_alpha.png'
     fig2.savefig(plot_path2, dpi=300, bbox_inches='tight')
     plt.close(fig2)
 

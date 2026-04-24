@@ -1,80 +1,84 @@
-2026-04-16 19:51:13 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
-2026-04-16 19:51:13 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
-2026-04-16 19:51:13 [INFO] ======================================================================
-2026-04-16 19:51:13 [INFO] ======================================================================
-2026-04-16 19:51:13 [INFO] ABLATION STUDY & THRESHOLD ANALYSIS FOR PLAGIARISM DETECTION
-2026-04-16 19:51:13 [INFO] ABLATION STUDY & THRESHOLD ANALYSIS FOR PLAGIARISM DETECTION
-2026-04-16 19:51:13 [INFO] ======================================================================
-2026-04-16 19:51:13 [INFO] ======================================================================
-2026-04-16 19:51:13 [INFO] Loading distances from results\distances\clews_distances.csv...
-2026-04-16 19:51:13 [INFO] Loading distances from results\distances\clews_distances.csv...
-2026-04-16 19:51:13 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
-2026-04-16 19:51:13 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
-2026-04-16 19:51:13 [INFO] 
-=== ABLATION STUDY RESULTS (CLEWS) ===
-2026-04-16 19:51:13 [INFO] 
-=== ABLATION STUDY RESULTS (CLEWS) ===
-2026-04-16 19:51:14 [INFO] Winning metric for CLEWS: cosine_distance (F1: 0.7629)
-Metric                                   | PR-AUC  | Mean F1    | Opt. Threshold
---------------------------------------------------------------------------------
-Euclidean       | 0.8691  | 0.7626     | 67.6917       
-Cosine          | 0.8695  | 0.7629     | 1.0185        
-Manhattan       | 0.8682  | 0.7618     | 1730.6700     
-Pearson         | 0.8695  | 0.7625     | 1.0219        
-=> WINNING METRIC: Cosine Distance (Best F1: 0.7629)
-2026-04-16 19:51:14 [INFO] Winning metric for CLEWS: cosine_distance (F1: 0.7629)
-2026-04-16 19:51:14 [INFO] Saved PR curve plot to plots/threshold/clews_ablation_pr.png
-2026-04-16 19:51:14 [INFO] Saved PR curve plot to plots/threshold/clews_ablation_pr.png
-2026-04-16 19:51:15 [INFO] Saved distance distribution plot to plots/threshold/clews_cosine_distance_distributions.png
-2026-04-16 19:51:15 [INFO] Saved distance distribution plot to plots/threshold/clews_cosine_distance_distributions.png
-2026-04-16 19:51:15 [INFO] Loading distances from results\distances\wealy_distances.csv...
-2026-04-16 19:51:15 [INFO] Loading distances from results\distances\wealy_distances.csv...
-2026-04-16 19:51:15 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
-2026-04-16 19:51:15 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
-2026-04-16 19:51:15 [INFO] 
-=== ABLATION STUDY RESULTS (WEALY) ===
-2026-04-16 19:51:15 [INFO] 
-=== ABLATION STUDY RESULTS (WEALY) ===
-2026-04-16 19:51:15 [INFO] Winning metric for WEALY: manhattan_distance (F1: 0.7588)
-Metric                                   | PR-AUC  | Mean F1    | Opt. Threshold
---------------------------------------------------------------------------------
-Euclidean       | 0.7677  | 0.7588     | 37.9024       
-Cosine          | 0.7650  | 0.7587     | 1.2317        
-Manhattan       | 0.7683  | 0.7588     | 700.8740      
-Pearson         | 0.7650  | 0.7588     | 1.2323        
-=> WINNING METRIC: Manhattan Distance (Best F1: 0.7588)
-2026-04-16 19:51:15 [INFO] Winning metric for WEALY: manhattan_distance (F1: 0.7588)
-2026-04-16 19:51:16 [INFO] Saved PR curve plot to plots/threshold/wealy_ablation_pr.png
-2026-04-16 19:51:16 [INFO] Saved PR curve plot to plots/threshold/wealy_ablation_pr.png
-2026-04-16 19:51:16 [INFO] Saved distance distribution plot to plots/threshold/wealy_manhattan_distance_distributions.png
-2026-04-16 19:51:16 [INFO] Saved distance distribution plot to plots/threshold/wealy_manhattan_distance_distributions.png
-2026-04-16 19:51:16 [INFO] Loading distances from results\fusion\optimal_fused_distances.csv...
-2026-04-16 19:51:16 [INFO] Loading distances from results\fusion\optimal_fused_distances.csv...
-2026-04-16 19:51:16 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
-2026-04-16 19:51:16 [INFO] Dataset loaded: 69956 pairs, 42765 positives.
-2026-04-16 19:51:16 [INFO] 
-=== ABLATION STUDY RESULTS (FUSION) ===
-2026-04-16 19:51:16 [INFO] 
-=== ABLATION STUDY RESULTS (FUSION) ===
-2026-04-16 19:51:16 [INFO] Winning metric for FUSION: pearson_distance+euclidean_distance (F1: 0.7742)
-Metric                                   | PR-AUC  | Mean F1    | Opt. Threshold
---------------------------------------------------------------------------------
-Pearson         | 0.8636  | 0.7742     | 0.7225        
-=> WINNING METRIC: Pearson Distance (Best F1: 0.7742)
-2026-04-16 19:51:16 [INFO] Winning metric for FUSION: pearson_distance+euclidean_distance (F1: 0.7742)
-2026-04-16 19:51:17 [INFO] Saved PR curve plot to plots/threshold/fusion_ablation_pr.png
-2026-04-16 19:51:17 [INFO] Saved PR curve plot to plots/threshold/fusion_ablation_pr.png
-2026-04-16 19:51:17 [INFO] Saved distance distribution plot to plots/threshold/fusion_pearson_distance+euclidean_distance_distributions.png
-2026-04-16 19:51:17 [INFO] Saved distance distribution plot to plots/threshold/fusion_pearson_distance+euclidean_distance_distributions.png
-2026-04-16 19:51:17 [INFO] Summary of winning metrics saved to: results/threshold/threshold_analysis_summary.csv
-2026-04-16 19:51:17 [INFO] Summary of winning metrics saved to: results/threshold/threshold_analysis_summary.csv
-2026-04-16 19:51:17 [INFO] Detailed report for ALL metrics saved to: results/threshold/all_metrics_detailed_summary.csv
-2026-04-16 19:51:17 [INFO] Detailed report for ALL metrics saved to: results/threshold/all_metrics_detailed_summary.csv
-2026-04-16 19:51:17 [INFO] 
+2026-04-23 17:34:07 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
+2026-04-23 17:34:07 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
+2026-04-23 17:34:07 [INFO] ======================================================================
+2026-04-23 17:34:07 [INFO] ======================================================================
+2026-04-23 17:34:07 [INFO] ABLATION STUDY & THRESHOLD ANALYSIS  (optimising F0.5)
+2026-04-23 17:34:07 [INFO] ABLATION STUDY & THRESHOLD ANALYSIS  (optimising F0.5)
+2026-04-23 17:34:07 [INFO] ======================================================================
+2026-04-23 17:34:07 [INFO] ======================================================================
+2026-04-23 17:34:07 [INFO] Loading distances from results\distances\clews_distances.csv...
+2026-04-23 17:34:07 [INFO] Loading distances from results\distances\clews_distances.csv...
+2026-04-23 17:34:07 [INFO] Dataset loaded: 217258 pairs, 80335 positives.
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\optimal_threshold.py:59: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path_obj)
+2026-04-23 17:34:07 [INFO] Dataset loaded: 217258 pairs, 80335 positives.
+2026-04-23 17:34:07 [INFO] 
+=== ABLATION STUDY RESULTS (CLEWS) — optimising F0.5 ===
+2026-04-23 17:34:07 [INFO] 
+=== ABLATION STUDY RESULTS (CLEWS) — optimising F0.5 ===
+2026-04-23 17:34:08 [INFO] Winning metric for CLEWS: manhattan_distance (F0.5: 0.6539, F1: 0.4426)
+Metric                                   | PR-AUC  | F0.5 (test)  | F1 (test)  | Opt. Threshold
+-----------------------------------------------------------------------------------------------
+Euclidean       | 0.5982  | 0.6535       | 0.4433     | 38.9940       
+Cosine          | 0.5917  | 0.6501       | 0.4451     | 0.3600        
+Manhattan       | 0.5984  | 0.6539       | 0.4426     | 986.3622      
+Pearson         | 0.5916  | 0.6500       | 0.4451     | 0.3599        
+=> WINNING METRIC: Manhattan Distance (Best F0.5: 0.6539, F1 at same threshold: 0.4426)
+2026-04-23 17:34:08 [INFO] Winning metric for CLEWS: manhattan_distance (F0.5: 0.6539, F1: 0.4426)
+2026-04-23 17:34:08 [INFO] Saved PR curve plot to plots/threshold/clews_ablation_pr.png
+2026-04-23 17:34:08 [INFO] Saved PR curve plot to plots/threshold/clews_ablation_pr.png
+2026-04-23 17:34:10 [INFO] Saved distance distribution plot to plots/threshold/clews_manhattan_distance_distributions.png
+2026-04-23 17:34:10 [INFO] Saved distance distribution plot to plots/threshold/clews_manhattan_distance_distributions.png
+2026-04-23 17:34:10 [INFO] Loading distances from results\distances\wealy_distances.csv...
+2026-04-23 17:34:10 [INFO] Loading distances from results\distances\wealy_distances.csv...
+2026-04-23 17:34:10 [INFO] Dataset loaded: 217258 pairs, 80335 positives.
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\optimal_threshold.py:59: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path_obj)
+2026-04-23 17:34:10 [INFO] Dataset loaded: 217258 pairs, 80335 positives.
+2026-04-23 17:34:10 [INFO] 
+=== ABLATION STUDY RESULTS (WEALY) — optimising F0.5 ===
+2026-04-23 17:34:10 [INFO] 
+=== ABLATION STUDY RESULTS (WEALY) — optimising F0.5 ===
+2026-04-23 17:34:11 [INFO] Winning metric for WEALY: manhattan_distance (F0.5: 0.4231, F1: 0.5399)
+Metric                                   | PR-AUC  | F0.5 (test)  | F1 (test)  | Opt. Threshold
+-----------------------------------------------------------------------------------------------
+Euclidean       | 0.2605  | 0.4231       | 0.5399     | 38.0684       
+Cosine          | 0.2606  | 0.4231       | 0.5399     | 1.2551        
+Manhattan       | 0.2606  | 0.4231       | 0.5399     | 702.2458      
+Pearson         | 0.2606  | 0.4231       | 0.5399     | 1.2545        
+=> WINNING METRIC: Manhattan Distance (Best F0.5: 0.4231, F1 at same threshold: 0.5399)
+2026-04-23 17:34:11 [INFO] Winning metric for WEALY: manhattan_distance (F0.5: 0.4231, F1: 0.5399)
+2026-04-23 17:34:11 [INFO] Saved PR curve plot to plots/threshold/wealy_ablation_pr.png
+2026-04-23 17:34:11 [INFO] Saved PR curve plot to plots/threshold/wealy_ablation_pr.png
+2026-04-23 17:34:13 [INFO] Saved distance distribution plot to plots/threshold/wealy_manhattan_distance_distributions.png
+2026-04-23 17:34:13 [INFO] Saved distance distribution plot to plots/threshold/wealy_manhattan_distance_distributions.png
+2026-04-23 17:34:13 [INFO] Loading distances from results\fusion\optimal_fused_distances.csv...
+2026-04-23 17:34:13 [INFO] Loading distances from results\fusion\optimal_fused_distances.csv...
+2026-04-23 17:34:13 [INFO] Dataset loaded: 126197 pairs, 80335 positives.
+2026-04-23 17:34:13 [INFO] Dataset loaded: 126197 pairs, 80335 positives.
+2026-04-23 17:34:13 [INFO] 
+=== ABLATION STUDY RESULTS (FUSION) — optimising F0.5 ===
+2026-04-23 17:34:13 [INFO] 
+=== ABLATION STUDY RESULTS (FUSION) — optimising F0.5 ===
+2026-04-23 17:34:13 [INFO] Winning metric for FUSION: euclidean_distance+cosine_distance (F0.5: 0.8741, F1: 0.7794)
+Metric                                   | PR-AUC  | F0.5 (test)  | F1 (test)  | Opt. Threshold
+-----------------------------------------------------------------------------------------------
+Euclidean       | 0.9299  | 0.8741       | 0.7794     | 0.4072        
+=> WINNING METRIC: Euclidean Distance (Best F0.5: 0.8741, F1 at same threshold: 0.7794)
+2026-04-23 17:34:13 [INFO] Winning metric for FUSION: euclidean_distance+cosine_distance (F0.5: 0.8741, F1: 0.7794)
+2026-04-23 17:34:14 [INFO] Saved PR curve plot to plots/threshold/fusion_ablation_pr.png
+2026-04-23 17:34:14 [INFO] Saved PR curve plot to plots/threshold/fusion_ablation_pr.png
+2026-04-23 17:34:15 [INFO] Saved distance distribution plot to plots/threshold/fusion_euclidean_distance+cosine_distance_distributions.png
+2026-04-23 17:34:15 [INFO] Saved distance distribution plot to plots/threshold/fusion_euclidean_distance+cosine_distance_distributions.png
+2026-04-23 17:34:15 [INFO] Summary of winning metrics saved to: results/threshold/threshold_analysis_summary.csv
+2026-04-23 17:34:15 [INFO] Summary of winning metrics saved to: results/threshold/threshold_analysis_summary.csv
+2026-04-23 17:34:15 [INFO] Detailed report saved to: results/threshold/all_metrics_detailed_summary.csv
+2026-04-23 17:34:15 [INFO] Detailed report saved to: results/threshold/all_metrics_detailed_summary.csv
+2026-04-23 17:34:15 [INFO] 
 ======================================================================
-2026-04-16 19:51:17 [INFO] 
+2026-04-23 17:34:15 [INFO] 
 ======================================================================
-2026-04-16 19:51:17 [INFO] ANALYSIS COMPLETE
-2026-04-16 19:51:17 [INFO] ANALYSIS COMPLETE
-2026-04-16 19:51:17 [INFO] ======================================================================
-2026-04-16 19:51:17 [INFO] ======================================================================
+2026-04-23 17:34:15 [INFO] ANALYSIS COMPLETE
+2026-04-23 17:34:15 [INFO] ANALYSIS COMPLETE
+2026-04-23 17:34:15 [INFO] ======================================================================
+2026-04-23 17:34:15 [INFO] ======================================================================

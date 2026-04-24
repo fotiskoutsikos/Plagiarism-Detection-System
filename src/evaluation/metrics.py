@@ -31,151 +31,301 @@ from utils.dataset_builder import build_positive_pairs
 setup_logging(__file__)
 
 
+def _compute_all_distances(emb_ori: torch.Tensor, emb_mod: torch.Tensor) -> dict:
+    """Return the four distance scalars for a single pair of embedding tensors."""
+    eps = 1e-6
+
+    # Ensure 2-D
+    if emb_ori.ndim == 1:
+        emb_ori = emb_ori.unsqueeze(0)
+    if emb_mod.ndim == 1:
+        emb_mod = emb_mod.unsqueeze(0)
+
+    # Min-length truncation for safe execution
+    min_t = min(emb_ori.shape[0], emb_mod.shape[0])
+    emb_ori = emb_ori[:min_t]
+    emb_mod = emb_mod[:min_t]
+
+    # Cosine Distance
+    ori_norm = emb_ori / (torch.norm(emb_ori, dim=-1, keepdim=True) + eps)
+    mod_norm = emb_mod / (torch.norm(emb_mod, dim=-1, keepdim=True) + eps)
+    cosine_dist = (1.0 - torch.matmul(ori_norm, mod_norm.T)).mean().item()
+
+    # Euclidean Distance
+    euclidean_dist = torch.dist(emb_ori, emb_mod).item()
+
+    # Manhattan / L1 Distance
+    manhattan_dist = torch.dist(emb_ori, emb_mod, p=1).item()
+
+    # Pearson Correlation Distance
+    ori_c = emb_ori - emb_ori.mean(dim=-1, keepdim=True)
+    mod_c = emb_mod - emb_mod.mean(dim=-1, keepdim=True)
+    ori_c_norm = ori_c / (torch.norm(ori_c, dim=-1, keepdim=True) + eps)
+    mod_c_norm = mod_c / (torch.norm(mod_c, dim=-1, keepdim=True) + eps)
+    pearson_dist = (1.0 - torch.matmul(ori_c_norm, mod_c_norm.T)).mean().item()
+
+    return {
+        "euclidean_distance": euclidean_dist,
+        "cosine_distance": cosine_dist,
+        "manhattan_distance": manhattan_dist,
+        "pearson_distance": pearson_dist,
+    }
+
+
+def _build_search_pool(df_positives: pd.DataFrame, device: torch.device):
+    """
+    Build a normalised embedding matrix and companion metadata arrays from
+    all *modified* embeddings in df_positives.
+
+    Returns
+    -------
+    pool_emb_norm : torch.Tensor  (N, D)  – L2-normalised, on `device`
+    pool_pair_ids : np.ndarray    (N,)    – pair_id of every candidate
+    pool_mod_types: np.ndarray    (N,)    – final_mod_type of every candidate
+    pool_embeddings: list[np.ndarray]     – raw (unnormalised) embeddings for
+                                            final distance computation
+    """
+    eps = 1e-6
+    raw_embs = []
+    pair_ids = []
+    mod_types = []
+
+    for _, row in df_positives.iterrows():
+        emb = np.array(row["embedding_mod"].tolist(), dtype=np.float32)
+        raw_embs.append(emb)
+        pair_ids.append(row["pair_id"])
+        mod_types.append(row["final_mod_type"])
+
+    pool_pair_ids = np.array(pair_ids)
+    pool_mod_types = np.array(mod_types)
+
+    # Stack into (N, D) – use mean-pooling across time axis if embedding is 2-D
+    pool_2d = []
+    for emb in raw_embs:
+        t = torch.tensor(emb)
+        if t.ndim == 1:
+            pool_2d.append(t)
+        else:
+            pool_2d.append(t.mean(dim=0))   # (D,)
+
+    pool_matrix = torch.stack(pool_2d).to(device)                          # (N, D)
+    pool_emb_norm = F.normalize(pool_matrix, dim=-1, eps=eps)              # (N, D)
+
+    return pool_emb_norm, pool_pair_ids, pool_mod_types, raw_embs
+
+
+def _find_hardest_candidate(
+    query_norm: torch.Tensor,          # (D,)  normalised query
+    pool_emb_norm: torch.Tensor,       # (N, D) normalised pool
+    allowed_mask: torch.Tensor,        # (N,) bool – True = eligible
+) -> int | None:
+    """
+    Compute cosine distance from query to every allowed pool entry and return
+    the index of the nearest one (minimum distance = maximum similarity).
+
+    Returns None if no eligible candidate exists.
+    """
+    if not allowed_mask.any():
+        return None
+
+    # Cosine similarity to all pool entries: (N,)
+    sims = torch.mv(pool_emb_norm, query_norm)           # dot product on unit vecs
+    # Apply mask: set ineligible entries to -inf so argmax ignores them
+    sims[~allowed_mask] = float("-inf")
+    best_idx = int(sims.argmax().item())
+    return best_idx
+
+
 def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
-    """Compute distances separating plagiarism positive cases and 1-to-K hard negative pairs."""
+    """
+    Compute pairwise distances for:
+      • Positive pairs  (ground-truth plagiarism)
+      • Naive Negatives (cyclic-shift within same mod_type – baseline)
+      • Weak  Negatives (hardest within same mod_type, different pair_id)
+      • Hard  Negatives (hardest across ALL mod_types, different pair_id)
 
-    # Build positive pairs using centralized utility
+    All distance computation is done on-the-fly; the full N×N matrix is
+    never materialised, keeping RAM usage proportional to N, not N².
+    """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+
+    # Build positive pairs
     df_positives = build_positive_pairs(parquet_path, smp_metadata_path)
+    print(f"\nLoaded {len(df_positives)} positive pairs.")
 
-    # 1-to-K Hard Negatives (Same Modification Type)
-    print(f"\n--- Generating 1-to-K Hard Negative pairs ({len(df_positives)} Positives) ---")
-    K_NEGATIVES = 5  # Αναλογία 1 θετικό προς 5 αρνητικά
-    negatives = []
-    
-    for mod_type, group in df_positives.groupby('final_mod_type'):
-        n_samples = len(group)
-        if n_samples < 2: 
-            continue 
-        
-        group = group.sort_values(by=['pair_id', 'time']).reset_index(drop=True)
-        indices = np.arange(n_samples)
-        
-        actual_K = min(K_NEGATIVES, n_samples - 1)
-        
-        for k in range(1, actual_K + 1):
-            shifted_indices = (indices + k) % n_samples
-            
-            group_neg = group.copy()
-            group_neg['filename_mod'] = group['filename_mod'].iloc[shifted_indices].values
-            group_neg['embedding_mod'] = group['embedding_mod'].iloc[shifted_indices].values
-            group_neg['pair_id_mod'] = group['pair_id'].iloc[shifted_indices].values
-            
-            group_neg = group_neg[group_neg['pair_id'] != group_neg['pair_id_mod']].copy()
-            
-            group_neg['final_mod_type'] = 'Negative_' + str(mod_type)
-            group_neg = group_neg.drop(columns=['pair_id_mod'])
-            negatives.append(group_neg)
+    # Build search pool (all modified embeddings)
+    print("Building search pool …")
+    pool_emb_norm, pool_pair_ids, pool_mod_types, pool_raw_embs = \
+        _build_search_pool(df_positives, device)
+    N = len(pool_pair_ids)
+    print(f"Search pool: {N} candidates  |  embedding dim: {pool_emb_norm.shape[1]}")
 
-    df_negatives = pd.concat(negatives, ignore_index=True) if negatives else pd.DataFrame()
-    df_all_pairs = pd.concat([df_positives, df_negatives], ignore_index=True)
+    # Pre-compute a query representation for each original embedding
+    # (mean-pool across time, then L2-normalise)
+    eps = 1e-6
 
-    df_all_pairs = df_all_pairs.drop_duplicates(subset=['filename_ori', 'filename_mod', 'final_mod_type']).reset_index(drop=True)
+    def _query_norm(raw_emb: np.ndarray) -> torch.Tensor:
+        t = torch.tensor(raw_emb, device=device)
+        if t.ndim > 1:
+            t = t.mean(dim=0)
+        return F.normalize(t, dim=-1, eps=eps)
 
-    # Compute distances for ALL cases
-    print(f"--- Computing Distances Matrix ({len(df_positives)} Positives + {len(df_negatives)} Negatives) ---")
-    results = []
-    for _, row in df_all_pairs.iterrows():
-        emb_mod_np = np.array(row['embedding_mod'].tolist(), dtype=np.float32)
-        emb_ori_np = np.array(row['embedding_ori'].tolist(), dtype=np.float32)
+    # Mine negatives for every positive pair
+    print("\nMining Naive / Weak / Hard negatives …")
 
-        emb_mod = torch.tensor(emb_mod_np)
-        emb_ori = torch.tensor(emb_ori_np)
+    naive_rows = []
+    weak_rows  = []
+    hard_rows  = []
 
-        if emb_mod.ndim == 1: emb_mod = emb_mod.unsqueeze(0)
-        if emb_ori.ndim == 1: emb_ori = emb_ori.unsqueeze(0)
+    pair_ids_tensor  = torch.tensor(pool_pair_ids.astype(int), device=device)
 
-        # Min-length truncation for safe execution
-        min_t = min(emb_ori.shape[0], emb_mod.shape[0])
-        emb_ori = emb_ori[:min_t]
-        emb_mod = emb_mod[:min_t]
+    for idx, row in df_positives.iterrows():
+        target_pair_id = row["pair_id"]
+        target_mod     = row["final_mod_type"]
 
-        eps = 1e-6
-        ori_norm = emb_ori / (torch.norm(emb_ori, dim=-1, keepdim=True) + eps)
-        mod_norm = emb_mod / (torch.norm(emb_mod, dim=-1, keepdim=True) + eps)
+        emb_ori_raw = np.array(row["embedding_ori"].tolist(), dtype=np.float32)
+        q_norm = _query_norm(emb_ori_raw)                        # (D,)
 
-        # -- Cosine Distance --
-        sim_matrix = torch.matmul(ori_norm, mod_norm.T)
-        dist_matrix = 1.0 - sim_matrix
-        final_dist = dist_matrix.mean().item()
+        # Mask: candidates with a different pair_id (exclude own song and its variants)
+        diff_pair_mask = (pool_pair_ids != target_pair_id)       # (N,) bool numpy
+        diff_pair_t    = torch.tensor(diff_pair_mask, device=device)
 
+        # --Naive: cyclic-shift within same mod_type, different pair_id ----
+        same_mod_mask = (pool_mod_types == target_mod) & diff_pair_mask
+        same_mod_idxs = np.where(same_mod_mask)[0]
 
-        # -- Manhattan / L1 Distance --
-        manhattan_dist = torch.dist(emb_ori, emb_mod, p=1).item()
+        naive_idx = None
+        if len(same_mod_idxs) > 0:
+            # Deterministic cyclic shift: use the position of this row inside
+            # same_mod_idxs to pick the "next" candidate
+            pos_in_group = np.searchsorted(same_mod_idxs, idx) % len(same_mod_idxs)
+            naive_idx = int(same_mod_idxs[pos_in_group])
 
-        # -- Pearson Correlation Distance --
-        ori_centered = emb_ori - emb_ori.mean(dim=-1, keepdim=True)
-        mod_centered = emb_mod - emb_mod.mean(dim=-1, keepdim=True)
-        
-        ori_c_norm = ori_centered / (torch.norm(ori_centered, dim=-1, keepdim=True) + eps)
-        mod_c_norm = mod_centered / (torch.norm(mod_centered, dim=-1, keepdim=True) + eps)
-        
-        pearson_sim_matrix = torch.matmul(ori_c_norm, mod_c_norm.T)
-        pearson_dist = 1.0 - pearson_sim_matrix.mean().item()
+        # Weak: cosine-nearest within same mod_type, different pair_id
+        weak_mask_t = torch.tensor(
+            (pool_mod_types == target_mod) & diff_pair_mask, device=device
+        )
+        weak_idx = _find_hardest_candidate(q_norm, pool_emb_norm, weak_mask_t)
 
-        results.append({
-            'pair_id': row['pair_id'],
-            'time': row['time'],
-            'final_mod_type': row['final_mod_type'],
-            'filename_mod': row['filename_mod'],
-            'filename_ori': row['filename_ori'],
-            'euclidean_distance': torch.dist(emb_ori, emb_mod).item(),
-            'cosine_distance': final_dist,
-            'manhattan_distance': manhattan_dist,
-            'pearson_distance': pearson_dist,
+        # Hard: cosine-nearest across ALL mod_types, different pair_id
+        hard_idx = _find_hardest_candidate(q_norm, pool_emb_norm, diff_pair_t)
+
+        # Helper to build a result row from a pool index
+        def _build_neg_row(pool_idx: int, tier: str, label_prefix: str) -> dict:
+            emb_mod_raw = np.array(
+                df_positives.iloc[pool_idx]["embedding_mod"].tolist(), dtype=np.float32
+            )
+            dists = _compute_all_distances(
+                torch.tensor(emb_ori_raw), torch.tensor(emb_mod_raw)
+            )
+            return {
+                "pair_id":        row["pair_id"],
+                "time":           row["time"],
+                "final_mod_type": f"{label_prefix}{target_mod}",
+                "filename_ori":   row["filename_ori"],
+                "filename_mod":   df_positives.iloc[pool_idx]["filename_mod"],
+                "negative_tier":  tier,
+                **dists,
+            }
+
+        if naive_idx is not None:
+            naive_rows.append(_build_neg_row(naive_idx, "naive", "Negative_"))
+        if weak_idx is not None:
+            weak_rows.append(_build_neg_row(weak_idx,  "weak",  "Negative_"))
+        if hard_idx is not None:
+            hard_rows.append(_build_neg_row(hard_idx,  "hard",  "Negative_"))
+
+    print(f"  Naive negatives : {len(naive_rows)}")
+    print(f"  Weak  negatives : {len(weak_rows)}")
+    print(f"  Hard  negatives : {len(hard_rows)}")
+
+    # Compute distances for positive pairs
+    print("\nComputing distances for positive pairs …")
+    pos_rows = []
+    for _, row in df_positives.iterrows():
+        emb_ori_raw = np.array(row["embedding_ori"].tolist(), dtype=np.float32)
+        emb_mod_raw = np.array(row["embedding_mod"].tolist(), dtype=np.float32)
+        dists = _compute_all_distances(
+            torch.tensor(emb_ori_raw), torch.tensor(emb_mod_raw)
+        )
+        pos_rows.append({
+            "pair_id":        row["pair_id"],
+            "time":           row["time"],
+            "final_mod_type": row["final_mod_type"],
+            "filename_ori":   row["filename_ori"],
+            "filename_mod":   row["filename_mod"],
+            "negative_tier":  "N/A",
+            **dists,
         })
 
-    df_results = pd.DataFrame(results)
-    df_results = df_results.sort_values(by=['final_mod_type', 'pair_id'])
+    # Assemble, deduplicate & save
+    df_results = pd.concat(
+        [
+            pd.DataFrame(pos_rows),
+            pd.DataFrame(naive_rows),
+            pd.DataFrame(weak_rows),
+            pd.DataFrame(hard_rows),
+        ],
+        ignore_index=True,
+    )
+
+    df_results = (
+        df_results
+        .drop_duplicates(subset=["filename_ori", "filename_mod", "final_mod_type", "negative_tier"])
+        .sort_values(by=["final_mod_type", "negative_tier", "pair_id"])
+        .reset_index(drop=True)
+    )
 
     output_dir = os.path.dirname(output_csv_path)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
 
     df_results.to_csv(output_csv_path, index=False)
-    print(f"Saved Pairwise Distances to: {output_csv_path}")
+    print(f"\nSaved pairwise distances → {output_csv_path}")
+    print(f"Total rows: {len(df_results)}")
 
-    # Export full summary without truncation
-    summary = df_results.groupby('final_mod_type')[[
-        'euclidean_distance', 'cosine_distance', 'manhattan_distance', 'pearson_distance'
+    # Summary
+    summary = df_results.groupby(["final_mod_type", "negative_tier"])[[
+        "euclidean_distance", "cosine_distance", "manhattan_distance", "pearson_distance"
     ]].mean()
-    
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print("\nSummary of average distances by modification type:")
+
+    with pd.option_context("display.max_rows", None, "display.max_columns", None):
+        print("\nSummary of average distances by modification type × tier:")
         print(summary)
-        
-    summary_csv_path = output_csv_path.replace('.csv', '_summary.csv')
+
+    summary_csv_path = output_csv_path.replace(".csv", "_summary.csv")
     summary.to_csv(summary_csv_path)
-    print(f"Saved full summary to: {summary_csv_path}")
+    print(f"Saved full summary → {summary_csv_path}")
 
 
-if __name__ == "__main__":    
-    parser = argparse.ArgumentParser(description="Compute distances (Metric Learning) for CLEWS/WEALY.")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Compute distances (Naive / Weak / Hard Negatives) for CLEWS/WEALY."
+    )
     parser.add_argument(
-        "--model", 
-        type=str, 
-        choices=['clews', 'wealy', 'all'], 
-        default='all',
-        help="Choose model (clews, wealy, or all)"
+        "--model",
+        type=str,
+        choices=["clews", "wealy", "all"],
+        default="all",
+        help="Choose model (clews, wealy, or all)",
     )
     args = parser.parse_args()
 
-    # Paths relative to project root
     SMP_CSV = "data/Final_dataset_pairs.csv"
 
-    if args.model in ['clews', 'all']:
+    if args.model in ["clews", "all"]:
         CLEWS_PARQUET = "data/clews_embeddings.parquet"
-        CLEWS_RESULTS = "results/distances/clews_distances.csv" 
-        
+        CLEWS_RESULTS = "results/distances/clews_distances.csv"
         print("\n=== Calculating distances for CLEWS ===")
         if os.path.exists(CLEWS_PARQUET):
             compute_distances(CLEWS_PARQUET, SMP_CSV, CLEWS_RESULTS)
         else:
             print(f"Error: File {CLEWS_PARQUET} not found.")
 
-    if args.model in ['wealy', 'all']:
+    if args.model in ["wealy", "all"]:
         WEALY_PARQUET = "data/wealy_embeddings.parquet"
         WEALY_RESULTS = "results/distances/wealy_distances.csv"
-        
         print("\n=== Calculating distances for WEALY ===")
         if os.path.exists(WEALY_PARQUET):
             compute_distances(WEALY_PARQUET, SMP_CSV, WEALY_RESULTS)

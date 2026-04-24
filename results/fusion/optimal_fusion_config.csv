@@ -1,2 +1,2 @@
-clews_metric,wealy_metric,alpha,beta,internal_val_f1_score
-pearson_distance,euclidean_distance,0.4,0.6,0.7735
+clews_metric,wealy_metric,alpha,beta,internal_val_f05_score
+euclidean_distance,cosine_distance,1.0,0.0,0.8729

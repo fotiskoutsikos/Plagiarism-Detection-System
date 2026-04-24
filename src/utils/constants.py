@@ -98,6 +98,7 @@ CATEGORY_DISPLAY_NAMES = {
 # ============================================================================
 PLOT_COLORS = {
     'Original': 'blue',
+    'Cover': 'orange',
     'MusicGen': 'red',
     'AudioLDM2': 'green',
     'MGE-LDM': 'purple'
