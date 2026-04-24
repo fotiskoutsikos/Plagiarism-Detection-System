@@ -368,12 +368,12 @@ def run_model_analysis(
 
         plot_ablation_pr(
             plot_data,
-            f'{OUTPUT_DIRS["threshold_plots"]}/{model_name.lower()}_ablation_pr.png',
+            f'{OUTPUT_DIRS["threshold_plots"]}/{model_name.lower()}_ablation_pr.pdf',
             model_name,
         )
         plot_distance_distributions(
             df, winning_results['optimal_threshold'], winner_metric,
-            f'{OUTPUT_DIRS["threshold_plots"]}/{model_name.lower()}_{winner_metric}_distributions.png',
+            f'{OUTPUT_DIRS["threshold_plots"]}/{model_name.lower()}_{winner_metric}_distributions.pdf',
             beta=beta,
         )
         winning_results['metric'] = winner_metric

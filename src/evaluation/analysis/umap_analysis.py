@@ -320,5 +320,5 @@ if __name__ == '__main__':
     if os.path.exists(CLEWS_DISTANCES) and os.path.exists(CLEWS_EMBEDDINGS):
         df_clews = load_and_clean_data(CLEWS_DISTANCES, CLEWS_EMBEDDINGS)
         plot_trajectories_grid(df_clews,
-                               output_path='plots/umap/clews_umap_plot.png',
+                               output_path='plots/umap/clews_umap_plot.pdf',
                                title="CLEWS Latent Space Topology (Local Ecosystem per Track)")

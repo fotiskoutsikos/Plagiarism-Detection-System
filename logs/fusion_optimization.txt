@@ -1,50 +1,50 @@
-2026-04-23 17:33:26 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
-2026-04-23 17:33:26 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
-2026-04-23 17:33:26 [INFO] ======================================================================
-2026-04-23 17:33:26 [INFO] ======================================================================
-2026-04-23 17:33:26 [INFO] EXHAUSTIVE FUSION OPTIMIZATION
-2026-04-23 17:33:26 [INFO] EXHAUSTIVE FUSION OPTIMIZATION
-2026-04-23 17:33:26 [INFO] ======================================================================
-2026-04-23 17:33:26 [INFO] ======================================================================
-2026-04-23 17:33:26 [INFO] Aligning datasets...
-2026-04-23 17:33:26 [INFO] Aligning datasets...
-2026-04-23 17:33:26 [INFO] Loading CLEWS from results/distances/clews_distances.csv
-2026-04-23 17:33:26 [INFO] Loading CLEWS from results/distances/clews_distances.csv
-2026-04-23 17:33:26 [INFO] Loading WEALY from results/distances/wealy_distances.csv
+2026-04-24 20:52:42 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
+2026-04-24 20:52:42 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
+2026-04-24 20:52:42 [INFO] ======================================================================
+2026-04-24 20:52:42 [INFO] ======================================================================
+2026-04-24 20:52:42 [INFO] EXHAUSTIVE FUSION OPTIMIZATION
+2026-04-24 20:52:42 [INFO] EXHAUSTIVE FUSION OPTIMIZATION
+2026-04-24 20:52:42 [INFO] ======================================================================
+2026-04-24 20:52:42 [INFO] ======================================================================
+2026-04-24 20:52:42 [INFO] Aligning datasets...
+2026-04-24 20:52:42 [INFO] Aligning datasets...
+2026-04-24 20:52:42 [INFO] Loading CLEWS from results/distances/clews_distances.csv
+2026-04-24 20:52:42 [INFO] Loading CLEWS from results/distances/clews_distances.csv
+2026-04-24 20:52:42 [INFO] Loading WEALY from results/distances/wealy_distances.csv
 c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\fusion_optimization.py:65: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df_c = pd.read_csv(clews_csv)
-2026-04-23 17:33:26 [INFO] Loading WEALY from results/distances/wealy_distances.csv
-2026-04-23 17:33:27 [INFO] Alignment: 434516 total rows → 126197 perfectly matched pairs.
+2026-04-24 20:52:42 [INFO] Loading WEALY from results/distances/wealy_distances.csv
+2026-04-24 20:52:42 [INFO] Alignment: 434516 total rows → 126197 perfectly matched pairs.
 c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\fusion_optimization.py:67: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df_w = pd.read_csv(wealy_csv)
-2026-04-23 17:33:27 [INFO] Alignment: 434516 total rows → 126197 perfectly matched pairs.
-2026-04-23 17:33:27 [INFO] Splitting & normalizing...
-2026-04-23 17:33:27 [INFO] Splitting & normalizing...
-2026-04-23 17:33:27 [INFO] Running exhaustive grid search (336 trials)...
-2026-04-23 17:33:27 [INFO] Running exhaustive grid search (336 trials)...
-2026-04-23 17:33:27 [INFO] Starting exhaustive grid search: 336 trials...
-2026-04-23 17:33:27 [INFO] Starting exhaustive grid search: 336 trials...
-2026-04-23 17:33:28 [INFO] Progress: 84/336 trials. Current best F0.5: 0.8646
-2026-04-23 17:33:28 [INFO] Progress: 84/336 trials. Current best F0.5: 0.8646
-2026-04-23 17:33:29 [INFO] Progress: 168/336 trials. Current best F0.5: 0.8729
-2026-04-23 17:33:29 [INFO] Progress: 168/336 trials. Current best F0.5: 0.8729
-2026-04-23 17:33:31 [INFO] Progress: 252/336 trials. Current best F0.5: 0.8729
-2026-04-23 17:33:31 [INFO] Progress: 252/336 trials. Current best F0.5: 0.8729
-2026-04-23 17:33:32 [INFO] Progress: 336/336 trials. Current best F0.5: 0.8729
-2026-04-23 17:33:32 [INFO] Progress: 336/336 trials. Current best F0.5: 0.8729
-2026-04-23 17:33:32 [INFO] Grid search complete. Best internal validation F0.5: 0.8729
-2026-04-23 17:33:32 [INFO] Grid search complete. Best internal validation F0.5: 0.8729
-2026-04-23 17:33:32 [INFO] Generating final fused distances...
-2026-04-23 17:33:32 [INFO] Generating final fused distances...
-2026-04-23 17:33:32 [INFO] Saved cleanly named fused distances to results\fusion\optimal_fused_distances.csv
-2026-04-23 17:33:32 [INFO] Saved cleanly named fused distances to results\fusion\optimal_fused_distances.csv
-2026-04-23 17:33:33 [INFO] 
+2026-04-24 20:52:42 [INFO] Alignment: 434516 total rows → 126197 perfectly matched pairs.
+2026-04-24 20:52:42 [INFO] Splitting & normalizing...
+2026-04-24 20:52:42 [INFO] Splitting & normalizing...
+2026-04-24 20:52:42 [INFO] Running exhaustive grid search (336 trials)...
+2026-04-24 20:52:42 [INFO] Running exhaustive grid search (336 trials)...
+2026-04-24 20:52:42 [INFO] Starting exhaustive grid search: 336 trials...
+2026-04-24 20:52:42 [INFO] Starting exhaustive grid search: 336 trials...
+2026-04-24 20:52:44 [INFO] Progress: 84/336 trials. Current best F0.5: 0.8646
+2026-04-24 20:52:44 [INFO] Progress: 84/336 trials. Current best F0.5: 0.8646
+2026-04-24 20:52:45 [INFO] Progress: 168/336 trials. Current best F0.5: 0.8729
+2026-04-24 20:52:45 [INFO] Progress: 168/336 trials. Current best F0.5: 0.8729
+2026-04-24 20:52:46 [INFO] Progress: 252/336 trials. Current best F0.5: 0.8729
+2026-04-24 20:52:46 [INFO] Progress: 252/336 trials. Current best F0.5: 0.8729
+2026-04-24 20:52:47 [INFO] Progress: 336/336 trials. Current best F0.5: 0.8729
+2026-04-24 20:52:47 [INFO] Progress: 336/336 trials. Current best F0.5: 0.8729
+2026-04-24 20:52:47 [INFO] Grid search complete. Best internal validation F0.5: 0.8729
+2026-04-24 20:52:47 [INFO] Grid search complete. Best internal validation F0.5: 0.8729
+2026-04-24 20:52:47 [INFO] Generating final fused distances...
+2026-04-24 20:52:47 [INFO] Generating final fused distances...
+2026-04-24 20:52:48 [INFO] Saved cleanly named fused distances to results\fusion\optimal_fused_distances.csv
+2026-04-24 20:52:48 [INFO] Saved cleanly named fused distances to results\fusion\optimal_fused_distances.csv
+2026-04-24 20:52:49 [INFO] 
 ======================================================================
-2026-04-23 17:33:33 [INFO] 
+2026-04-24 20:52:49 [INFO] 
 ======================================================================
-2026-04-23 17:33:33 [INFO] WINNER: euclidean_distance + cosine_distance
-2026-04-23 17:33:33 [INFO] WINNER: euclidean_distance + cosine_distance
-2026-04-23 17:33:33 [INFO] WEIGHTS: α=1.00, β=0.00
-2026-04-23 17:33:33 [INFO] WEIGHTS: α=1.00, β=0.00
-2026-04-23 17:33:33 [INFO] ======================================================================
-2026-04-23 17:33:33 [INFO] ======================================================================
+2026-04-24 20:52:49 [INFO] WINNER: euclidean_distance + cosine_distance
+2026-04-24 20:52:49 [INFO] WINNER: euclidean_distance + cosine_distance
+2026-04-24 20:52:49 [INFO] WEIGHTS: α=1.00, β=0.00
+2026-04-24 20:52:49 [INFO] WEIGHTS: α=1.00, β=0.00
+2026-04-24 20:52:49 [INFO] ======================================================================
+2026-04-24 20:52:49 [INFO] ======================================================================

@@ -287,7 +287,7 @@ def save_results(all_results: pd.DataFrame, best_config: Optional[dict], df_fina
     
     plt.colorbar(im, ax=ax, label='Internal F0.5-Score')
     fig.tight_layout()
-    plot_path = Path(output_plots) / 'fusion_heatmap_max_fbeta_score.png'
+    plot_path = Path(output_plots) / 'fusion_heatmap_max_fbeta_score.pdf'
     fig.savefig(plot_path, dpi=300, bbox_inches='tight')
     plt.close(fig)
 
@@ -311,7 +311,7 @@ def save_results(all_results: pd.DataFrame, best_config: Optional[dict], df_fina
     ax2.grid(True, alpha=0.3)
     
     fig2.tight_layout()
-    plot_path2 = Path(output_plots) / 'fusion_fbeta_score_vs_alpha.png'
+    plot_path2 = Path(output_plots) / 'fusion_fbeta_score_vs_alpha.pdf'
     fig2.savefig(plot_path2, dpi=300, bbox_inches='tight')
     plt.close(fig2)
 

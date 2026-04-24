@@ -210,7 +210,7 @@ def plot_distance_trends(df: pd.DataFrame, model_name: str, metric: str, thresho
     plt.tight_layout()
 
     safe_metric_name = metric.replace("+", "_PLUS_")
-    plot_path = Path(output_dir) / f"{model_name.lower()}_{safe_metric_name}_distance_trends.png"
+    plot_path = Path(output_dir) / f"{model_name.lower()}_{safe_metric_name}_distance_trends.pdf"
     fig.savefig(plot_path, dpi=PLOT_DPI)
     plt.close(fig)
     logger.info(f"Saved Distance Trends for {model_name} ({metric})")
@@ -247,7 +247,7 @@ def plot_extreme_scenarios(df: pd.DataFrame, model_name: str, metric: str, outpu
 
     plt.tight_layout()
     safe_metric_name = metric.replace("+", "_PLUS_")
-    plot_path = Path(output_dir) / f"{model_name.lower()}_{safe_metric_name}_extreme_stress_test.png"
+    plot_path = Path(output_dir) / f"{model_name.lower()}_{safe_metric_name}_extreme_stress_test.pdf"
     fig.savefig(plot_path, dpi=PLOT_DPI)
     plt.close(fig)
     logger.info(f"Saved Extreme Stress Test for {model_name} ({metric})")
