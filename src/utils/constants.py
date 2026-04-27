@@ -38,7 +38,9 @@ OUTPUT_DIRS = {
     "fusion": "results/fusion",
     "fusion_plots": "plots/fusion",
     "threshold": "results/threshold",
-    "threshold_plots": "plots/threshold"
+    "threshold_plots": "plots/threshold",
+    "explainability": "results/explainability",
+    "explainability_plots": "plots/explainability"
 }
 
 # ============================================================================
@@ -107,3 +109,27 @@ PLOT_COLORS = {
 PLOT_LINE_STYLES = ['-', '--', '-.', ':']
 PLOT_MARKERS = ['o', 's', '^', 'D']
 PLOT_DPI = 300
+
+CATEGORY_COLORS = {
+    '1a. Human Plagiarism (Base)': '#2196F3',
+    '1b. Human Plagiarism + DSP':  '#64B5F6',
+    '2. Original + DSP':           '#4CAF50',
+    '3. AI Generation (Base)':     '#E53935',
+    '4. AI + DSP':                 '#EF9A9A',
+    '1. Human Plagiarism (SMP)':   '#2196F3'  # Fallback
+}
+
+PLOT_STYLE_PARAMS = {
+    "figure.dpi": 300,
+    "axes.titlesize": 11,
+    "axes.labelsize": 10,
+    "axes.facecolor": "white",
+    "axes.edgecolor": "#d0d0d0",
+    "axes.grid": True,
+    "grid.color": "#f0f0f0",
+    "grid.linestyle": "-",
+    "grid.linewidth": 0.5,
+    "font.size": 9,
+    "font.family": "sans-serif",
+    "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans"]
+}

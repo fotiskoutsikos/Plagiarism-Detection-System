@@ -13,8 +13,8 @@ This module handles:
 """
 
 import ast
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 
 def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFrame:
@@ -246,3 +246,142 @@ def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFr
     )
     
     return df_positives
+
+
+def clean_embedding(emb) -> np.ndarray:
+    """
+    Robustly parse and flatten an embedding value into a 1-D float32 numpy array.
+
+    Handles ALL storage formats encountered across parquet and CSV sources:
+      - Already-flat np.ndarray of float32/float64   → direct cast
+      - Nested np.ndarray  (array of arrays)          → flatten then cast
+      - Python list / nested list                     → recursive flatten + cast
+      - String representation of list                 → ast.literal_eval + recurse
+      - None / NaN                                    → empty array
+
+    Used by: umap.py (inline copy), vector_shift_analysis.py
+    Centralised here to avoid duplication.
+    """
+    # None / scalar NaN 
+    if emb is None:
+        return np.array([], dtype=np.float32)
+    if isinstance(emb, float) and np.isnan(emb):
+        return np.array([], dtype=np.float32)
+
+    # String → parse first
+    if isinstance(emb, str):
+        try:
+            emb = ast.literal_eval(emb)
+        except Exception:
+            return np.array([], dtype=np.float32)
+
+    # numpy array─
+    if isinstance(emb, np.ndarray):
+        # Already flat and numeric → fast path
+        if emb.ndim == 1 and np.issubdtype(emb.dtype, np.number):
+            return emb.astype(np.float32)
+        # Nested / object dtype → flatten via ravel after converting to object
+        try:
+            flat = emb.ravel()
+            # ravel on an object array gives an array of sub-arrays; recurse
+            if flat.dtype == object:
+                return clean_embedding(flat.tolist())
+            return flat.astype(np.float32)
+        except Exception:
+            return clean_embedding(emb.tolist())   # fall through to list path
+
+    # list / tuple → recursive flatten
+    if isinstance(emb, (list, tuple)):
+        def _flatten(item):
+            """Recursively yield scalar floats from arbitrarily nested sequences."""
+            if isinstance(item, (list, tuple, np.ndarray)):
+                for sub in item:
+                    yield from _flatten(sub)
+            elif item is not None:
+                try:
+                    v = float(item)
+                    if not np.isnan(v):
+                        yield v
+                except (TypeError, ValueError):
+                    pass
+
+        try:
+            return np.array(list(_flatten(emb)), dtype=np.float32)
+        except Exception:
+            return np.array([], dtype=np.float32)
+
+    # Scalar fallback
+    try:
+        return np.array([float(emb)], dtype=np.float32)
+    except (TypeError, ValueError):
+        return np.array([], dtype=np.float32)
+
+
+def validate_and_filter_embeddings(df: pd.DataFrame,
+                                   emb_cols: list,
+                                   clean: bool = True) -> tuple:
+    """
+    Validate that all embedding columns have consistent shape across rows.
+    Optionally cleans/parses embeddings first (handles string/nested formats).
+
+    Args:
+        df       : DataFrame containing embedding columns.
+        emb_cols : List of column names that contain embeddings,
+                   e.g. ['embedding_ori', 'embedding_mod'] or ['embedding'].
+        clean    : If True, apply clean_embedding() to each column first.
+
+    Returns:
+        (filtered_df, mode_dim) where:
+            filtered_df : Rows where ALL emb_cols have the modal dimension.
+            mode_dim    : The dominant (most common) embedding dimension found.
+
+    Raises:
+        ValueError: If no valid embeddings are found at all.
+    """
+
+    df = df.copy()
+
+    if clean:
+        for col in emb_cols:
+            print(f"Cleaning column '{col}'…")
+            df[col] = df[col].apply(clean_embedding)
+
+    # Compute per-row, per-column lengths
+    # shape: (N_rows, N_cols)
+    length_arrays = np.column_stack(
+        [np.array([len(x) for x in df[col].values], dtype=int)
+         for col in emb_cols]
+    )
+
+    # A row is valid only if ALL columns have the same non-zero length
+    row_min = length_arrays.min(axis=1)
+    row_max = length_arrays.max(axis=1)
+    consistent = (row_min == row_max) & (row_min > 0)
+
+    # Among consistent rows, pick the modal dimension
+    consistent_lengths = row_min[consistent]
+    if len(consistent_lengths) == 0:
+        raise ValueError(
+            "validate_and_filter_embeddings: no rows have consistent "
+            "non-zero embeddings across all columns."
+        )
+
+    values, counts = np.unique(consistent_lengths, return_counts=True)
+    mode_dim = int(values[np.argmax(counts)])
+
+    # Final mask: consistent AND equal to mode_dim
+    valid_mask = consistent & (row_min == mode_dim)
+    n_removed  = int((~valid_mask).sum())
+
+    if n_removed > 0:
+        print(
+            f"validate_and_filter_embeddings: removed {n_removed} / {len(df)} rows "
+            f"with inconsistent or non-modal embedding shape "
+            f"(mode_dim={mode_dim})."
+        )
+
+    filtered_df = df.iloc[valid_mask].reset_index(drop=True)
+    print(
+        f"Kept {len(filtered_df)} rows with embedding dim={mode_dim}."
+    )
+    return filtered_df, mode_dim

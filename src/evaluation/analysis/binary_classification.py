@@ -169,7 +169,6 @@ def run_binary_classification_evaluation(df_all, model_name, fixed_threshold, ta
     df_summary.to_csv(summary_path, index=False, mode='a', header=not os.path.exists(summary_path))
 
     # False Positive Tier Breakdown 
-    # Check if 'negative_tier' column exists (from metrics.py)
     if 'negative_tier' in df_eval.columns:
         false_positives_df = df_eval[(df_eval['y_true'] == 0) & (df_eval['y_pred'] == 1)]
         if not false_positives_df.empty:

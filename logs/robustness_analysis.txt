@@ -54,3 +54,59 @@ Processing Robustness for FUSION...
 2026-04-24 20:54:31 [INFO] ANALYSIS COMPLETE. Distance robustness plots ready.
 2026-04-24 20:54:31 [INFO] ======================================================================
 2026-04-24 20:54:31 [INFO] ======================================================================
+2026-04-25 00:55:55 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
+2026-04-25 00:55:55 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
+2026-04-25 00:55:55 [INFO] ======================================================================
+2026-04-25 00:55:55 [INFO] ======================================================================
+2026-04-25 00:55:55 [INFO] ROBUSTNESS ANALYSIS (Distances Only - Reference ↔ Plagiarized)
+2026-04-25 00:55:55 [INFO] ROBUSTNESS ANALYSIS (Distances Only - Reference ↔ Plagiarized)
+2026-04-25 00:55:55 [INFO] ======================================================================
+2026-04-25 00:55:55 [INFO] ======================================================================
+2026-04-25 00:55:55 [INFO] 
+Processing Robustness for CLEWS...
+2026-04-25 00:55:55 [INFO] 
+Processing Robustness for CLEWS...
+2026-04-25 00:55:59 [INFO] CLEWS: 80335 positive pairs loaded (Reference ↔ Plagiarized).
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\robustness_analysis.py:88: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+2026-04-25 00:55:59 [INFO] CLEWS: 80335 positive pairs loaded (Reference ↔ Plagiarized).
+2026-04-25 00:55:59 [INFO] Using manhattan_distance (Threshold visual line = 986.3622)
+2026-04-25 00:55:59 [INFO] Using manhattan_distance (Threshold visual line = 986.3622)
+2026-04-25 00:56:00 [INFO] Saved Distance Trends for CLEWS (manhattan_distance)
+2026-04-25 00:56:00 [INFO] Saved Distance Trends for CLEWS (manhattan_distance)
+2026-04-25 00:56:00 [INFO] Saved Extreme Stress Test for CLEWS (manhattan_distance)
+2026-04-25 00:56:00 [INFO] Saved Extreme Stress Test for CLEWS (manhattan_distance)
+2026-04-25 00:56:00 [INFO] 
+Processing Robustness for WEALY...
+2026-04-25 00:56:00 [INFO] 
+Processing Robustness for WEALY...
+2026-04-25 00:56:04 [INFO] WEALY: 80335 positive pairs loaded (Reference ↔ Plagiarized).
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\robustness_analysis.py:88: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+2026-04-25 00:56:04 [INFO] WEALY: 80335 positive pairs loaded (Reference ↔ Plagiarized).
+2026-04-25 00:56:04 [INFO] Using manhattan_distance (Threshold visual line = 702.2458)
+2026-04-25 00:56:04 [INFO] Using manhattan_distance (Threshold visual line = 702.2458)
+2026-04-25 00:56:04 [INFO] Saved Distance Trends for WEALY (manhattan_distance)
+2026-04-25 00:56:04 [INFO] Saved Distance Trends for WEALY (manhattan_distance)
+2026-04-25 00:56:05 [INFO] Saved Extreme Stress Test for WEALY (manhattan_distance)
+2026-04-25 00:56:05 [INFO] Saved Extreme Stress Test for WEALY (manhattan_distance)
+2026-04-25 00:56:05 [INFO] 
+Processing Robustness for FUSION...
+2026-04-25 00:56:05 [INFO] 
+Processing Robustness for FUSION...
+2026-04-25 00:56:08 [INFO] FUSION: 80335 positive pairs loaded (Reference ↔ Plagiarized).
+2026-04-25 00:56:08 [INFO] FUSION: 80335 positive pairs loaded (Reference ↔ Plagiarized).
+2026-04-25 00:56:08 [INFO] Using euclidean_distance+cosine_distance (Threshold visual line = 0.4072)
+2026-04-25 00:56:08 [INFO] Using euclidean_distance+cosine_distance (Threshold visual line = 0.4072)
+2026-04-25 00:56:09 [INFO] Saved Distance Trends for FUSION (euclidean_distance+cosine_distance)
+2026-04-25 00:56:09 [INFO] Saved Distance Trends for FUSION (euclidean_distance+cosine_distance)
+2026-04-25 00:56:09 [INFO] Saved Extreme Stress Test for FUSION (euclidean_distance+cosine_distance)
+2026-04-25 00:56:09 [INFO] Saved Extreme Stress Test for FUSION (euclidean_distance+cosine_distance)
+2026-04-25 00:56:09 [INFO] 
+======================================================================
+2026-04-25 00:56:09 [INFO] 
+======================================================================
+2026-04-25 00:56:09 [INFO] ANALYSIS COMPLETE. Distance robustness plots ready.
+2026-04-25 00:56:09 [INFO] ANALYSIS COMPLETE. Distance robustness plots ready.
+2026-04-25 00:56:09 [INFO] ======================================================================
+2026-04-25 00:56:09 [INFO] ======================================================================

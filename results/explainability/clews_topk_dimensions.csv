@@ -1,0 +1,151 @@
+category,rank,dimension,mean_delta,std_delta
+1a. Human Plagiarism (Base),1,880,2.014229,1.610200
+1a. Human Plagiarism (Base),2,629,1.993820,1.699609
+1a. Human Plagiarism (Base),3,70,1.876479,1.591661
+1a. Human Plagiarism (Base),4,4,1.859599,1.618181
+1a. Human Plagiarism (Base),5,963,1.859268,1.478727
+1a. Human Plagiarism (Base),6,757,1.778164,1.437420
+1a. Human Plagiarism (Base),7,45,1.732825,1.341329
+1a. Human Plagiarism (Base),8,941,1.709391,1.480741
+1a. Human Plagiarism (Base),9,834,1.690794,1.476156
+1a. Human Plagiarism (Base),10,611,1.685435,1.301885
+1a. Human Plagiarism (Base),11,419,1.684264,1.409874
+1a. Human Plagiarism (Base),12,995,1.680480,1.326963
+1a. Human Plagiarism (Base),13,698,1.679443,1.483818
+1a. Human Plagiarism (Base),14,47,1.669973,1.386381
+1a. Human Plagiarism (Base),15,427,1.662506,1.323409
+1a. Human Plagiarism (Base),16,612,1.653132,1.445113
+1a. Human Plagiarism (Base),17,400,1.650638,1.421180
+1a. Human Plagiarism (Base),18,211,1.613453,1.545472
+1a. Human Plagiarism (Base),19,673,1.568175,1.495961
+1a. Human Plagiarism (Base),20,1006,1.568160,1.372028
+1a. Human Plagiarism (Base),21,861,1.564460,1.426677
+1a. Human Plagiarism (Base),22,1001,1.563411,1.298947
+1a. Human Plagiarism (Base),23,443,1.563390,1.194687
+1a. Human Plagiarism (Base),24,822,1.561686,1.318042
+1a. Human Plagiarism (Base),25,749,1.553344,1.180577
+1a. Human Plagiarism (Base),26,355,1.545368,1.245925
+1a. Human Plagiarism (Base),27,640,1.539147,1.349780
+1a. Human Plagiarism (Base),28,145,1.533367,1.424839
+1a. Human Plagiarism (Base),29,999,1.520393,1.202059
+1a. Human Plagiarism (Base),30,551,1.519535,1.286038
+1b. Human Plagiarism + DSP,1,880,2.006032,1.611577
+1b. Human Plagiarism + DSP,2,629,1.980609,1.704193
+1b. Human Plagiarism + DSP,3,70,1.930339,1.646857
+1b. Human Plagiarism + DSP,4,963,1.909104,1.492500
+1b. Human Plagiarism + DSP,5,4,1.857248,1.640188
+1b. Human Plagiarism + DSP,6,757,1.835589,1.485293
+1b. Human Plagiarism + DSP,7,941,1.822854,1.454293
+1b. Human Plagiarism + DSP,8,698,1.792595,1.509025
+1b. Human Plagiarism + DSP,9,45,1.776594,1.361551
+1b. Human Plagiarism + DSP,10,47,1.732219,1.420863
+1b. Human Plagiarism + DSP,11,834,1.706008,1.492333
+1b. Human Plagiarism + DSP,12,427,1.700648,1.342710
+1b. Human Plagiarism + DSP,13,995,1.688226,1.333987
+1b. Human Plagiarism + DSP,14,611,1.666730,1.273642
+1b. Human Plagiarism + DSP,15,1006,1.662708,1.436267
+1b. Human Plagiarism + DSP,16,612,1.658977,1.445630
+1b. Human Plagiarism + DSP,17,355,1.654281,1.288154
+1b. Human Plagiarism + DSP,18,419,1.621714,1.324301
+1b. Human Plagiarism + DSP,19,673,1.619708,1.514216
+1b. Human Plagiarism + DSP,20,951,1.616372,1.352340
+1b. Human Plagiarism + DSP,21,640,1.612153,1.368643
+1b. Human Plagiarism + DSP,22,145,1.602535,1.439154
+1b. Human Plagiarism + DSP,23,400,1.602326,1.320463
+1b. Human Plagiarism + DSP,24,211,1.602189,1.406721
+1b. Human Plagiarism + DSP,25,999,1.588505,1.247926
+1b. Human Plagiarism + DSP,26,1001,1.571003,1.306346
+1b. Human Plagiarism + DSP,27,822,1.569259,1.341157
+1b. Human Plagiarism + DSP,28,861,1.565704,1.379330
+1b. Human Plagiarism + DSP,29,468,1.563907,1.343678
+1b. Human Plagiarism + DSP,30,262,1.553651,1.207074
+2. Original + DSP,1,880,0.705469,0.624000
+2. Original + DSP,2,70,0.681652,0.641814
+2. Original + DSP,3,963,0.674051,0.593938
+2. Original + DSP,4,757,0.670347,0.570653
+2. Original + DSP,5,698,0.668510,0.642220
+2. Original + DSP,6,4,0.662686,0.598168
+2. Original + DSP,7,611,0.659907,0.579708
+2. Original + DSP,8,640,0.657885,0.690058
+2. Original + DSP,9,941,0.640529,0.585944
+2. Original + DSP,10,612,0.639145,0.559168
+2. Original + DSP,11,427,0.630792,0.564762
+2. Original + DSP,12,629,0.629616,0.534896
+2. Original + DSP,13,400,0.625934,0.586574
+2. Original + DSP,14,45,0.614979,0.548406
+2. Original + DSP,15,1001,0.611304,0.526709
+2. Original + DSP,16,145,0.609723,0.545968
+2. Original + DSP,17,47,0.609155,0.549788
+2. Original + DSP,18,551,0.602836,0.526908
+2. Original + DSP,19,501,0.601689,0.560851
+2. Original + DSP,20,355,0.598397,0.555024
+2. Original + DSP,21,184,0.597264,0.557550
+2. Original + DSP,22,290,0.596260,0.547303
+2. Original + DSP,23,259,0.593527,0.593033
+2. Original + DSP,24,449,0.589088,0.555870
+2. Original + DSP,25,562,0.587963,0.536236
+2. Original + DSP,26,834,0.583256,0.513960
+2. Original + DSP,27,193,0.582920,0.596334
+2. Original + DSP,28,1006,0.579257,0.526022
+2. Original + DSP,29,563,0.577947,0.550338
+2. Original + DSP,30,999,0.576598,0.548127
+3. AI Generation (Base),1,4,2.547747,1.918352
+3. AI Generation (Base),2,880,2.505534,1.979331
+3. AI Generation (Base),3,963,2.500460,1.929948
+3. AI Generation (Base),4,400,2.498181,1.940705
+3. AI Generation (Base),5,834,2.436129,1.813406
+3. AI Generation (Base),6,629,2.412016,1.849209
+3. AI Generation (Base),7,551,2.386078,1.712697
+3. AI Generation (Base),8,290,2.358623,1.701741
+3. AI Generation (Base),9,70,2.329338,1.731680
+3. AI Generation (Base),10,757,2.321494,1.818751
+3. AI Generation (Base),11,45,2.288678,1.734416
+3. AI Generation (Base),12,941,2.280820,1.719929
+3. AI Generation (Base),13,427,2.247428,1.724472
+3. AI Generation (Base),14,612,2.231183,1.718750
+3. AI Generation (Base),15,355,2.213987,1.652058
+3. AI Generation (Base),16,698,2.211608,1.640547
+3. AI Generation (Base),17,995,2.174474,1.658466
+3. AI Generation (Base),18,1001,2.171985,1.615135
+3. AI Generation (Base),19,145,2.146647,1.676019
+3. AI Generation (Base),20,994,2.124692,1.596732
+3. AI Generation (Base),21,640,2.120344,1.637214
+3. AI Generation (Base),22,238,2.107164,1.623236
+3. AI Generation (Base),23,47,2.094185,1.588506
+3. AI Generation (Base),24,443,2.072488,1.579448
+3. AI Generation (Base),25,470,2.070189,1.569688
+3. AI Generation (Base),26,611,2.034003,1.576698
+3. AI Generation (Base),27,689,2.023781,1.486448
+3. AI Generation (Base),28,1006,2.001088,1.604739
+3. AI Generation (Base),29,562,1.983636,1.494381
+3. AI Generation (Base),30,345,1.982398,1.482891
+4. AI + DSP,1,4,2.580410,1.967463
+4. AI + DSP,2,880,2.578852,1.989830
+4. AI + DSP,3,963,2.569101,1.993856
+4. AI + DSP,4,400,2.434169,1.868516
+4. AI + DSP,5,834,2.431032,1.824419
+4. AI + DSP,6,551,2.389675,1.720134
+4. AI + DSP,7,629,2.377025,1.810985
+4. AI + DSP,8,290,2.337648,1.691450
+4. AI + DSP,9,70,2.329992,1.749385
+4. AI + DSP,10,757,2.327487,1.829134
+4. AI + DSP,11,45,2.307363,1.735521
+4. AI + DSP,12,427,2.279308,1.730180
+4. AI + DSP,13,941,2.258828,1.717207
+4. AI + DSP,14,640,2.243883,1.732899
+4. AI + DSP,15,355,2.238925,1.663368
+4. AI + DSP,16,995,2.224703,1.670569
+4. AI + DSP,17,698,2.208672,1.674862
+4. AI + DSP,18,145,2.194118,1.696870
+4. AI + DSP,19,1001,2.188485,1.633118
+4. AI + DSP,20,612,2.180251,1.664037
+4. AI + DSP,21,47,2.138575,1.605236
+4. AI + DSP,22,994,2.114699,1.608079
+4. AI + DSP,23,443,2.113389,1.611402
+4. AI + DSP,24,238,2.091330,1.606021
+4. AI + DSP,25,345,2.068581,1.532782
+4. AI + DSP,26,470,2.057559,1.565799
+4. AI + DSP,27,611,2.034879,1.568719
+4. AI + DSP,28,1006,2.030128,1.613480
+4. AI + DSP,29,365,2.010046,1.537877
+4. AI + DSP,30,689,2.007151,1.479579

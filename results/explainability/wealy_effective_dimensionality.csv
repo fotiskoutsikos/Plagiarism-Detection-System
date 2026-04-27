@@ -1,0 +1,8 @@
+subset,participation_ratio,n_dims,pr_fraction
+All_Originals,28.671678,512,0.055999
+All_Deltas,91.953349,512,0.179596
+Human Plagiarism (Base),106.094975,512,0.207217
+Human Plagiarism + DSP,122.072302,512,0.238422
+Original + DSP,21.111076,512,0.041233
+AI Generation (Base),144.025245,512,0.281299
+AI + DSP,190.754053,512,0.372567

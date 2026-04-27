@@ -6,6 +6,7 @@ import numpy as np
 from tqdm import tqdm
 import whisper
 from omegaconf import OmegaConf
+from vad_utils import vad_vocal_ratio
 from src.utils.wealy_lib import Model as WEALYModel
 
 decoder_hidden_states = []
@@ -171,9 +172,14 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
                 embedding = wealy_model(decoder_latents)  # [1, 512]
                 z_vector = embedding.squeeze(0).cpu().numpy()
 
+                audio_waveform_cpu = audio_waveform.cpu()
+                vocal_ratio = vad_vocal_ratio(audio_waveform_cpu, sr=16000)
+
                 results.append({
                     "filename": os.path.basename(file_path),
                     "embedding": z_vector.tolist(),
+                    "vocal_ratio": round(vocal_ratio, 4),
+                    "vocal_valid": vocal_ratio >= 0.30,
                 })
 
                 # CHECKPOINTING

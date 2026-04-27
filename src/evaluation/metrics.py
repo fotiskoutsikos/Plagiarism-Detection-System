@@ -140,9 +140,9 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
     """
     Compute pairwise distances for:
       • Positive pairs  (ground-truth plagiarism)
-      • Naive Negatives (cyclic-shift within same mod_type – baseline)
-      • Weak  Negatives (hardest within same mod_type, different pair_id)
-      • Hard  Negatives (hardest across ALL mod_types, different pair_id)
+      • Random Negatives (cyclic-shift within same mod_type – baseline)
+      • Intra-Category Nearest  Negatives (nearest within same mod_type, different pair_id)
+      • Global Nearest  Negatives (nearest across ALL mod_types, different pair_id)
 
     All distance computation is done on-the-fly; the full N×N matrix is
     never materialised, keeping RAM usage proportional to N, not N².
@@ -172,11 +172,11 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         return F.normalize(t, dim=-1, eps=eps)
 
     # Mine negatives for every positive pair
-    print("\nMining Naive / Weak / Hard negatives …")
+    print("\nMining Random / Intra-Category Nearest / Global Nearest negatives …")
 
-    naive_rows = []
-    weak_rows  = []
-    hard_rows  = []
+    random_rows = []
+    intra_category_nearest_rows  = []
+    global_nearest_rows  = []
 
     pair_ids_tensor  = torch.tensor(pool_pair_ids.astype(int), device=device)
 
@@ -191,25 +191,25 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
         diff_pair_mask = (pool_pair_ids != target_pair_id)       # (N,) bool numpy
         diff_pair_t    = torch.tensor(diff_pair_mask, device=device)
 
-        # --Naive: cyclic-shift within same mod_type, different pair_id ----
+        # --random: cyclic-shift within same mod_type, different pair_id ----
         same_mod_mask = (pool_mod_types == target_mod) & diff_pair_mask
         same_mod_idxs = np.where(same_mod_mask)[0]
 
-        naive_idx = None
+        random_idx = None
         if len(same_mod_idxs) > 0:
             # Deterministic cyclic shift: use the position of this row inside
             # same_mod_idxs to pick the "next" candidate
             pos_in_group = np.searchsorted(same_mod_idxs, idx) % len(same_mod_idxs)
-            naive_idx = int(same_mod_idxs[pos_in_group])
+            random_idx = int(same_mod_idxs[pos_in_group])
 
-        # Weak: cosine-nearest within same mod_type, different pair_id
-        weak_mask_t = torch.tensor(
+        # Intra-Category Nearest: cosine-nearest within same mod_type, different pair_id
+        intra_category_nearest_mask_t = torch.tensor(
             (pool_mod_types == target_mod) & diff_pair_mask, device=device
         )
-        weak_idx = _find_hardest_candidate(q_norm, pool_emb_norm, weak_mask_t)
+        intra_category_nearest_idx = _find_hardest_candidate(q_norm, pool_emb_norm, intra_category_nearest_mask_t)
 
-        # Hard: cosine-nearest across ALL mod_types, different pair_id
-        hard_idx = _find_hardest_candidate(q_norm, pool_emb_norm, diff_pair_t)
+        # Global Nearest: cosine-nearest across ALL mod_types, different pair_id
+        global_nearest_idx = _find_hardest_candidate(q_norm, pool_emb_norm, diff_pair_t)
 
         # Helper to build a result row from a pool index
         def _build_neg_row(pool_idx: int, tier: str, label_prefix: str) -> dict:
@@ -229,16 +229,16 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
                 **dists,
             }
 
-        if naive_idx is not None:
-            naive_rows.append(_build_neg_row(naive_idx, "naive", "Negative_"))
-        if weak_idx is not None:
-            weak_rows.append(_build_neg_row(weak_idx,  "weak",  "Negative_"))
-        if hard_idx is not None:
-            hard_rows.append(_build_neg_row(hard_idx,  "hard",  "Negative_"))
+        if random_idx is not None:
+            random_rows.append(_build_neg_row(random_idx, "random", "Negative_"))
+        if intra_category_nearest_idx is not None:
+            intra_category_nearest_rows.append(_build_neg_row(intra_category_nearest_idx,  "intra_category_nearest",  "Negative_"))
+        if global_nearest_idx is not None:
+            global_nearest_rows.append(_build_neg_row(global_nearest_idx,  "global_nearest",  "Negative_"))
 
-    print(f"  Naive negatives : {len(naive_rows)}")
-    print(f"  Weak  negatives : {len(weak_rows)}")
-    print(f"  Hard  negatives : {len(hard_rows)}")
+    print(f"  random negatives : {len(random_rows)}")
+    print(f"  intra_category_nearest  negatives : {len(intra_category_nearest_rows)}")
+    print(f"  Global Nearest  negatives : {len(global_nearest_rows)}")
 
     # Compute distances for positive pairs
     print("\nComputing distances for positive pairs …")
@@ -263,9 +263,9 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
     df_results = pd.concat(
         [
             pd.DataFrame(pos_rows),
-            pd.DataFrame(naive_rows),
-            pd.DataFrame(weak_rows),
-            pd.DataFrame(hard_rows),
+            pd.DataFrame(random_rows),
+            pd.DataFrame(intra_category_nearest_rows),
+            pd.DataFrame(global_nearest_rows),
         ],
         ignore_index=True,
     )
@@ -301,7 +301,7 @@ def compute_distances(parquet_path, smp_metadata_path, output_csv_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Compute distances (Naive / Weak / Hard Negatives) for CLEWS/WEALY."
+        description="Compute distances (Random / Intra-Category Nearest / Global Nearest Negatives) for CLEWS/WEALY."
     )
     parser.add_argument(
         "--model",
