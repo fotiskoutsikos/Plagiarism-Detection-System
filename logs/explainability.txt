@@ -1,83 +1,51 @@
-2026-04-28 01:56:19 [INFO] Logging initialized for explainability, file: logs\explainability.txt
-2026-04-28 01:56:19 [INFO] Logging initialized for explainability, file: logs\explainability.txt
-================================================================================
-STARTING FULL EMBEDDING DIMENSION ANALYSIS 
-================================================================================
+2026-04-29 20:12:46 [INFO] Logging initialized for explainability, file: logs\explainability.txt
+2026-04-29 20:12:46 [INFO] Logging initialized for explainability, file: logs\explainability.txt
+2026-04-29 20:15:29 [INFO] Generating Plot 6: Stable Core Preservation…
 ============================================================
-  FULL DIMENSION ANALYSIS: CLEWS
+ANALYZING PLAGIARISM SIGNATURES: CLEWS
 ============================================================
 Loading pairs for CLEWS…
-Validating embedding shapes…
 Cleaning column 'embedding_ori'…
 Cleaning column 'embedding_mod'…
 validate_and_filter_embeddings: removed 17905 / 80335 rows with inconsistent or non-modal embedding shape (mode_dim=1024).
 Kept 62430 rows with embedding dim=1024.
-  62430 valid pairs | dim=1024 | cats=['1a. Human Plagiarism (Base)', '1b. Human Plagiarism + DSP', '2. Original + DSP', '3. AI Generation (Base)', '4. AI + DSP']
-Analysis 1: Dimension Stability…
-Saved → results/explainability\clews_dimension_stability.csv
-Saved → plots/explainability\clews_dimension_stability.pdf
-Analysis 2: Top-30 shifted dimensions per category…
-Saved → results/explainability\clews_topk_dimensions.csv
-Saved → plots/explainability\clews_topk_dimensions.pdf
-Saved → plots/explainability\clews_topk_overlap.pdf
-Analysis 3: SMP vs AI comparison…
-Saved → results/explainability\clews_smp_vs_ai_comparison.csv
-Saved → plots/explainability\clews_smp_vs_ai_comparison.pdf
-Analysis 4: Per-dimension value distributions…
-Saved → results/explainability\clews_dimension_distributions.csv
-Saved → plots/explainability\clews_dimension_distributions.pdf
-Analysis 5: Summary Dashboard…
-Saved → plots/explainability\clews_dimension_dashboard.pdf
-6: Covariance & Redundancy (Barlow Twins metric)…
-  Barlow-Twins off-diag metric: 0.017915  (0 = no redundancy)  |  diag deviation: 0.000000
-Saved → results/explainability\clews_covariance_redundancy.csv
-Saved → plots/explainability\clews_covariance_redundancy.pdf
-Analysis 7: Effective Dimensionality (PCA / Participation Ratio)…
-Saved → results/explainability\clews_effective_dimensionality.csv
-Saved → plots/explainability\clews_effective_dimensionality.pdf
-Analysis 8: DSP Dose-Response (Equivariance Check)…
-Saved → results/explainability\clews_dsp_dose_response.csv
-Saved → results/explainability\clews_dsp_linearity_r2.csv
-  Top-5 most linear dims for tempo: [322, 618, 710, 853, 277]
-Saved → plots/explainability\clews_dsp_dose_response.pdf
-All analyses complete for CLEWS.
+Loaded 62430 pairs | Dim: 1024
+Generating Plot 1: Overall Shifts & Active Dimensions…
+Saved Plot → plots/explainability\clews_overall_shifts.pdf
+Generating Plot 2 & 3: Top-30 Dimensions & Overlap…
+Saved CSV  → results/explainability\clews_topk_dimensions.csv
+Saved Plot → plots/explainability\clews_topk_dimensions.pdf
+Saved Plot → plots/explainability\clews_topk_overlap.pdf
+Generating Plot 4: Signed Mean Shift per Dimension…
+Saved Plot → plots/explainability\clews_signed_shift_heatmap.pdf
+Generating Plot 5: SMP vs AI Base Discrimination…
+Saved CSV  → results/explainability\clews_smp_vs_ai.csv
+Saved Plot → plots/explainability\clews_smp_vs_ai.pdf
+2026-04-29 20:15:29 [INFO] Generating Plot 6: Stable Core Preservation…
+2026-04-29 20:15:37 [INFO] Generating Plot 6: Stable Core Preservation…
+Saved Plot → plots/explainability\clews_stable_core.pdf
+Done processing CLEWS.
+
 ============================================================
-  FULL DIMENSION ANALYSIS: WEALY
+ANALYZING PLAGIARISM SIGNATURES: WEALY
 ============================================================
 Loading pairs for WEALY…
-Validating embedding shapes…
 Cleaning column 'embedding_ori'…
 Cleaning column 'embedding_mod'…
 Kept 80335 rows with embedding dim=512.
-  80335 valid pairs | dim=512 | cats=['1a. Human Plagiarism (Base)', '1b. Human Plagiarism + DSP', '2. Original + DSP', '3. AI Generation (Base)', '4. AI + DSP']
-Analysis 1: Dimension Stability…
-Saved → results/explainability\wealy_dimension_stability.csv
-Saved → plots/explainability\wealy_dimension_stability.pdf
-Analysis 2: Top-30 shifted dimensions per category…
-Saved → results/explainability\wealy_topk_dimensions.csv
-Saved → plots/explainability\wealy_topk_dimensions.pdf
-Saved → plots/explainability\wealy_topk_overlap.pdf
-Analysis 3: SMP vs AI comparison…
-Saved → results/explainability\wealy_smp_vs_ai_comparison.csv
-Saved → plots/explainability\wealy_smp_vs_ai_comparison.pdf
-Analysis 4: Per-dimension value distributions…
-Saved → results/explainability\wealy_dimension_distributions.csv
-Saved → plots/explainability\wealy_dimension_distributions.pdf
-Analysis 5: Summary Dashboard…
-Saved → plots/explainability\wealy_dimension_dashboard.pdf
-6: Covariance & Redundancy (Barlow Twins metric)…
-  Barlow-Twins off-diag metric: 0.026724  (0 = no redundancy)  |  diag deviation: 0.000000
-Saved → results/explainability\wealy_covariance_redundancy.csv
-Saved → plots/explainability\wealy_covariance_redundancy.pdf
-Analysis 7: Effective Dimensionality (PCA / Participation Ratio)…
-Saved → results/explainability\wealy_effective_dimensionality.csv
-Saved → plots/explainability\wealy_effective_dimensionality.pdf
-Analysis 8: DSP Dose-Response (Equivariance Check)…
-Saved → results/explainability\wealy_dsp_dose_response.csv
-Saved → results/explainability\wealy_dsp_linearity_r2.csv
-  Top-5 most linear dims for tempo: [306, 316, 399, 487, 346]
-Saved → plots/explainability\wealy_dsp_dose_response.pdf
-All analyses complete for WEALY.
-================================================================================
-DIMENSION ANALYSIS COMPLETE
-================================================================================
+Loaded 80335 pairs | Dim: 512
+Generating Plot 1: Overall Shifts & Active Dimensions…
+Saved Plot → plots/explainability\wealy_overall_shifts.pdf
+Generating Plot 2 & 3: Top-30 Dimensions & Overlap…
+Saved CSV  → results/explainability\wealy_topk_dimensions.csv
+Saved Plot → plots/explainability\wealy_topk_dimensions.pdf
+Saved Plot → plots/explainability\wealy_topk_overlap.pdf
+Generating Plot 4: Signed Mean Shift per Dimension…
+Saved Plot → plots/explainability\wealy_signed_shift_heatmap.pdf
+Generating Plot 5: SMP vs AI Base Discrimination…
+Saved CSV  → results/explainability\wealy_smp_vs_ai.csv
+Saved Plot → plots/explainability\wealy_smp_vs_ai.pdf
+2026-04-29 20:15:37 [INFO] Generating Plot 6: Stable Core Preservation…
+Saved Plot → plots/explainability\wealy_stable_core.pdf
+Done processing WEALY.
+

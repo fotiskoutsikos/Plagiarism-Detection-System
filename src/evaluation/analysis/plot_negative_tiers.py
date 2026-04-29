@@ -3,8 +3,6 @@ Negative Tier Distance Distribution Visualization:
 - Reads distance CSV files from results/distances/
 - Creates publication-quality boxplots for negative sampling tier distributions
 - Exports to plots/negative_tiers/ in PDF format
-
-Author: GitHub Copilot
 """
 
 import os
@@ -42,7 +40,7 @@ from utils.constants import OUTPUT_DIRS, PLOT_COLORS, PLOT_DPI
 
 # Define paths
 DISTANCES_DIR = repo_root / "results" / "distances"
-OUTPUT_NEGATIVE_TIERS_DIR = repo_root / "plots" / "negative_tiers"
+OUTPUT_NEGATIVE_TIERS_DIR = OUTPUT_DIRS["negative_tiers"]
 
 # Target negative tiers in specific order (global_nearest -> intra_category_nearest -> random)
 TARGET_TIERS = ['global_nearest', 'intra_category_nearest', 'random']

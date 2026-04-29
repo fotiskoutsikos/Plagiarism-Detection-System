@@ -40,8 +40,9 @@ OUTPUT_DIRS = {
     "threshold": "results/threshold",
     "threshold_plots": "plots/threshold",
     "explainability": "results/explainability",
-    "explainability_plots": "plots/explainability"
-}
+    "explainability_plots": "plots/explainability",
+    "negative_tiers": "plots/negative_tiers"
+    }
 
 # ============================================================================
 # SUMMARY/ANALYSIS FILES
@@ -120,9 +121,9 @@ CATEGORY_COLORS = {
 }
 
 PLOT_STYLE_PARAMS = {
-    "figure.dpi": 300,
-    "axes.titlesize": 11,
-    "axes.labelsize": 10,
+    "figure.dpi": 200,
+    "axes.titlesize": 10,
+    "axes.labelsize": 9,
     "axes.facecolor": "white",
     "axes.edgecolor": "#d0d0d0",
     "axes.grid": True,
