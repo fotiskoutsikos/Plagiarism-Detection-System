@@ -82,14 +82,14 @@ def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFr
     def parse_filename(filename):
         """
         Parse filename schema:
-        Format: p_{pair_id}_{ori|comp}_{time}s[_{ai_model}][_{dsp_mod}]
+        Format: pair_{pair_id}_{ori|comp}_{time}s[_{ai_model}][_{dsp_mod}]
         
         Examples:
-            - p_1_ori_10s -> pair_id=1, ori_comp='ori', time=10, ai_model='none', dsp_mod='none'
-            - p_1_comp_10s -> pair_id=1, ori_comp='comp', time=10, ai_model='none', dsp_mod='none'
-            - p_1_ori_10s_musicgen -> pair_id=1, ori_comp='ori', time=10, ai_model='musicgen', dsp_mod='none'
-            - p_1_ori_10s_musicgen_pitchd12 -> pair_id=1, time=10, ai_model='musicgen', dsp_mod='pitchd12'
-            - p_1_ori_10s_pitchd12_tempo110 -> pair_id=1, dsp_mod='pitchd12_tempo110'
+            - pair_1_ori_10s -> pair_id=1, ori_comp='ori', time=10, ai_model='none', dsp_mod='none'
+            - pair_1_comp_10s -> pair_id=1, ori_comp='comp', time=10, ai_model='none', dsp_mod='none'
+            - pair_1_ori_10s_musicgen -> pair_id=1, ori_comp='ori', time=10, ai_model='musicgen', dsp_mod='none'
+            - pair_1_ori_10s_musicgen_pitchd12 -> pair_id=1, time=10, ai_model='musicgen', dsp_mod='pitchd12'
+            - pair_1_ori_10s_pitchd12_tempo110 -> pair_id=1, dsp_mod='pitchd12_tempo110'
         """
         try:
             clean = filename.replace('.wav', '')

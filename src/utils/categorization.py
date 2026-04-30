@@ -205,3 +205,28 @@ def extract_features(mod_type: str) -> pd.Series:
         features['is_extreme'],
         features['dsp_category']
     ])
+
+
+def fbeta_score_curve(
+    precision: np.ndarray,
+    recall: np.ndarray,
+    beta: float,
+) -> np.ndarray:
+    """
+    Compute F-beta scores along a Precision-Recall curve.
+
+    F_beta = (1 + beta²) * P * R / (beta² * P + R)
+
+    beta < 1  → weights Precision more  (e.g. beta=0.5 → Precision 4x Recall)
+    beta = 1  → harmonic mean (standard F1)
+    beta > 1  → weights Recall more
+
+    Used by: optimal_threshold.py, fusion_optimization.py
+    """
+    beta_sq     = beta ** 2
+    numerator   = (1 + beta_sq) * precision * recall
+    denominator = (beta_sq * precision) + recall
+    return np.divide(
+        numerator, denominator,
+        out=np.zeros_like(numerator), where=denominator != 0
+    )

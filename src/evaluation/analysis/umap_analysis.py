@@ -1,6 +1,15 @@
+"""
+UMAP Latent Space Visualization for Plagiarism Detection:
+- Visualizes local embedding neighborhoods per track segment
+- Shows Original anchor, Human Plagiarism (SMP), Original+DSP, AI bases, AI+DSP
+- Excludes cross-type SMP+DSP pairs (smp_*) and Negative pairs
+- Runs for both CLEWS and WEALY models
+
+Outputs saved to plots/umap/
+"""
+
 import os
 import sys
-import ast
 import importlib.util
 from pathlib import Path
 import pandas as pd
@@ -21,135 +30,121 @@ for _ in range(6):
     repo_root = repo_root.parent
 
 sys.path.insert(0, str(repo_root / "src"))
-from utils.constants import PLOT_COLORS
+from utils.constants import PLOT_COLORS, PLOT_STYLE_PARAMS, PLOT_DPI
 from utils.categorization import extract_dsp_and_source_features, clean_mod_type
+from utils.dataset_builder import clean_embedding, validate_and_filter_embeddings
 
-plt.rcParams.update({
-    "figure.dpi": 200,
-    "axes.titlesize": 10,
-    "axes.labelsize": 9,
-    "axes.facecolor": "white",
-    "axes.edgecolor": "#d0d0d0",
-    "axes.grid": True,
-    "grid.color": "#f0f0f0",
-    "grid.linestyle": "-",
-    "grid.linewidth": 0.5,
-})
+plt.rcParams.update(PLOT_STYLE_PARAMS)
 
 # CONFIG
-BASE_ALPHA      = 1.00   # full opacity for base (model / Human SMP)
-DSP_FADE_ALPHA  = 0.35   # faded opacity for DSP variants
+BASE_ALPHA = 1.00
+DSP_FADE_ALPHA = 0.35
 
 
 # DATA LOADING
 def load_and_clean_data(distances_csv, embeddings_parquet):
+    """
+    Load distance CSV and embeddings parquet, filter to relevant positive pairs,
+    merge embeddings, clean and validate dimensions.
+    
+    Excludes:
+      - Negative pairs (Negative_* prefix)
+      - Cross-type SMP+DSP pairs (smp_* prefix) to avoid visual clutter
+    """
     df = pd.read_csv(distances_csv)
-    df = df[~df['final_mod_type'].str.startswith('Negative')].copy()
 
-    # Συγχώνευση όλων των SMP κατηγοριών
+    # Remove negatives
+    df = df[~df['final_mod_type'].str.startswith('Negative', na=False)].copy()
+
+    # Remove cross-type SMP+DSP pairs (ori_base ↔ comp+DSP)
+    df = df[~df['final_mod_type'].str.startswith('smp_', na=False)].copy()
+
+    # Merge all SMP relation types into single label
     smp_conditions = df['final_mod_type'].isin(['SMP_plag', 'SMP_plag_doubt', 'SMP_remake'])
     df.loc[smp_conditions, 'final_mod_type'] = 'Human Plagiarism (SMP)'
 
+    # Deduplicate
     mask_human = df['final_mod_type'] == 'Human Plagiarism (SMP)'
-    df_human = df[mask_human].copy()
-    df_ai = df[~mask_human].copy()
-
-    df_ai = df_ai.drop_duplicates(subset=['pair_id', 'time', 'final_mod_type']).copy()
-    df_human = df_human.drop_duplicates(subset=['pair_id', 'time', 'filename_mod', 'final_mod_type']).copy()
-
+    df_human = df[mask_human].drop_duplicates(
+        subset=['pair_id', 'time', 'filename_mod', 'final_mod_type']
+    ).copy()
+    df_ai = df[~mask_human].drop_duplicates(
+        subset=['pair_id', 'time', 'final_mod_type']
+    ).copy()
     df = pd.concat([df_human, df_ai], ignore_index=True)
 
+    # Merge embeddings from parquet
     df_emb = pd.read_parquet(embeddings_parquet)
     df_emb = df_emb.drop_duplicates(subset=['filename']).copy()
 
-    df = df.merge(df_emb[['filename', 'embedding']], left_on='filename_ori', right_on='filename', how='inner')
-    df = df.rename(columns={'embedding': 'embedding_ori'}).drop(columns=['filename'])
+    df = df.merge(
+        df_emb[['filename', 'embedding']],
+        left_on='filename_ori', right_on='filename', how='inner'
+    ).rename(columns={'embedding': 'embedding_ori'}).drop(columns=['filename'])
 
-    df = df.merge(df_emb[['filename', 'embedding']], left_on='filename_mod', right_on='filename', how='inner')
-    df = df.rename(columns={'embedding': 'embedding_mod'}).drop(columns=['filename'])
+    df = df.merge(
+        df_emb[['filename', 'embedding']],
+        left_on='filename_mod', right_on='filename', how='inner'
+    ).rename(columns={'embedding': 'embedding_mod'}).drop(columns=['filename'])
 
     df = df.reset_index(drop=True)
 
-    def clean_embedding(emb):
-        if isinstance(emb, str):
-            try:
-                emb = ast.literal_eval(emb)
-            except Exception:
-                return np.array([], dtype=np.float32)
-        def extract_numbers(item):
-            if isinstance(item, (list, tuple, np.ndarray)):
-                flat = []
-                for x in item:
-                    flat.extend(extract_numbers(x))
-                return flat
-            elif item is not None and not pd.isna(item):
-                return [float(item)]
-            return []
-        try:
-            return np.array(extract_numbers(emb), dtype=np.float32)
-        except Exception:
-            return np.array([], dtype=np.float32)
+    # Clean and validate embeddings using centralized utilities
+    df, mode_dim = validate_and_filter_embeddings(
+        df,
+        emb_cols=['embedding_ori', 'embedding_mod'],
+        clean=True
+    )
 
-    print("Cleaning and validating embeddings...")
-    df['embedding_ori'] = df['embedding_ori'].apply(clean_embedding)
-    df['embedding_mod'] = df['embedding_mod'].apply(clean_embedding)
-
-    lens_ori = np.array([len(x) for x in df['embedding_ori']])
-    lens_mod = np.array([len(x) for x in df['embedding_mod']])
-
-    values, counts = np.unique(lens_ori, return_counts=True)
-    mode_dim = values[np.argmax(counts)]
-
-    valid_mask = (lens_ori == mode_dim) & (lens_mod == mode_dim)
-    df = df.iloc[valid_mask].reset_index(drop=True)
-    print(f"Kept {len(df)} completely valid modification pairs (Dimension: {mode_dim}).")
-
+    print(f"Kept {len(df)} valid pairs (embedding dim: {mode_dim}).")
     return df
 
 
-# CATEGORIZATION HELPERS
-def _categorize_mod(mod_type: str):
+# UMAP-SPECIFIC VISUAL CATEGORIZATION
+def _get_umap_visual_meta(mod_type: str):
     """
-    Returns (source, is_base, is_human) for a given mod_type.
-      - source : 'Original' | 'MusicGen' | 'AudioLDM2' | 'MGE-LDM'
-      - is_base: True if no DSP is applied (clean model/original)
-      - is_human: True if it's Human Plagiarism (SMP)
+    Returns (source, is_base, is_human) for UMAP styling.
+      - source:   'Original' | 'Cover' | 'MusicGen' | 'AudioLDM2' | 'MGE-LDM'
+      - is_base:  True if no DSP applied (clean generation or base SMP)
+      - is_human: True if Human Plagiarism (SMP) base pair
     """
-    mod_str  = str(mod_type)
-    is_human = ('Human Plagiarism' in mod_str) or mod_str.lower().startswith('smp_')
-    cleaned  = clean_mod_type(mod_str)
-    feats    = extract_dsp_and_source_features(cleaned)
-    return feats['source'], (feats['dsp_category'] == 'Base Generation'), is_human
+    mod_str = str(mod_type)
+
+    # Explicit match for the remapped human label
+    if mod_str == 'Human Plagiarism (SMP)':
+        return 'Original', True, True
+
+    cleaned = clean_mod_type(mod_str)
+    feats = extract_dsp_and_source_features(cleaned)
+
+    source = feats['source']
+    is_base = (feats['dsp_category'] == 'Base Generation')
+    is_human = False
+
+    return source, is_base, is_human
 
 
 def _build_color_alpha_maps(mod_types):
     """
     Builds color and alpha maps for each mod_type:
-      - Color: PLOT_COLORS[source]  (Original=blue, MusicGen=red, AudioLDM2=green, MGE-LDM=purple)
-      - Alpha:
-          * Human Plagiarism (SMP)  -> BASE_ALPHA  (full blue - "real" plagiarism)
-          * Original + DSP          -> DSP_FADE_ALPHA (faded blue)
-          * AI base (e.g. musicgen_none) -> BASE_ALPHA
-          * AI + DSP                -> DSP_FADE_ALPHA
+      - Human Plagiarism (SMP)       -> BASE_ALPHA (full blue diamond)
+      - Original + DSP               -> DSP_FADE_ALPHA (faded blue circle)
+      - AI base (e.g. musicgen_none) -> BASE_ALPHA (full color circle)
+      - AI + DSP                     -> DSP_FADE_ALPHA (faded color circle)
     """
     color_map = {}
     alpha_map = {}
 
     for mod_type in mod_types:
-        source, is_base, is_human = _categorize_mod(mod_type)
+        source, is_base, is_human = _get_umap_visual_meta(mod_type)
 
-        # Color from PLOT_COLORS based on source
         if source in PLOT_COLORS:
             color = to_rgba(PLOT_COLORS[source])
         else:
             print(f"[warn] Unmapped source for mod_type='{mod_type}' (source={source})")
             color = to_rgba('lightgray')
 
-        # Alpha: full for base/human, else faded
-        if is_human or is_base:
-            alpha = BASE_ALPHA
-        else:
-            alpha = DSP_FADE_ALPHA
+        alpha = BASE_ALPHA if (is_human or is_base) else DSP_FADE_ALPHA
 
         color_map[mod_type] = color
         alpha_map[mod_type] = alpha
@@ -157,168 +152,217 @@ def _build_color_alpha_maps(mod_types):
     return color_map, alpha_map
 
 
+# PLOTTING
 def plot_trajectories_grid(df_all, output_path, title):
     df_all = df_all.copy()
 
-    # Precompute categorization columns so we don't have to do regex inside the loop
-    cat_results        = df_all['final_mod_type'].apply(_categorize_mod)
-    df_all['source']   = cat_results.apply(lambda x: x[0])
-    df_all['is_base']  = cat_results.apply(lambda x: x[1])
+    # Precompute categorization columns
+    cat_results = df_all['final_mod_type'].apply(_get_umap_visual_meta)
+    df_all['source'] = cat_results.apply(lambda x: x[0])
+    df_all['is_base'] = cat_results.apply(lambda x: x[1])
     df_all['is_human'] = cat_results.apply(lambda x: x[2])
 
+    # Sample 9 unique segments from ori-side pairs
     df_originals = df_all[df_all['filename_ori'].str.contains('_ori_')]
     unique_segments = df_originals[['pair_id', 'time']].drop_duplicates()
-    sampled_segments = unique_segments.sample(n=9).reset_index(drop=True)
+    n_samples = min(9, len(unique_segments))
+    sampled_segments = unique_segments.sample(
+        n=n_samples, random_state=42
+    ).reset_index(drop=True)
 
-    fig, axes = plt.subplots(3, 3, figsize=(16, 16))
-    axes = axes.flatten()
+    n_cols = 3
+    n_rows = int(np.ceil(n_samples / n_cols))
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(16, 5.3 * n_rows))
+    axes = np.atleast_2d(axes).flatten()
 
     mod_types = sorted(df_all['final_mod_type'].unique())
     color_map, alpha_map = _build_color_alpha_maps(mod_types)
 
-    # Plot grid 
     for i, (_, seg) in enumerate(sampled_segments.iterrows()):
         ax = axes[i]
         pair_id = seg['pair_id']
         time_val = seg['time']
-        pair_data = df_all[(df_all['pair_id'] == pair_id) & (df_all['time'] == time_val)].copy()
+        pair_data = df_all[
+            (df_all['pair_id'] == pair_id) & (df_all['time'] == time_val)
+        ].copy()
 
         if pair_data.empty:
+            ax.set_visible(False)
             continue
 
-        # UMAP transform
+        # Local UMAP
         X_ori_local = np.stack(pair_data['embedding_ori'].values)
         X_mod_local = np.stack(pair_data['embedding_mod'].values)
         X_local = np.vstack([X_ori_local[0:1], X_mod_local])
         X_local = X_local / (np.linalg.norm(X_local, axis=1, keepdims=True) + 1e-8)
 
-        reducer = umap.UMAP(n_neighbors=4, min_dist=0.8, metric='cosine', random_state=40)
+        reducer = umap.UMAP(
+            n_neighbors=4, min_dist=0.8, metric='cosine', random_state=40
+        )
         X_2d = reducer.fit_transform(X_local)
 
         ori_x, ori_y = X_2d[0, 0], X_2d[0, 1]
         pair_data['umap_mod_x'] = X_2d[1:, 0]
         pair_data['umap_mod_y'] = X_2d[1:, 1]
 
-        # Original (X marker)
-        ax.scatter(ori_x, ori_y, marker="x", c="black", s=120, zorder=10, linewidths=2.5)
+        # Original anchor (X marker)
+        ax.scatter(
+            ori_x, ori_y, marker="x", c="black",
+            s=120, zorder=10, linewidths=2.5
+        )
 
-        # Find AI base coordinates (DSP variants connect to their AI base) 
+        # Find AI base coordinates for DSP variant connections
         ai_base_coords = {}
         for ai_source in ['MusicGen', 'AudioLDM2', 'MGE-LDM']:
-            base_rows = pair_data[(pair_data['source'] == ai_source) & (pair_data['is_base'])]
+            base_rows = pair_data[
+                (pair_data['source'] == ai_source) & (pair_data['is_base'])
+            ]
             if not base_rows.empty:
                 r = base_rows.iloc[0]
                 ai_base_coords[ai_source] = (r['umap_mod_x'], r['umap_mod_y'])
 
-        # Plot lines & markers
+        # Plot lines & markers for each modification
         for _, row in pair_data.iterrows():
-            mod      = row['final_mod_type']
-            mx, my   = row['umap_mod_x'], row['umap_mod_y']
-            color    = color_map[mod]
-            alpha    = alpha_map[mod]
-            source   = row['source']
-            is_base  = row['is_base']
+            mod = row['final_mod_type']
+            mx, my = row['umap_mod_x'], row['umap_mod_y']
+            color = color_map[mod]
+            alpha = alpha_map[mod]
+            source = row['source']
+            is_base = row['is_base']
             is_human = row['is_human']
 
-            # Determine starting point of edge
+            # Edge start point: AI DSP → AI base; everything else → Original
             if (source in ai_base_coords) and (not is_base):
-                # AI DSP variants -> start from their AI base
                 start_x, start_y = ai_base_coords[source]
             else:
-                # All other variants (Human, Original+DSP, AI base) start from the Original X
                 start_x, start_y = ori_x, ori_y
 
-            # Visual styling per category
+            # Visual styling
             if is_human:
-                # Real human plagiarism -> solid blue (Diamond)
                 marker_shape, marker_size = 'D', 95
-                edge_width                = 1.2
-                z_marker, z_line          = 6, 4
-                line_style                = '-'
-                line_alpha                = 0.7 * alpha
+                edge_width = 1.2
+                z_marker, z_line = 6, 4
+                line_style = '-'
+                line_alpha = 0.35 * alpha
             elif is_base:
-                # AI base (musicgen_none, audioldm2_none, mgeldm_none) -> solid circle
                 marker_shape, marker_size = 'o', 100
-                edge_width                = 1.2
-                z_marker, z_line          = 6, 4
-                line_style                = '-'
-                line_alpha                = 0.7 * alpha
+                edge_width = 1.2
+                z_marker, z_line = 6, 4
+                line_style = '-'
+                line_alpha = 0.7 * alpha
             else:
-                # DSP variant (Original+DSP or AI+DSP) -> faded, smaller circle
                 marker_shape, marker_size = 'o', 60
-                edge_width                = 0.6
-                z_marker, z_line          = 4, 2
-                # Distinct linestyle for the Original+DSP to distinguish it from Human
-                line_style                = '--' if source == 'Original' else '-'
-                line_alpha                = 0.45 * alpha
+                edge_width = 0.6
+                z_marker, z_line = 4, 2
+                line_style = '--' if source == 'Original' else '-'
+                line_alpha = 0.45 * alpha
 
             line_color_rgb = (color[0], color[1], color[2])
-            ax.plot([start_x, mx], [start_y, my],
-                    color=line_color_rgb, alpha=line_alpha,
-                    linewidth=1.8, linestyle=line_style, zorder=z_line)
+            ax.plot(
+                [start_x, mx], [start_y, my],
+                color=line_color_rgb, alpha=line_alpha,
+                linewidth=1.8, linestyle=line_style, zorder=z_line
+            )
+            ax.scatter(
+                mx, my, marker=marker_shape, color=line_color_rgb,
+                alpha=alpha, s=marker_size, edgecolors="black",
+                linewidths=edge_width, zorder=z_marker
+            )
 
-            ax.scatter(mx, my, marker=marker_shape, color=line_color_rgb, alpha=alpha,
-                       s=marker_size, edgecolors="black", linewidths=edge_width,
-                       zorder=z_marker)
-
-        ax.set_title(f"Pair {pair_id} | Segment {time_val}s", fontweight="bold")
+        ax.set_title(
+            f"Pair {pair_id} | Segment {time_val}s", fontweight="bold"
+        )
         ax.set_xticks([])
         ax.set_yticks([])
 
+    # Hide unused subplots
+    for j in range(i + 1, len(axes)):
+        axes[j].set_visible(False)
+
     fig.suptitle(title, fontsize=18, fontweight="bold", y=0.95)
 
-    # LEGEND - matches color scheme
+    # Legend
     legend_elems = []
 
-    # 1) Original Track
-    legend_elems.append(Line2D([0], [0], marker="x", color='w',
-                               markeredgecolor='black', markersize=12, markeredgewidth=2.5,
-                               label="Original Track", linestyle='None'))
+    legend_elems.append(Line2D(
+        [0], [0], marker="x", color='w',
+        markeredgecolor='black', markersize=12, markeredgewidth=2.5,
+        label="Original Track", linestyle='None'
+    ))
 
-    # 2) Original family (blue): Human Plagiarism (solid) + Original+DSP (faded)
     orig_color = to_rgba(PLOT_COLORS['Original'])
-    legend_elems.append(Line2D([0], [0], marker="D", color='w',
-                               markerfacecolor=orig_color, markeredgecolor='black',
-                               markersize=11, label="Human Plagiarism (SMP)",
-                               linestyle='None'))
-    faded_orig = (orig_color[0], orig_color[1], orig_color[2], DSP_FADE_ALPHA)
-    legend_elems.append(Line2D([0], [0], marker="o", color='w',
-                               markerfacecolor=faded_orig, markeredgecolor='black',
-                               markersize=10, label="Original + DSP",
-                               linestyle='None'))
+    legend_elems.append(Line2D(
+        [0], [0], marker="D", color='w',
+        markerfacecolor=orig_color, markeredgecolor='black',
+        markersize=11, label="Human Plagiarism (SMP)", linestyle='None'
+    ))
 
-    # 3) AI families: base (solid) + DSP variants (faded)
+    faded_orig = (orig_color[0], orig_color[1], orig_color[2], DSP_FADE_ALPHA)
+    legend_elems.append(Line2D(
+        [0], [0], marker="o", color='w',
+        markerfacecolor=faded_orig, markeredgecolor='black',
+        markersize=10, label="Original + DSP", linestyle='None'
+    ))
+
     for base_model in ['MusicGen', 'AudioLDM2', 'MGE-LDM']:
         if base_model not in PLOT_COLORS:
             continue
         c = to_rgba(PLOT_COLORS[base_model])
-        legend_elems.append(Line2D([0], [0], marker="o", color='w',
-                                   markerfacecolor=c, markeredgecolor='black',
-                                   markersize=11, label=f"{base_model}",
-                                   linestyle='None'))
+        legend_elems.append(Line2D(
+            [0], [0], marker="o", color='w',
+            markerfacecolor=c, markeredgecolor='black',
+            markersize=11, label=f"{base_model}", linestyle='None'
+        ))
         faded = (c[0], c[1], c[2], DSP_FADE_ALPHA)
-        legend_elems.append(Line2D([0], [0], marker="o", color='w',
-                                   markerfacecolor=faded, markeredgecolor='black',
-                                   markersize=10, label=f"{base_model} + DSP",
-                                   linestyle='None'))
+        legend_elems.append(Line2D(
+            [0], [0], marker="o", color='w',
+            markerfacecolor=faded, markeredgecolor='black',
+            markersize=10, label=f"{base_model} + DSP", linestyle='None'
+        ))
 
-    fig.legend(handles=legend_elems, loc="lower center", bbox_to_anchor=(0.5, 0.02),
-               ncol=5, frameon=False, fontsize=10)
+    fig.legend(
+        handles=legend_elems, loc="lower center",
+        bbox_to_anchor=(0.5, 0.02), ncol=5, frameon=False, fontsize=10
+    )
 
     plt.subplots_adjust(bottom=0.13, hspace=0.2, wspace=0.15)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    fig.savefig(output_path, bbox_inches="tight")
-    print(f"Success! Plot saved at: {output_path}")
+    fig.savefig(output_path, dpi=PLOT_DPI, bbox_inches="tight")
+    print(f"Saved: {output_path}")
     plt.close()
 
 
 if __name__ == '__main__':
-    CLEWS_DISTANCES = 'results/distances/clews_distances.csv'
-    CLEWS_EMBEDDINGS = 'data/clews_embeddings.parquet'
+    models = {
+        'CLEWS': {
+            'distances': 'results/distances/clews_distances.csv',
+            'embeddings': 'data/clews_embeddings.parquet',
+            'output': 'plots/umap/clews_umap_plot.pdf',
+            'title': 'CLEWS Latent Space Topology (Local Ecosystem per Track)'
+        },
+        'WEALY': {
+            'distances': 'results/distances/wealy_distances.csv',
+            'embeddings': 'data/wealy_embeddings.parquet',
+            'output': 'plots/umap/wealy_umap_plot.pdf',
+            'title': 'WEALY Latent Space Topology (Local Ecosystem per Track)'
+        }
+    }
 
-    print("=== Analyzing CLEWS ===")
-    if os.path.exists(CLEWS_DISTANCES) and os.path.exists(CLEWS_EMBEDDINGS):
-        df_clews = load_and_clean_data(CLEWS_DISTANCES, CLEWS_EMBEDDINGS)
-        plot_trajectories_grid(df_clews,
-                               output_path='plots/umap/clews_umap_plot.pdf',
-                               title="CLEWS Latent Space Topology (Local Ecosystem per Track)")
+    for model_name, config in models.items():
+        print(f"\n{'=' * 60}")
+        print(f"=== Analyzing {model_name} ===")
+        print(f"{'=' * 60}")
+
+        if not os.path.exists(config['distances']):
+            print(f"Error: {config['distances']} not found. Skipping {model_name}.")
+            continue
+        if not os.path.exists(config['embeddings']):
+            print(f"Error: {config['embeddings']} not found. Skipping {model_name}.")
+            continue
+
+        df = load_and_clean_data(config['distances'], config['embeddings'])
+        plot_trajectories_grid(df, config['output'], config['title'])
+
+    print(f"\n{'=' * 60}")
+    print("UMAP analysis complete.")
+    print(f"{'=' * 60}")

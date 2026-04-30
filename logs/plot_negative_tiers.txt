@@ -1,122 +1,84 @@
-2026-04-24 22:34:58 [INFO] Logging initialized for plot_negative_tiers, file: logs\plot_negative_tiers.txt
-2026-04-24 22:34:58 [INFO] Logging initialized for plot_negative_tiers, file: logs\plot_negative_tiers.txt
-2026-04-24 22:34:58 [INFO] ======================================================================
-2026-04-24 22:34:58 [INFO] ======================================================================
-2026-04-24 22:34:58 [INFO] NEGATIVE TIER DISTRIBUTION ANALYSIS
-2026-04-24 22:34:58 [INFO] NEGATIVE TIER DISTRIBUTION ANALYSIS
-2026-04-24 22:34:58 [INFO] ======================================================================
-2026-04-24 22:34:58 [INFO] ======================================================================
-2026-04-24 22:34:58 [INFO] Output directory: C:\Users\Fotis\Plagiarism-Detection-System\plots\negative_tiers
-2026-04-24 22:34:58 [INFO] Output directory: C:\Users\Fotis\Plagiarism-Detection-System\plots\negative_tiers
-2026-04-24 22:34:59 [INFO] 
+2026-04-30 22:44:56 [INFO] Logging initialized for plot_negative_tiers, file: logs\plot_negative_tiers.txt
+2026-04-30 22:44:56 [INFO] Logging initialized for plot_negative_tiers, file: logs\plot_negative_tiers.txt
+======================================================================
+NEGATIVE TIER DISTRIBUTION ANALYSIS
+======================================================================
+Output directory: plots\negative_tiers
+
 ============================================================
-2026-04-24 22:34:59 [INFO] 
+Processing CLEWS from clews_distances.csv
 ============================================================
-2026-04-24 22:34:59 [INFO] Processing CLEWS distances from clews_distances.csv
-2026-04-24 22:34:59 [INFO] Processing CLEWS distances from clews_distances.csv
-2026-04-24 22:34:59 [INFO] ============================================================
-2026-04-24 22:34:59 [INFO] ============================================================
-2026-04-24 22:34:59 [INFO] Loaded 217258 total rows from clews_distances.csv
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:74: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:71: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df = pd.read_csv(csv_path)
-2026-04-24 22:34:59 [INFO] Loaded 217258 total rows from clews_distances.csv
-2026-04-24 22:34:59 [INFO] After filtering negative pairs: 136923 rows
-2026-04-24 22:34:59 [INFO] After filtering negative pairs: 136923 rows
-2026-04-24 22:34:59 [INFO] After filtering to target tiers: 136923 rows
-2026-04-24 22:34:59 [INFO] After filtering to target tiers: 136923 rows
-2026-04-24 22:34:59 [INFO] Tier distribution:
-2026-04-24 22:34:59 [INFO] Tier distribution:
-2026-04-24 22:34:59 [INFO]   - global_nearest: 45641 pairs
-2026-04-24 22:34:59 [INFO]   - global_nearest: 45641 pairs
-2026-04-24 22:34:59 [INFO]   - intra_category_nearest: 45641 pairs
-2026-04-24 22:34:59 [INFO]   - intra_category_nearest: 45641 pairs
-2026-04-24 22:34:59 [INFO]   - random: 45641 pairs
-2026-04-24 22:34:59 [INFO]   - random: 45641 pairs
-2026-04-24 22:35:00 [INFO] Saved: clews_euclidean_negative_tiers.pdf
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:150: FutureWarning: 
+Loaded 217258 total rows from clews_distances.csv
+After filtering negatives: 136923 rows
+After filtering to target tiers: 136923 rows
+Tier distribution:
+  global_nearest: 45641 pairs
+  intra_category_nearest: 45641 pairs
+  random: 45641 pairs
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:114: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
 
   sns.boxplot(
-2026-04-24 22:35:00 [INFO] Saved: clews_euclidean_negative_tiers.pdf
-2026-04-24 22:35:00 [INFO] Saved: clews_cosine_negative_tiers.pdf
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:150: FutureWarning: 
+Saved → clews_cosine_negative_tiers.pdf
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:114: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
 
   sns.boxplot(
-2026-04-24 22:35:00 [INFO] Saved: clews_cosine_negative_tiers.pdf
-2026-04-24 22:35:01 [INFO] Saved: clews_manhattan_negative_tiers.pdf
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:150: FutureWarning: 
+Saved → clews_euclidean_negative_tiers.pdf
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:114: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
 
   sns.boxplot(
-2026-04-24 22:35:01 [INFO] Saved: clews_manhattan_negative_tiers.pdf
-2026-04-24 22:35:01 [INFO] Saved: clews_pearson_negative_tiers.pdf
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:150: FutureWarning: 
+Saved → clews_manhattan_negative_tiers.pdf
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:114: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
 
   sns.boxplot(
-2026-04-24 22:35:01 [INFO] Saved: clews_pearson_negative_tiers.pdf
-2026-04-24 22:35:01 [INFO] 
+Saved → clews_pearson_negative_tiers.pdf
+
 ============================================================
-2026-04-24 22:35:01 [INFO] 
+Processing WEALY from wealy_distances.csv
 ============================================================
-2026-04-24 22:35:01 [INFO] Processing Wealy distances from wealy_distances.csv
-2026-04-24 22:35:01 [INFO] Processing Wealy distances from wealy_distances.csv
-2026-04-24 22:35:01 [INFO] ============================================================
-2026-04-24 22:35:01 [INFO] ============================================================
-2026-04-24 22:35:01 [INFO] Loaded 140000 total rows from wealy_distances.csv
-2026-04-24 22:35:01 [INFO] Loaded 140000 total rows from wealy_distances.csv
-2026-04-24 22:35:01 [INFO] After filtering negative pairs: 136923 rows
-2026-04-24 22:35:01 [INFO] After filtering negative pairs: 136923 rows
-2026-04-24 22:35:01 [INFO] After filtering to target tiers: 136923 rows
-2026-04-24 22:35:01 [INFO] After filtering to target tiers: 136923 rows
-2026-04-24 22:35:01 [INFO] Tier distribution:
-2026-04-24 22:35:01 [INFO] Tier distribution:
-2026-04-24 22:35:01 [INFO]   - global_nearest: 45641 pairs
-2026-04-24 22:35:01 [INFO]   - global_nearest: 45641 pairs
-2026-04-24 22:35:01 [INFO]   - intra_category_nearest: 45641 pairs
-2026-04-24 22:35:01 [INFO]   - intra_category_nearest: 45641 pairs
-2026-04-24 22:35:01 [INFO]   - random: 45641 pairs
-2026-04-24 22:35:01 [INFO]   - random: 45641 pairs
-2026-04-24 22:35:02 [INFO] Saved: wealy_euclidean_negative_tiers.pdf
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:150: FutureWarning: 
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:71: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+Loaded 217258 total rows from wealy_distances.csv
+After filtering negatives: 136923 rows
+After filtering to target tiers: 136923 rows
+Tier distribution:
+  global_nearest: 45641 pairs
+  intra_category_nearest: 45641 pairs
+  random: 45641 pairs
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:114: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
 
   sns.boxplot(
-2026-04-24 22:35:02 [INFO] Saved: wealy_euclidean_negative_tiers.pdf
-2026-04-24 22:35:02 [INFO] Saved: wealy_cosine_negative_tiers.pdf
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:150: FutureWarning: 
+Saved → wealy_cosine_negative_tiers.pdf
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:114: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
 
   sns.boxplot(
-2026-04-24 22:35:02 [INFO] Saved: wealy_cosine_negative_tiers.pdf
-2026-04-24 22:35:02 [INFO] Saved: wealy_manhattan_negative_tiers.pdf
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:150: FutureWarning: 
+Saved → wealy_euclidean_negative_tiers.pdf
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:114: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
 
   sns.boxplot(
-2026-04-24 22:35:02 [INFO] Saved: wealy_manhattan_negative_tiers.pdf
-2026-04-24 22:35:03 [INFO] Saved: wealy_pearson_negative_tiers.pdf
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:150: FutureWarning: 
+Saved → wealy_manhattan_negative_tiers.pdf
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:114: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
 
   sns.boxplot(
-2026-04-24 22:35:03 [INFO] Saved: wealy_pearson_negative_tiers.pdf
-2026-04-24 22:35:03 [INFO] 
+Saved → wealy_pearson_negative_tiers.pdf
+
 ======================================================================
-2026-04-24 22:35:03 [INFO] 
+ANALYSIS COMPLETE. Plots saved → plots\negative_tiers
 ======================================================================
-2026-04-24 22:35:03 [INFO] ANALYSIS COMPLETE. Negative tier plots saved to:
-2026-04-24 22:35:03 [INFO] ANALYSIS COMPLETE. Negative tier plots saved to:
-2026-04-24 22:35:03 [INFO]   C:\Users\Fotis\Plagiarism-Detection-System\plots\negative_tiers
-2026-04-24 22:35:03 [INFO]   C:\Users\Fotis\Plagiarism-Detection-System\plots\negative_tiers
-2026-04-24 22:35:03 [INFO] ======================================================================
-2026-04-24 22:35:03 [INFO] ======================================================================

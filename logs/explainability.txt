@@ -1,6 +1,5 @@
-2026-04-29 20:12:46 [INFO] Logging initialized for explainability, file: logs\explainability.txt
-2026-04-29 20:12:46 [INFO] Logging initialized for explainability, file: logs\explainability.txt
-2026-04-29 20:15:29 [INFO] Generating Plot 6: Stable Core Preservation…
+2026-04-30 22:40:24 [INFO] Logging initialized for explainability, file: logs\explainability.txt
+2026-04-30 22:40:24 [INFO] Logging initialized for explainability, file: logs\explainability.txt
 ============================================================
 ANALYZING PLAGIARISM SIGNATURES: CLEWS
 ============================================================
@@ -11,19 +10,18 @@ validate_and_filter_embeddings: removed 17905 / 80335 rows with inconsistent or 
 Kept 62430 rows with embedding dim=1024.
 Loaded 62430 pairs | Dim: 1024
 Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots/explainability\clews_overall_shifts.pdf
-Generating Plot 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results/explainability\clews_topk_dimensions.csv
-Saved Plot → plots/explainability\clews_topk_dimensions.pdf
-Saved Plot → plots/explainability\clews_topk_overlap.pdf
+Saved Plot → plots\explainability\clews_overall_shifts.pdf
+Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
+Saved CSV  → results\explainability\clews_topk_dimensions.csv
+Saved Plot → plots\explainability\clews_topk_dimensions.pdf
+Saved Plot → plots\explainability\clews_topk_overlap.pdf
 Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots/explainability\clews_signed_shift_heatmap.pdf
+Saved Plot → plots\explainability\clews_signed_shift_heatmap.pdf
 Generating Plot 5: SMP vs AI Base Discrimination…
-Saved CSV  → results/explainability\clews_smp_vs_ai.csv
-Saved Plot → plots/explainability\clews_smp_vs_ai.pdf
-2026-04-29 20:15:29 [INFO] Generating Plot 6: Stable Core Preservation…
-2026-04-29 20:15:37 [INFO] Generating Plot 6: Stable Core Preservation…
-Saved Plot → plots/explainability\clews_stable_core.pdf
+Saved CSV  → results\explainability\clews_smp_vs_ai.csv
+Saved Plot → plots\explainability\clews_smp_vs_ai.pdf
+Generating Plot 6: Stable Core Preservation…
+Saved Plot → plots\explainability\clews_stable_core.pdf
 Done processing CLEWS.
 
 ============================================================
@@ -35,17 +33,17 @@ Cleaning column 'embedding_mod'…
 Kept 80335 rows with embedding dim=512.
 Loaded 80335 pairs | Dim: 512
 Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots/explainability\wealy_overall_shifts.pdf
-Generating Plot 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results/explainability\wealy_topk_dimensions.csv
-Saved Plot → plots/explainability\wealy_topk_dimensions.pdf
-Saved Plot → plots/explainability\wealy_topk_overlap.pdf
+Saved Plot → plots\explainability\wealy_overall_shifts.pdf
+Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
+Saved CSV  → results\explainability\wealy_topk_dimensions.csv
+Saved Plot → plots\explainability\wealy_topk_dimensions.pdf
+Saved Plot → plots\explainability\wealy_topk_overlap.pdf
 Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots/explainability\wealy_signed_shift_heatmap.pdf
+Saved Plot → plots\explainability\wealy_signed_shift_heatmap.pdf
 Generating Plot 5: SMP vs AI Base Discrimination…
-Saved CSV  → results/explainability\wealy_smp_vs_ai.csv
-Saved Plot → plots/explainability\wealy_smp_vs_ai.pdf
-2026-04-29 20:15:37 [INFO] Generating Plot 6: Stable Core Preservation…
-Saved Plot → plots/explainability\wealy_stable_core.pdf
+Saved CSV  → results\explainability\wealy_smp_vs_ai.csv
+Saved Plot → plots\explainability\wealy_smp_vs_ai.pdf
+Generating Plot 6: Stable Core Preservation…
+Saved Plot → plots\explainability\wealy_stable_core.pdf
 Done processing WEALY.
 

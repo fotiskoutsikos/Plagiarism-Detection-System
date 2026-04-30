@@ -1,50 +1,28 @@
-2026-04-25 00:55:30 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
-2026-04-25 00:55:30 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
-2026-04-25 00:55:30 [INFO] ======================================================================
-2026-04-25 00:55:30 [INFO] ======================================================================
-2026-04-25 00:55:30 [INFO] EXHAUSTIVE FUSION OPTIMIZATION
-2026-04-25 00:55:30 [INFO] EXHAUSTIVE FUSION OPTIMIZATION
-2026-04-25 00:55:30 [INFO] ======================================================================
-2026-04-25 00:55:30 [INFO] ======================================================================
-2026-04-25 00:55:30 [INFO] Aligning datasets...
-2026-04-25 00:55:30 [INFO] Aligning datasets...
-2026-04-25 00:55:30 [INFO] Loading CLEWS from results/distances/clews_distances.csv
-2026-04-25 00:55:30 [INFO] Loading CLEWS from results/distances/clews_distances.csv
-2026-04-25 00:55:30 [INFO] Loading WEALY from results/distances/wealy_distances.csv
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\fusion_optimization.py:65: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+2026-04-30 22:17:10 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
+2026-04-30 22:17:10 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
+======================================================================
+EXHAUSTIVE FUSION OPTIMIZATION
+======================================================================
+Aligning datasets...
+Loading CLEWS from results/distances/clews_distances.csv
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\fusion_optimization.py:71: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df_c = pd.read_csv(clews_csv)
-2026-04-25 00:55:30 [INFO] Loading WEALY from results/distances/wealy_distances.csv
-2026-04-25 00:55:30 [INFO] Alignment: 434516 total rows → 126197 perfectly matched pairs.
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\fusion_optimization.py:67: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+Loading WEALY from results/distances/wealy_distances.csv
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\fusion_optimization.py:73: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df_w = pd.read_csv(wealy_csv)
-2026-04-25 00:55:30 [INFO] Alignment: 434516 total rows → 126197 perfectly matched pairs.
-2026-04-25 00:55:30 [INFO] Splitting & normalizing...
-2026-04-25 00:55:30 [INFO] Splitting & normalizing...
-2026-04-25 00:55:30 [INFO] Running exhaustive grid search (336 trials)...
-2026-04-25 00:55:30 [INFO] Running exhaustive grid search (336 trials)...
-2026-04-25 00:55:30 [INFO] Starting exhaustive grid search: 336 trials...
-2026-04-25 00:55:30 [INFO] Starting exhaustive grid search: 336 trials...
-2026-04-25 00:55:32 [INFO] Progress: 84/336 trials. Current best F0.5: 0.8646
-2026-04-25 00:55:32 [INFO] Progress: 84/336 trials. Current best F0.5: 0.8646
-2026-04-25 00:55:33 [INFO] Progress: 168/336 trials. Current best F0.5: 0.8727
-2026-04-25 00:55:33 [INFO] Progress: 168/336 trials. Current best F0.5: 0.8727
-2026-04-25 00:55:34 [INFO] Progress: 252/336 trials. Current best F0.5: 0.8727
-2026-04-25 00:55:34 [INFO] Progress: 252/336 trials. Current best F0.5: 0.8727
-2026-04-25 00:55:35 [INFO] Progress: 336/336 trials. Current best F0.5: 0.8727
-2026-04-25 00:55:35 [INFO] Progress: 336/336 trials. Current best F0.5: 0.8727
-2026-04-25 00:55:35 [INFO] Grid search complete. Best internal validation F0.5: 0.8727
-2026-04-25 00:55:35 [INFO] Grid search complete. Best internal validation F0.5: 0.8727
-2026-04-25 00:55:35 [INFO] Generating final fused distances...
-2026-04-25 00:55:35 [INFO] Generating final fused distances...
-2026-04-25 00:55:36 [INFO] Saved cleanly named fused distances to results\fusion\optimal_fused_distances.csv
-2026-04-25 00:55:36 [INFO] Saved cleanly named fused distances to results\fusion\optimal_fused_distances.csv
-2026-04-25 00:55:36 [INFO] 
+Alignment: 434516 total rows → 126197 perfectly matched pairs.
+Splitting & normalizing...
+Running exhaustive grid search (336 trials)...
+Starting exhaustive grid search: 336 trials...
+Progress: 84/336 trials. Best F0.5: 0.8646
+Progress: 168/336 trials. Best F0.5: 0.8727
+Progress: 252/336 trials. Best F0.5: 0.8727
+Progress: 336/336 trials. Best F0.5: 0.8727
+Grid search complete. Best internal validation F0.5: 0.8727
+Generating final fused distances...
+Saved fused distances → results\fusion\optimal_fused_distances.csv
+
 ======================================================================
-2026-04-25 00:55:36 [INFO] 
+WINNER : euclidean_distance + cosine_distance
+WEIGHTS: α=1.00, β=0.00
 ======================================================================
-2026-04-25 00:55:36 [INFO] WINNER: euclidean_distance + cosine_distance
-2026-04-25 00:55:36 [INFO] WINNER: euclidean_distance + cosine_distance
-2026-04-25 00:55:36 [INFO] WEIGHTS: α=1.00, β=0.00
-2026-04-25 00:55:36 [INFO] WEIGHTS: α=1.00, β=0.00
-2026-04-25 00:55:36 [INFO] ======================================================================
-2026-04-25 00:55:36 [INFO] ======================================================================

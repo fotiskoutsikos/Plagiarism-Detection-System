@@ -5,12 +5,11 @@ Negative Tier Distance Distribution Visualization:
 - Exports to plots/negative_tiers/ in PDF format
 """
 
-import os
 import sys
 import importlib.util
+import logging
 from pathlib import Path
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -30,221 +29,166 @@ spec.loader.exec_module(logging_util)
 setup_logging = logging_util.setup_logging
 
 setup_logging(__file__)
-import logging
 logger = logging.getLogger(__name__)
 
-# Import centralized utilities
 sys.path.insert(0, str(repo_root / "src"))
-from utils.constants import OUTPUT_DIRS, PLOT_COLORS, PLOT_DPI
+from utils.constants import (
+    OUTPUT_DIRS, MODEL_PATHS,
+    DISTANCE_METRICS, PLOT_DPI, PLOT_STYLE_PARAMS,
+)
 
+plt.rcParams.update(PLOT_STYLE_PARAMS)
+sns.set_style("whitegrid")
 
-# Define paths
-DISTANCES_DIR = repo_root / "results" / "distances"
-OUTPUT_NEGATIVE_TIERS_DIR = OUTPUT_DIRS["negative_tiers"]
+# CONFIG
+OUTPUT_DIR = Path(OUTPUT_DIRS["negative_tiers"])
 
-# Target negative tiers in specific order (global_nearest -> intra_category_nearest -> random)
 TARGET_TIERS = ['global_nearest', 'intra_category_nearest', 'random']
 
-# Distance metrics to plot
-DISTANCE_METRICS = ['euclidean_distance', 'cosine_distance', 'manhattan_distance', 'pearson_distance']
+TIER_DISPLAY_NAMES = {
+    'global_nearest':         'Global Nearest',
+    'intra_category_nearest': 'Intra-Category Nearest',
+    'random':                 'Random',
+}
 
-# Model files to process
-DISTANCE_FILES = {
-    'CLEWS': 'clews_distances.csv',
-    'Wealy': 'wealy_distances.csv',
+# Tier-specific colors (not source-based, so defined locally)
+TIER_COLORS = {
+    'global_nearest':         '#1f77b4',
+    'intra_category_nearest': '#ff7f0e',
+    'random':                 '#2ca02c',
 }
 
 
-def load_data(csv_path: str) -> pd.DataFrame:
+# DATA LOADING
+def load_data(csv_path: Path) -> pd.DataFrame:
     """
-    Loads distance CSV file and returns filtered DataFrame with only negative pairs.
-    
-    Args:
-        csv_path: Path to the distance CSV file
-        
-    Returns:
-        Filtered DataFrame with only negative pairs and valid tiers
+    Load distance CSV and return only negative pair rows for target tiers.
     """
-    if not os.path.exists(csv_path):
+    if not csv_path.exists():
         logger.warning(f"File not found: {csv_path}")
         return pd.DataFrame()
-    
+
     df = pd.read_csv(csv_path)
-    logger.info(f"Loaded {len(df)} total rows from {os.path.basename(csv_path)}")
-    
-    # Filter 1: Keep only negative pairs (final_mod_type starts with 'Negative_')
+    print(f"Loaded {len(df)} total rows from {csv_path.name}")
+
+    # Keep only negative pairs
     df = df[df['final_mod_type'].str.startswith('Negative_', na=False)].copy()
-    logger.info(f"After filtering negative pairs: {len(df)} rows")
-    
-    # Filter 2: Keep only the three specific negative tiers
+    print(f"After filtering negatives: {len(df)} rows")
+
+    # Keep only the three target tiers
     df = df[df['negative_tier'].isin(TARGET_TIERS)].copy()
-    logger.info(f"After filtering to target tiers: {len(df)} rows")
-    
-    # Remove any rows with null negative_tier
     df = df.dropna(subset=['negative_tier'])
-    
+    print(f"After filtering to target tiers: {len(df)} rows")
+
     return df
 
 
-def plot_metric_tiers(df: pd.DataFrame, model_name: str, metric: str, output_dir: str):
+# PLOTTING
+def plot_metric_tiers(
+    df:         pd.DataFrame,
+    model_name: str,
+    metric:     str,
+    output_dir: Path,
+) -> None:
     """
-    Creates a boxplot for a specific distance metric across negative tiers.
-    
-    Args:
-        df: Filtered DataFrame with negative pairs
-        model_name: Name of the model (CLEWS/Wealy)
-        metric: Distance metric column name
-        output_dir: Directory to save the plot
+    Boxplot for a single distance metric across the three negative tiers.
     """
     if df.empty or metric not in df.columns:
-        logger.warning(f"No data for metric {metric}")
+        logger.warning(f"No data for metric '{metric}' in {model_name}.")
         return
-    
-    # Check if all tiers exist in data
+
     tiers_present = [t for t in TARGET_TIERS if t in df['negative_tier'].unique()]
     if len(tiers_present) < 2:
-        logger.warning(f"Not enough tiers present for {metric}. Found: {tiers_present}")
+        logger.warning(
+            f"Not enough tiers for {metric} in {model_name}. Found: {tiers_present}"
+        )
         return
-    
-    # Set up the figure with academic style
-    sns.set_style("whitegrid")
-    plt.rcParams.update({
-        'font.family': 'sans-serif',
-        'font.size': 11,
-        'axes.labelsize': 12,
-        'axes.titlesize': 13,
-        'xtick.labelsize': 11,
-        'ytick.labelsize': 10,
-        'legend.fontsize': 10,
-        'figure.dpi': PLOT_DPI,
-    })
-    
-    fig, ax = plt.subplots(figsize=(10, 6))
-    
-    # Create boxplot with ordered tiers
-    # Use specific order: global_nearest -> intra_category_nearest -> random
-    tier_order = [t for t in TARGET_TIERS if t in tiers_present]
-    
-    # Create display name mapping
-    tier_display_names = {
-        'global_nearest': 'Global Nearest',
-        'intra_category_nearest': 'Intra-Category Nearest',
-        'random': 'Random'
-    }
-    
-    # Map tier names for display
+
     df_plot = df.copy()
-    df_plot['negative_tier_display'] = df_plot['negative_tier'].map(tier_display_names)
-    
-    # Define colors for each tier
-    tier_colors = {
-        'global_nearest': PLOT_COLORS.get('Global Nearest', '#1f77b4'),
-        'intra_category_nearest': PLOT_COLORS.get('Intra-Category Nearest', '#ff7f0e'),
-        'random': PLOT_COLORS.get('Random', '#2ca02c'),
-    }
-    palette = [tier_colors[t] for t in tier_order]
-    
-    # Create the boxplot
+    df_plot['tier_display'] = df_plot['negative_tier'].map(TIER_DISPLAY_NAMES)
+
+    tier_order_display = [TIER_DISPLAY_NAMES[t] for t in tiers_present]
+    palette            = [TIER_COLORS[t] for t in tiers_present]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
     sns.boxplot(
         data=df_plot,
-        x='negative_tier_display',
+        x='tier_display',
         y=metric,
-        order=[tier_display_names[t] for t in tier_order],
+        order=tier_order_display,
         palette=palette,
         ax=ax,
         showmeans=True,
-        meanprops={"marker": "o", "markerfacecolor": "white", "markeredgecolor": "black", "markersize": 8},
+        meanprops={
+            "marker": "o", "markerfacecolor": "white",
+            "markeredgecolor": "black", "markersize": 8,
+        },
         linewidth=1.5,
-        flierprops={"marker": "o", "markerfacecolor": "gray", "markersize": 4, "alpha": 0.5},
+        flierprops={
+            "marker": "o", "markerfacecolor": "gray",
+            "markersize": 4, "alpha": 0.5,
+        },
     )
-    
-    # Format metric name for title
+
     metric_display = metric.replace('_distance', '').replace('_', ' ').title()
-    
-    # Set titles and labels
     ax.set_title(
-        f'Distribution of Negative Tiers - {model_name} ({metric_display} Distance)',
-        fontsize=14,
-        fontweight='bold',
-        pad=15
+        f'Negative Tier Distribution — {model_name} ({metric_display} Distance)',
+        fontsize=14, fontweight='bold', pad=15
     )
     ax.set_xlabel('Negative Sampling Tier', fontsize=12, fontweight='bold')
     ax.set_ylabel(f'{metric_display} Distance', fontsize=12, fontweight='bold')
-    
-    # Add grid for readability
     ax.grid(alpha=0.3, axis='y')
     ax.set_axisbelow(True)
-    
-    # Adjust y-axis label format for large numbers
     ax.ticklabel_format(style='scientific', axis='y', scilimits=(0, 0))
-    
+
     plt.tight_layout()
-    
-    # Save as PDF
-    safe_metric_name = metric.replace('_distance', '')
-    plot_path = Path(output_dir) / f"{model_name.lower()}_{safe_metric_name}_negative_tiers.pdf"
+    safe_metric = metric.replace('_distance', '')
+    plot_path   = output_dir / f"{model_name.lower()}_{safe_metric}_negative_tiers.pdf"
     fig.savefig(plot_path, dpi=PLOT_DPI, format='pdf', bbox_inches='tight')
     plt.close(fig)
-    
-    logger.info(f"Saved: {plot_path.name}")
+    print(f"Saved → {plot_path.name}")
 
 
-def process_model_distances(model_name: str, csv_filename: str, output_dir: str):
-    """
-    Processes all distance metrics for a single model.
-    
-    Args:
-        model_name: Name of the model (CLEWS/Wealy)
-        csv_filename: Name of the CSV file
-        output_dir: Directory to save plots
-    """
-    csv_path = DISTANCES_DIR / csv_filename
-    
-    logger.info(f"\n{'='*60}")
-    logger.info(f"Processing {model_name} distances from {csv_filename}")
-    logger.info(f"{'='*60}")
-    
-    # Load and filter data
-    df = load_data(str(csv_path))
-    
+# PER-MODEL PIPELINE
+def process_model(model_name: str, csv_path: Path, output_dir: Path) -> None:
+    print(f"\n{'=' * 60}")
+    print(f"Processing {model_name} from {csv_path.name}")
+    print(f"{'=' * 60}")
+
+    df = load_data(csv_path)
     if df.empty:
-        logger.warning(f"No valid data found for {model_name}. Skipping.")
+        logger.warning(f"No valid data for {model_name}. Skipping.")
         return
-    
-    # Log tier distribution
-    logger.info(f"Tier distribution:")
+
+    print("Tier distribution:")
     for tier in TARGET_TIERS:
         count = len(df[df['negative_tier'] == tier])
-        logger.info(f"  - {tier}: {count} pairs")
-    
-    # Plot each distance metric
+        print(f"  {tier}: {count} pairs")
+
     for metric in DISTANCE_METRICS:
         if metric in df.columns:
             plot_metric_tiers(df, model_name, metric, output_dir)
         else:
-            logger.warning(f"Metric {metric} not found in {model_name} data")
+            logger.warning(f"Metric '{metric}' not found in {model_name} data.")
 
 
-def main():
-    """
-    Main function to orchestrate the negative tier visualization.
-    """
-    logger.info("=" * 70)
-    logger.info("NEGATIVE TIER DISTRIBUTION ANALYSIS")
-    logger.info("=" * 70)
-    
-    # Create output directory
-    os.makedirs(OUTPUT_NEGATIVE_TIERS_DIR, exist_ok=True)
-    logger.info(f"Output directory: {OUTPUT_NEGATIVE_TIERS_DIR}")
-    
-    # Process each model's distance data
-    for model_name, csv_filename in DISTANCE_FILES.items():
-        process_model_distances(model_name, csv_filename, str(OUTPUT_NEGATIVE_TIERS_DIR))
-    
-    logger.info("\n" + "=" * 70)
-    logger.info("ANALYSIS COMPLETE. Negative tier plots saved to:")
-    logger.info(f"  {OUTPUT_NEGATIVE_TIERS_DIR}")
-    logger.info("=" * 70)
+def main() -> None:
+    print("=" * 70)
+    print("NEGATIVE TIER DISTRIBUTION ANALYSIS")
+    print("=" * 70)
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"Output directory: {OUTPUT_DIR}")
+
+    for model_name, csv_path_str in MODEL_PATHS.items():
+        # Skip FUSION — it has fused distances, not raw tier distances
+        if model_name == "FUSION":
+            continue
+        process_model(model_name, Path(csv_path_str), OUTPUT_DIR)
+
+    print("\n" + "=" * 70)
+    print(f"ANALYSIS COMPLETE. Plots saved → {OUTPUT_DIR}")
+    print("=" * 70)
 
 
 if __name__ == "__main__":
