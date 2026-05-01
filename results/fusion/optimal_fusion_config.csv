@@ -1,2 +1,2 @@
 clews_metric,wealy_metric,alpha,beta,internal_val_f05_score
-euclidean_distance,cosine_distance,1.0,0.0,0.8727
+manhattan_distance,cosine_distance,1.0,0.0,0.6486

@@ -1,0 +1,240 @@
+2026-05-01 17:46:22 [INFO] Logging initialized for build_pairs, file: logs\build_pairs.txt
+2026-05-01 17:46:22 [INFO] Logging initialized for build_pairs, file: logs\build_pairs.txt
+
+============================================================
+=== Building Master Pair List ===
+============================================================
+Using device: cpu
+
+Loaded 80335 positive pairs.
+Building search pool …
+Search pool: 80335 candidates
+
+Mining Random / Intra-Category Nearest / Global Nearest negatives …
+Traceback (most recent call last):
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\build_pairs.py", line 241, in <module>
+    build_master_pairs(args.parquet, args.smp, args.output)
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\build_pairs.py", line 145, in build_master_pairs
+    global_idx = _find_hardest_candidate(query_norm, pool_emb_norm, diff_pair_mask)
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\build_pairs.py", line 93, in _find_hardest_candidate
+    sims[~allowed_mask] = float("-inf")
+KeyboardInterrupt
+2026-05-01 18:09:56 [INFO] Logging initialized for build_pairs, file: logs\build_pairs.txt
+2026-05-01 18:09:56 [INFO] Logging initialized for build_pairs, file: logs\build_pairs.txt
+
+============================================================
+Building Master Pair List
+============================================================
+Loading positive pairs from data/clews_embeddings.parquet …
+Loaded 80335 positive pairs.
+Building search pool …
+Search pool: 80335 candidates  |  dim: 1024
+
+Mining negatives …
+  random negatives         : 80335
+  intra_category_nearest   : 80335
+  global_nearest           : 80335
+
+Building positive pair rows …
+
+Saved master pair list → data/evaluation_master_pairs.csv
+Total rows: 217258
+
+==================================================
+MASTER PAIR LIST SUMMARY
+==================================================
+  Total pairs      : 217258
+  Positives        : 80335  (37.0%)
+  Negatives        : 136923  (63.0%)
+
+  Breakdown by tier:
+         negative_tier  is_plagiarised  count
+                   N/A               1  80335
+        global_nearest               0  45641
+intra_category_nearest               0  45641
+                random               0  45641
+
+  Breakdown by mod_type:
+                     final_mod_type          negative_tier  count
+                  Negative_SMP_plag         global_nearest    242
+                  Negative_SMP_plag intra_category_nearest    242
+                  Negative_SMP_plag                 random    242
+            Negative_SMP_plag_doubt         global_nearest    111
+            Negative_SMP_plag_doubt intra_category_nearest    111
+            Negative_SMP_plag_doubt                 random    111
+                Negative_SMP_remake         global_nearest    250
+                Negative_SMP_remake intra_category_nearest    250
+                Negative_SMP_remake                 random    250
+            Negative_audioldm2_none         global_nearest   1219
+            Negative_audioldm2_none intra_category_nearest   1219
+            Negative_audioldm2_none                 random   1219
+         Negative_audioldm2_pitchD2         global_nearest   1219
+         Negative_audioldm2_pitchD2 intra_category_nearest   1219
+         Negative_audioldm2_pitchD2                 random   1219
+         Negative_audioldm2_pitchD4         global_nearest   1219
+         Negative_audioldm2_pitchD4 intra_category_nearest   1219
+         Negative_audioldm2_pitchD4                 random   1219
+Negative_audioldm2_pitchD4_tempo090         global_nearest   1219
+Negative_audioldm2_pitchD4_tempo090 intra_category_nearest   1219
+Negative_audioldm2_pitchD4_tempo090                 random   1219
+         Negative_audioldm2_pitchU2         global_nearest   1219
+         Negative_audioldm2_pitchU2 intra_category_nearest   1219
+         Negative_audioldm2_pitchU2                 random   1219
+         Negative_audioldm2_pitchU4         global_nearest   1219
+         Negative_audioldm2_pitchU4 intra_category_nearest   1219
+         Negative_audioldm2_pitchU4                 random   1219
+Negative_audioldm2_pitchU4_tempo110         global_nearest   1219
+Negative_audioldm2_pitchU4_tempo110 intra_category_nearest   1219
+Negative_audioldm2_pitchU4_tempo110                 random   1219
+        Negative_audioldm2_tempo090         global_nearest   1219
+        Negative_audioldm2_tempo090 intra_category_nearest   1219
+        Negative_audioldm2_tempo090                 random   1219
+        Negative_audioldm2_tempo095         global_nearest   1219
+        Negative_audioldm2_tempo095 intra_category_nearest   1219
+        Negative_audioldm2_tempo095                 random   1219
+        Negative_audioldm2_tempo105         global_nearest   1219
+        Negative_audioldm2_tempo105 intra_category_nearest   1219
+        Negative_audioldm2_tempo105                 random   1219
+        Negative_audioldm2_tempo110         global_nearest   1219
+        Negative_audioldm2_tempo110 intra_category_nearest   1219
+        Negative_audioldm2_tempo110                 random   1219
+             Negative_musicgen_none         global_nearest   1219
+             Negative_musicgen_none intra_category_nearest   1219
+             Negative_musicgen_none                 random   1219
+          Negative_musicgen_pitchD2         global_nearest   1219
+          Negative_musicgen_pitchD2 intra_category_nearest   1219
+          Negative_musicgen_pitchD2                 random   1219
+          Negative_musicgen_pitchD4         global_nearest   1219
+          Negative_musicgen_pitchD4 intra_category_nearest   1219
+          Negative_musicgen_pitchD4                 random   1219
+ Negative_musicgen_pitchD4_tempo090         global_nearest   1219
+ Negative_musicgen_pitchD4_tempo090 intra_category_nearest   1219
+ Negative_musicgen_pitchD4_tempo090                 random   1219
+          Negative_musicgen_pitchU2         global_nearest   1219
+          Negative_musicgen_pitchU2 intra_category_nearest   1219
+          Negative_musicgen_pitchU2                 random   1219
+          Negative_musicgen_pitchU4         global_nearest   1219
+          Negative_musicgen_pitchU4 intra_category_nearest   1219
+          Negative_musicgen_pitchU4                 random   1219
+ Negative_musicgen_pitchU4_tempo110         global_nearest   1219
+ Negative_musicgen_pitchU4_tempo110 intra_category_nearest   1219
+ Negative_musicgen_pitchU4_tempo110                 random   1219
+         Negative_musicgen_tempo090         global_nearest   1219
+         Negative_musicgen_tempo090 intra_category_nearest   1219
+         Negative_musicgen_tempo090                 random   1219
+         Negative_musicgen_tempo095         global_nearest   1219
+         Negative_musicgen_tempo095 intra_category_nearest   1219
+         Negative_musicgen_tempo095                 random   1219
+         Negative_musicgen_tempo105         global_nearest   1219
+         Negative_musicgen_tempo105 intra_category_nearest   1219
+         Negative_musicgen_tempo105                 random   1219
+         Negative_musicgen_tempo110         global_nearest   1219
+         Negative_musicgen_tempo110 intra_category_nearest   1219
+         Negative_musicgen_tempo110                 random   1219
+              Negative_none_pitchD2         global_nearest   1219
+              Negative_none_pitchD2 intra_category_nearest   1219
+              Negative_none_pitchD2                 random   1219
+              Negative_none_pitchD4         global_nearest   1219
+              Negative_none_pitchD4 intra_category_nearest   1219
+              Negative_none_pitchD4                 random   1219
+     Negative_none_pitchD4_tempo090         global_nearest   1219
+     Negative_none_pitchD4_tempo090 intra_category_nearest   1219
+     Negative_none_pitchD4_tempo090                 random   1219
+              Negative_none_pitchU2         global_nearest   1219
+              Negative_none_pitchU2 intra_category_nearest   1219
+              Negative_none_pitchU2                 random   1219
+              Negative_none_pitchU4         global_nearest   1219
+              Negative_none_pitchU4 intra_category_nearest   1219
+              Negative_none_pitchU4                 random   1219
+     Negative_none_pitchU4_tempo110         global_nearest   1219
+     Negative_none_pitchU4_tempo110 intra_category_nearest   1219
+     Negative_none_pitchU4_tempo110                 random   1219
+             Negative_none_tempo090         global_nearest   1219
+             Negative_none_tempo090 intra_category_nearest   1219
+             Negative_none_tempo090                 random   1219
+             Negative_none_tempo095         global_nearest   1219
+             Negative_none_tempo095 intra_category_nearest   1219
+             Negative_none_tempo095                 random   1219
+             Negative_none_tempo105         global_nearest   1219
+             Negative_none_tempo105 intra_category_nearest   1219
+             Negative_none_tempo105                 random   1219
+             Negative_none_tempo110         global_nearest   1219
+             Negative_none_tempo110 intra_category_nearest   1219
+             Negative_none_tempo110                 random   1219
+               Negative_smp_pitchD2         global_nearest    603
+               Negative_smp_pitchD2 intra_category_nearest    603
+               Negative_smp_pitchD2                 random    603
+               Negative_smp_pitchD4         global_nearest    603
+               Negative_smp_pitchD4 intra_category_nearest    603
+               Negative_smp_pitchD4                 random    603
+      Negative_smp_pitchD4_tempo090         global_nearest    603
+      Negative_smp_pitchD4_tempo090 intra_category_nearest    603
+      Negative_smp_pitchD4_tempo090                 random    603
+               Negative_smp_pitchU2         global_nearest    603
+               Negative_smp_pitchU2 intra_category_nearest    603
+               Negative_smp_pitchU2                 random    603
+               Negative_smp_pitchU4         global_nearest    603
+               Negative_smp_pitchU4 intra_category_nearest    603
+               Negative_smp_pitchU4                 random    603
+      Negative_smp_pitchU4_tempo110         global_nearest    603
+      Negative_smp_pitchU4_tempo110 intra_category_nearest    603
+      Negative_smp_pitchU4_tempo110                 random    603
+              Negative_smp_tempo090         global_nearest    603
+              Negative_smp_tempo090 intra_category_nearest    603
+              Negative_smp_tempo090                 random    603
+              Negative_smp_tempo095         global_nearest    603
+              Negative_smp_tempo095 intra_category_nearest    603
+              Negative_smp_tempo095                 random    603
+              Negative_smp_tempo105         global_nearest    603
+              Negative_smp_tempo105 intra_category_nearest    603
+              Negative_smp_tempo105                 random    603
+              Negative_smp_tempo110         global_nearest    603
+              Negative_smp_tempo110 intra_category_nearest    603
+              Negative_smp_tempo110                 random    603
+                           SMP_plag                    N/A   1498
+                     SMP_plag_doubt                    N/A    832
+                         SMP_remake                    N/A   1427
+                     audioldm2_none                    N/A   1219
+                  audioldm2_pitchD2                    N/A   1219
+                  audioldm2_pitchD4                    N/A   1219
+         audioldm2_pitchD4_tempo090                    N/A   1219
+                  audioldm2_pitchU2                    N/A   1219
+                  audioldm2_pitchU4                    N/A   1219
+         audioldm2_pitchU4_tempo110                    N/A   1219
+                 audioldm2_tempo090                    N/A   1219
+                 audioldm2_tempo095                    N/A   1219
+                 audioldm2_tempo105                    N/A   1219
+                 audioldm2_tempo110                    N/A   1219
+                      musicgen_none                    N/A   1219
+                   musicgen_pitchD2                    N/A   1219
+                   musicgen_pitchD4                    N/A   1219
+          musicgen_pitchD4_tempo090                    N/A   1219
+                   musicgen_pitchU2                    N/A   1219
+                   musicgen_pitchU4                    N/A   1219
+          musicgen_pitchU4_tempo110                    N/A   1219
+                  musicgen_tempo090                    N/A   1219
+                  musicgen_tempo095                    N/A   1219
+                  musicgen_tempo105                    N/A   1219
+                  musicgen_tempo110                    N/A   1219
+                       none_pitchD2                    N/A   1219
+                       none_pitchD4                    N/A   1219
+              none_pitchD4_tempo090                    N/A   1219
+                       none_pitchU2                    N/A   1219
+                       none_pitchU4                    N/A   1219
+              none_pitchU4_tempo110                    N/A   1219
+                      none_tempo090                    N/A   1219
+                      none_tempo095                    N/A   1219
+                      none_tempo105                    N/A   1219
+                      none_tempo110                    N/A   1219
+                        smp_pitchD2                    N/A   3757
+                        smp_pitchD4                    N/A   3757
+               smp_pitchD4_tempo090                    N/A   3757
+                        smp_pitchU2                    N/A   3757
+                        smp_pitchU4                    N/A   3757
+               smp_pitchU4_tempo110                    N/A   3757
+                       smp_tempo090                    N/A   3757
+                       smp_tempo095                    N/A   3757
+                       smp_tempo105                    N/A   3757
+                       smp_tempo110                    N/A   3757
+
+Saved summary → data/evaluation_master_pairs_summary.csv

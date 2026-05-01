@@ -9,6 +9,12 @@ Design Principles:
 3. Exhaustive Search: 4 CLEWS metrics × 4 WEALY metrics × 21 alpha weights = 336 trials.
 4. Winner Selection: Absolute max F0.5-Score wins.
    Outputs: full grid CSV + optimal fusion config + winning fused distances.
+
+Vocal-aware fusion rule:
+- If pair_vocal_valid == True:
+      fused = α * CLEWS + (1-α) * WEALY
+- Else:
+      fused = CLEWS only
 """
 
 import sys
@@ -53,12 +59,14 @@ from utils.constants import (
     TEST_SIZE,
     RANDOM_STATE,
     PLOT_DPI,
+    BETA
 )
 from utils.categorization import get_ground_truth_label, fbeta_score_curve
+from utils.vocal_metadata import attach_vocal_metadata
 
 
 # OPTIMIZATION CONSTANT
-OPTIMAL_F_BETA = 0.5  # Precision-weighted
+OPTIMAL_F_BETA = BETA  # Precision-weighted
 
 
 # DATA LOADING & ALIGNMENT
@@ -82,9 +90,18 @@ def load_and_align_data(clews_csv: str, wealy_csv: str) -> pd.DataFrame:
     )
     df_merged['is_plagiarised'] = df_merged['final_mod_type'].apply(get_ground_truth_label)
 
+    # Attach source-level vocal metadata to aligned pairs
+    df_merged = attach_vocal_metadata(df_merged)
+    if 'pair_vocal_valid' not in df_merged.columns:
+        raise ValueError("Expected column 'pair_vocal_valid' not found after vocal metadata attachment.")
+
     initial_total = len(df_c) + len(df_w)
     aligned_len   = len(df_merged)
+    vocal_valid_n = int(df_merged['pair_vocal_valid'].sum())
+    vocal_invalid_n = int(aligned_len - vocal_valid_n)
+
     print(f"Alignment: {initial_total} total rows → {aligned_len} perfectly matched pairs.")
+    print(f"Vocal-aware pairs: {vocal_valid_n} vocal-valid, {vocal_invalid_n} CLEWS-only fallback.")
 
     if aligned_len == 0:
         raise ValueError("No matching pairs found between CLEWS and WEALY datasets.")
@@ -135,9 +152,9 @@ def find_internal_fbeta_threshold(
         return float(np.median(distances))
 
     # PR curve expects: higher score → more likely positive. Distances are inverted.
-    scores                     = -distances
+    scores = -distances
     precision, recall, thresholds = precision_recall_curve(y_true, scores)
-    fbeta_scores               = fbeta_score_curve(precision, recall, beta)
+    fbeta_scores = fbeta_score_curve(precision, recall, beta)
 
     if len(fbeta_scores) > 1:
         optimal_idx = np.argmax(fbeta_scores[:-1])
@@ -155,6 +172,10 @@ def run_exhaustive_grid_search(
     """
     Exhaustive search over 16 metric combos × 21 alphas (336 trials).
     Winner selected by maximum F0.5 on validation split.
+
+    Vocal-aware fusion:
+    - pair_vocal_valid=True  -> α*CLEWS + (1-α)*WEALY
+    - pair_vocal_valid=False -> CLEWS only
     """
     results     = []
     best_f05    = -1.0
@@ -167,6 +188,10 @@ def run_exhaustive_grid_search(
     y_train = df_train['is_plagiarised'].values
     y_val   = df_val['is_plagiarised'].values
 
+    # Get vocal-valid masks once
+    pair_vocal_valid_train = df_train['pair_vocal_valid'].to_numpy(dtype=bool)
+    pair_vocal_valid_val   = df_val['pair_vocal_valid'].to_numpy(dtype=bool)
+
     for trial_idx, (m_c, m_w) in enumerate(metric_combos, start=1):
         dist_c_train = df_train[f'{m_c}_clews_norm'].values
         dist_w_train = df_train[f'{m_w}_wealy_norm'].values
@@ -174,16 +199,27 @@ def run_exhaustive_grid_search(
         dist_w_val   = df_val[f'{m_w}_wealy_norm'].values
 
         for alpha in ALPHA_VALUES:
-            w_wealy     = 1.0 - alpha
-            train_fused = alpha * dist_c_train + w_wealy * dist_w_train
+            w_wealy = 1.0 - alpha
+
+            # Αdaptive fusion with CLEWS-only fallback
+            train_fused = np.where(
+                pair_vocal_valid_train,
+                alpha * dist_c_train + w_wealy * dist_w_train,
+                dist_c_train
+            )
 
             opt_th = find_internal_fbeta_threshold(
                 train_fused, y_train, beta=OPTIMAL_F_BETA
             )
 
-            val_fused  = alpha * dist_c_val + w_wealy * dist_w_val
+            val_fused = np.where(
+                pair_vocal_valid_val,
+                alpha * dist_c_val + w_wealy * dist_w_val,
+                dist_c_val
+            )
+
             y_val_pred = (val_fused <= opt_th).astype(int)
-            val_f05    = fbeta_score(
+            val_f05 = fbeta_score(
                 np.asarray(y_val), y_val_pred,
                 beta=OPTIMAL_F_BETA, zero_division=0
             )
@@ -220,30 +256,39 @@ def generate_final_fused_distances(
     """
     Applies the winning configuration to the full dataset.
     Output distance column is named '<clews_metric>+<wealy_metric>'.
+
+    Vocal-aware fusion:
+    - pair_vocal_valid=True  -> α*CLEWS + (1-α)*WEALY
+    - pair_vocal_valid=False -> CLEWS only
     """
     if best_config is None:
         raise ValueError("best_config cannot be None.")
 
-    m_c   = best_config['clews_metric']
-    m_w   = best_config['wealy_metric']
-    alpha = best_config['alpha']
-    beta  = best_config['beta']
+    m_c     = best_config['clews_metric']
+    m_w     = best_config['wealy_metric']
+    alpha   = best_config['alpha']
+    w_wealy = best_config['beta']
 
     df_out = df_full.copy()
 
     for suffix, metric in [('clews', m_c), ('wealy', m_w)]:
-        col             = f'{metric}_{suffix}'
-        stats           = norm_stats[col]
+        col = f'{metric}_{suffix}'
+        stats = norm_stats[col]
         df_out[f'{col}_norm'] = (df_out[col] - stats['min']) / stats['range']
 
-    fusion_col          = f"{m_c}+{m_w}"
-    df_out[fusion_col]  = (
-        alpha * df_out[f'{m_c}_clews_norm']
-        + beta * df_out[f'{m_w}_wealy_norm']
+    if 'pair_vocal_valid' not in df_out.columns:
+        raise ValueError("Expected column 'pair_vocal_valid' not found in df_full.")
+
+    pair_vocal_valid = df_out['pair_vocal_valid'].to_numpy(dtype=bool)
+
+    fusion_col = f"{m_c}+{m_w}"
+    df_out[fusion_col] = np.where(
+        pair_vocal_valid,
+        alpha * df_out[f'{m_c}_clews_norm'] + w_wealy * df_out[f'{m_w}_wealy_norm'],
+        df_out[f'{m_c}_clews_norm']
     )
 
     return df_out[MERGE_KEYS + ['is_plagiarised', fusion_col]]
-
 
 
 def save_results(

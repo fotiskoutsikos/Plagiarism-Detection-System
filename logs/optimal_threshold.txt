@@ -1,11 +1,15 @@
-2026-04-30 22:18:39 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
-2026-04-30 22:18:39 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
+2026-05-01 19:25:59 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
+2026-05-01 19:25:59 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
 ======================================================================
 ABLATION STUDY & THRESHOLD ANALYSIS  (optimising F0.5)
 ======================================================================
+
+Vocal-aware policy:
+  CLEWS  : all pairs
+  WEALY  : vocal-valid pairs only
+  FUSION : all pairs (adaptive fused distances)
+
 Loading distances from results\distances\clews_distances.csv...
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\optimal_threshold.py:64: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
-  df = pd.read_csv(csv_path_obj)
 Dataset loaded: 217258 pairs, 80335 positives.
 
 === ABLATION STUDY (CLEWS) — optimising F0.5 ===
@@ -16,35 +20,37 @@ Cosine          | 0.5917  | 0.6501       | 0.4451     | 0.3600
 Manhattan       | 0.5984  | 0.6539       | 0.4426     | 986.3622      
 Pearson         | 0.5917  | 0.6500       | 0.4451     | 0.3599        
 => WINNING METRIC: Manhattan Distance (Best F0.5: 0.6539, F1 at same threshold: 0.4426)
-Saved PR curve plot → plots/threshold/clews_ablation_pr.pdf
-Saved distance distribution plot → plots/threshold/clews_manhattan_distance_distributions.pdf
+Saved PR curve plot -> plots/threshold/clews_ablation_pr.pdf
+Saved distance distribution plot -> plots/threshold/clews_manhattan_distance_distributions.pdf
 Loading distances from results\distances\wealy_distances.csv...
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\optimal_threshold.py:64: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
-  df = pd.read_csv(csv_path_obj)
-Dataset loaded: 217258 pairs, 80335 positives.
+Loaded vocal metadata: 1219 sources, 1167 valid, 52 invalid
+Vocal metadata attached: 217258 pairs total, 199710 pair_vocal_valid=True (91.9%), 17548 pair_vocal_valid=False (8.1%)
+Vocal filter applied: 217258 -> 199710 rows (17548 removed)
+[WEALY] Vocal filter applied: 217258 → 199710 pairs (17548 non-vocal pairs excluded from threshold optimization)
+Dataset loaded: 199710 pairs, 75470 positives.
 
 === ABLATION STUDY (WEALY) — optimising F0.5 ===
 Metric                                   | PR-AUC  | F0.5 (test)  | F1 (test)  | Opt. Threshold
 -----------------------------------------------------------------------------------------------
-Euclidean       | 0.2605  | 0.4231       | 0.5399     | 38.0933       
-Cosine          | 0.2606  | 0.4231       | 0.5399     | 1.2595        
-Manhattan       | 0.2606  | 0.4231       | 0.5399     | 702.2458      
-Pearson         | 0.2606  | 0.4231       | 0.5399     | 1.2545        
-=> WINNING METRIC: Manhattan Distance (Best F0.5: 0.4231, F1 at same threshold: 0.5399)
-Saved PR curve plot → plots/threshold/wealy_ablation_pr.pdf
-Saved distance distribution plot → plots/threshold/wealy_manhattan_distance_distributions.pdf
+Euclidean       | 0.4719  | 0.4305       | 0.5327     | 31.8024       
+Cosine          | 0.4886  | 0.4512       | 0.4276     | 0.7768        
+Manhattan       | 0.4717  | 0.4315       | 0.5291     | 543.2323      
+Pearson         | 0.4885  | 0.4506       | 0.4253     | 0.7746        
+=> WINNING METRIC: Cosine Distance (Best F0.5: 0.4512, F1 at same threshold: 0.4276)
+Saved PR curve plot -> plots/threshold/wealy_ablation_pr.pdf
+Saved distance distribution plot -> plots/threshold/wealy_cosine_distance_distributions.pdf
 Loading distances from results\fusion\optimal_fused_distances.csv...
-Dataset loaded: 126197 pairs, 80335 positives.
+Dataset loaded: 217258 pairs, 80335 positives.
 
 === ABLATION STUDY (FUSION) — optimising F0.5 ===
 Metric                                   | PR-AUC  | F0.5 (test)  | F1 (test)  | Opt. Threshold
 -----------------------------------------------------------------------------------------------
-Euclidean       | 0.9299  | 0.8743       | 0.7799     | 0.4074        
-=> WINNING METRIC: Euclidean Distance (Best F0.5: 0.8743, F1 at same threshold: 0.7799)
-Saved PR curve plot → plots/threshold/fusion_ablation_pr.pdf
-Saved distance distribution plot → plots/threshold/fusion_euclidean_distance+cosine_distance_distributions.pdf
-Summary saved → results/threshold/threshold_analysis_summary.csv
-Detailed report saved → results/threshold/all_metrics_detailed_summary.csv
+Manhattan       | 0.5984  | 0.6539       | 0.4426     | 0.2645        
+=> WINNING METRIC: Manhattan Distance (Best F0.5: 0.6539, F1 at same threshold: 0.4426)
+Saved PR curve plot -> plots/threshold/fusion_ablation_pr.pdf
+Saved distance distribution plot -> plots/threshold/fusion_manhattan_distance+cosine_distance_distributions.pdf
+Summary saved -> results/threshold/threshold_analysis_summary.csv
+Detailed report saved -> results/threshold/all_metrics_detailed_summary.csv
 
 ======================================================================
 ANALYSIS COMPLETE

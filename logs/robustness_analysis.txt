@@ -1,5 +1,5 @@
-2026-04-30 22:23:39 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
-2026-04-30 22:23:39 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
+2026-05-01 19:28:09 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
+2026-05-01 19:28:09 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
 ======================================================================
 ROBUSTNESS ANALYSIS (Distances Only — Reference ↔ Plagiarized)
 ======================================================================
@@ -16,15 +16,17 @@ Processing Robustness for WEALY...
 c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\robustness_analysis.py:104: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df = pd.read_csv(csv_path)
 WEALY: 80335 positive pairs loaded (Reference ↔ Plagiarized).
-Using manhattan_distance (Threshold visual line = 702.2458)
-Saved Distance Trends → plots\robustness\wealy_manhattan_distance_distance_trends.pdf
-Saved Extreme Stress Test → plots\robustness\wealy_manhattan_distance_extreme_stress_test.pdf
+Using cosine_distance (Threshold visual line = 0.7768)
+Saved Distance Trends → plots\robustness\wealy_cosine_distance_distance_trends.pdf
+Saved Extreme Stress Test → plots\robustness\wealy_cosine_distance_extreme_stress_test.pdf
 
 Processing Robustness for FUSION...
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\robustness_analysis.py:104: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
 FUSION: 80335 positive pairs loaded (Reference ↔ Plagiarized).
-Using euclidean_distance+cosine_distance (Threshold visual line = 0.4074)
-Saved Distance Trends → plots\robustness\fusion_euclidean_distance_PLUS_cosine_distance_distance_trends.pdf
-Saved Extreme Stress Test → plots\robustness\fusion_euclidean_distance_PLUS_cosine_distance_extreme_stress_test.pdf
+Using manhattan_distance+cosine_distance (Threshold visual line = 0.2645)
+Saved Distance Trends → plots\robustness\fusion_manhattan_distance_PLUS_cosine_distance_distance_trends.pdf
+Saved Extreme Stress Test → plots\robustness\fusion_manhattan_distance_PLUS_cosine_distance_extreme_stress_test.pdf
 
 ======================================================================
 ANALYSIS COMPLETE. Distance robustness plots ready.

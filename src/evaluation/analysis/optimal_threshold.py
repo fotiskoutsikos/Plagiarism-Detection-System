@@ -4,10 +4,15 @@ Evaluates Cosine, Euclidean, Manhattan, and Pearson distances.
 Optimizes threshold based on maximum F0.5-Score via Precision-Recall Curve.
 Selects the winning metric based strictly on the highest Mean F0.5-Score.
 
-- Follows standard practice in audio/music fingerprinting: threshold sweep on 
+- Follows standard practice in audio/music fingerprinting: threshold sweep on
   validation set maximizing F0.5-Score per metric.
 - Uses Stratified K-Fold CV for robust, unbiased estimation.
 - Reports PR-AUC (preferred over ROC-AUC for imbalanced detection tasks).
+
+Vocal-aware policy:
+- CLEWS  : threshold computed on ALL pairs (acoustic, always valid).
+- WEALY  : threshold computed on vocal-valid pairs ONLY (speech model, domain constraint).
+- FUSION : threshold computed on ALL pairs using adaptive fused distances.
 """
 
 import os
@@ -49,25 +54,59 @@ sys.path.insert(0, str(repo_root / "src"))
 from utils.constants import (
     MODEL_PATHS, OUTPUT_DIRS, SUMMARY_FILES,
     DISTANCE_METRICS, NUM_K_FOLDS, RANDOM_STATE,
-    PLOT_LINE_STYLES, PLOT_DPI
+    PLOT_LINE_STYLES, PLOT_DPI,
+    VOCAL_RATIOS_CSV, BETA
 )
 from utils.categorization import get_ground_truth_label, fbeta_score_curve
+from utils.vocal_metadata import attach_vocal_metadata, filter_vocal_valid
+
+
+# Models that require vocal-valid filtering before threshold optimization
+VOCAL_FILTERED_MODELS = {"WEALY"}
 
 
 # DATA LOADING
-def load_distances(csv_path: str) -> pd.DataFrame:
+def load_distances(csv_path: str, model_name: str) -> pd.DataFrame:
+    """
+    Load distance CSV and apply ground truth labels.
+
+    For WEALY: attaches vocal metadata and filters to vocal-valid pairs only,
+    because WEALY is a speech model and produces unreliable embeddings on
+    segments without vocal content.
+
+    For CLEWS and FUSION: no filtering — all pairs are valid.
+    """
     csv_path_obj = Path(csv_path)
     if not csv_path_obj.exists():
         raise FileNotFoundError(f"Distance file not found: {csv_path_obj}")
 
     print(f"Loading distances from {csv_path_obj}...")
-    df = pd.read_csv(csv_path_obj)
+    df = pd.read_csv(csv_path_obj, low_memory=False)
     df['is_plagiarised'] = df['final_mod_type'].apply(get_ground_truth_label)
 
-    # Validate all expected distance columns using centralized list
+    # Validate distance columns
     for col in DISTANCE_METRICS:
         if col in df.columns and df[col].isna().any():
             raise ValueError(f"NaN values found in distance column '{col}'.")
+
+    # Filter WEALY to vocal-valid pairs only ---
+    if model_name in VOCAL_FILTERED_MODELS:
+        vocal_csv_exists = Path(VOCAL_RATIOS_CSV).exists()
+        if vocal_csv_exists:
+            n_before = len(df)
+            df = attach_vocal_metadata(df)
+            df = filter_vocal_valid(df)
+            n_after = len(df)
+            print(
+                f"[{model_name}] Vocal filter applied: "
+                f"{n_before} → {n_after} pairs "
+                f"({n_before - n_after} non-vocal pairs excluded from threshold optimization)"
+            )
+        else:
+            logger.warning(
+                f"[{model_name}] Vocal metadata not found at {VOCAL_RATIOS_CSV}. "
+                f"Proceeding without vocal filtering — thresholds may be unreliable."
+            )
 
     print(f"Dataset loaded: {len(df)} pairs, {df['is_plagiarised'].sum()} positives.")
     return df
@@ -85,9 +124,9 @@ def _compute_optimal_threshold(
 
     Returns
     -------
-    threshold_distance : float  – optimal threshold in original distance space
-    best_fbeta         : float  – F-beta at that threshold
-    best_f1            : float  – F1 at the same threshold (for reporting)
+    threshold_distance : float  - optimal threshold in original distance space
+    best_fbeta         : float  - F-beta at that threshold
+    best_f1            : float  - F1 at the same threshold (for reporting)
     """
     y_train        = np.asarray(y_train)
     y_train_scores = np.asarray(y_train_scores)
@@ -101,7 +140,6 @@ def _compute_optimal_threshold(
     fbeta_scores = fbeta_score_curve(precision, recall, beta)
     f1_scores    = fbeta_score_curve(precision, recall, beta=1.0)
 
-    # Drop the trailing (precision=1, recall=0) sentinel appended by sklearn
     if len(fbeta_scores) > 1:
         optimal_index = int(np.argmax(fbeta_scores[:-1]))
     else:
@@ -123,7 +161,7 @@ def _compute_metrics(
 ) -> Dict:
     """
     Compute classification metrics for a single fold prediction.
-    Uses sklearn's fbeta_score consistently — no manual reimplementation.
+    Uses sklearn's fbeta_score consistently.
     """
     tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
     prec  = precision_score(y_true, y_pred, zero_division=0)
@@ -150,9 +188,7 @@ def evaluate_metric(
 ) -> Tuple[Dict, np.ndarray, np.ndarray]:
     """
     Evaluate a single distance metric with Stratified K-Fold CV.
-
     Threshold per fold is chosen by maximising F-beta (default beta=0.5).
-    Both F-beta and F1 are reported for comparison.
     """
     if n_splits is None:
         n_splits = NUM_K_FOLDS
@@ -166,8 +202,8 @@ def evaluate_metric(
 
     prec_full, rec_full, _ = precision_recall_curve(y, scores)
 
-    skf          = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
-    fold_metrics = []
+    skf             = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
+    fold_metrics    = []
     fold_thresholds = []
     cv_aucs         = []
 
@@ -177,8 +213,8 @@ def evaluate_metric(
         y_train,    y_test    = y[train_idx],         y[test_idx]
         dist_train, dist_test = distances[train_idx], distances[test_idx]
 
-        scores_train          = -dist_train if invert_logic else dist_train
-        opt_threshold, _, _   = _compute_optimal_threshold(
+        scores_train        = -dist_train if invert_logic else dist_train
+        opt_threshold, _, _ = _compute_optimal_threshold(
             y_train, scores_train, invert_logic, beta=beta
         )
         fold_thresholds.append(opt_threshold)
@@ -214,7 +250,6 @@ def plot_ablation_pr(
     """PR curves for all distance metrics on one model."""
     fig, ax = plt.subplots(figsize=(10, 8))
 
-    # Use 4 visually distinct colors; fall back to cycle if more metrics appear
     colors = ['blue', 'red', 'green', 'orange']
 
     for idx, (metric_name, data) in enumerate(plot_data.items()):
@@ -241,7 +276,7 @@ def plot_ablation_pr(
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=PLOT_DPI, bbox_inches='tight')
     plt.close(fig)
-    print(f"Saved PR curve plot → {output_path}")
+    print(f"Saved PR curve plot -> {output_path}")
 
 
 def plot_distance_distributions(
@@ -284,7 +319,7 @@ def plot_distance_distributions(
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=PLOT_DPI, bbox_inches='tight')
     plt.close(fig)
-    print(f"Saved distance distribution plot → {output_path}")
+    print(f"Saved distance distribution plot -> {output_path}")
 
 
 # PER-MODEL PIPELINE
@@ -301,7 +336,7 @@ def run_model_analysis(
         logger.warning(f"{csv_path} not found. Skipping {model_name}.")
         return None, []
 
-    df = load_distances(csv_path)
+    df = load_distances(csv_path, model_name)
     metrics_to_test = [
         col for col in df.columns
         if col.endswith('_distance') or '+' in col
@@ -372,6 +407,7 @@ def run_model_analysis(
     return None, []
 
 
+# SAVE
 def process_and_save_thresholds(
     summary_data: List[Dict],
     summary_path: str,
@@ -379,16 +415,21 @@ def process_and_save_thresholds(
     Path(summary_path).parent.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame(summary_data)
     df.to_csv(summary_path, index=False)
-    print(f"Summary saved → {summary_path}")
+    print(f"Summary saved -> {summary_path}")
     return df
 
 
 def main():
-    BETA = 0.5
 
     print("=" * 70)
     print(f"ABLATION STUDY & THRESHOLD ANALYSIS  (optimising F{BETA})")
     print("=" * 70)
+    print()
+    print("Vocal-aware policy:")
+    print("  CLEWS  : all pairs")
+    print("  WEALY  : vocal-valid pairs only")
+    print("  FUSION : all pairs (adaptive fused distances)")
+    print()
 
     models = {
         "CLEWS":  MODEL_PATHS["CLEWS"],
@@ -422,7 +463,7 @@ def main():
         ]
         cols = [c for c in cols if c in detailed_df.columns]
         detailed_df[cols].to_csv(SUMMARY_FILES['all_metrics_detailed'], index=False)
-        print(f"Detailed report saved → {SUMMARY_FILES['all_metrics_detailed']}")
+        print(f"Detailed report saved -> {SUMMARY_FILES['all_metrics_detailed']}")
 
     print("\n" + "=" * 70)
     print("ANALYSIS COMPLETE")
