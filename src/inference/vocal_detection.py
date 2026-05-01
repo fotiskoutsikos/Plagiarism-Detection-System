@@ -27,7 +27,7 @@ from tqdm import tqdm
 
 # CONFIG
 STEMS_ROOT = "data/separated_segment_smp/mdx_extra_q"
-OUTPUT_CSV = "data/vocal_ratios_source.csv"
+OUTPUT_CSV = "results/vocal_detection/vocal_ratios_source.csv"
 
 TARGET_SR = 16_000
 FRAME_MS = 20

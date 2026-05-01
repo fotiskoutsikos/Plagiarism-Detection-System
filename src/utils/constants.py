@@ -9,7 +9,7 @@ import numpy as np
 
 # DATA SOURCE PATHS
 SMP_CSV = "data/Final_dataset_pairs.csv"
-VOCAL_RATIOS_CSV = "data/vocal_ratios_source.csv"
+VOCAL_RATIOS_CSV = "results/vocal_detection/vocal_ratios_source.csv"
 
 EMBEDDING_PATHS = {
     "CLEWS": "data/clews_embeddings.parquet",
@@ -25,7 +25,7 @@ EMBEDDING_PATHS = {
 #   pair_9_comp_51s_musicgen_pitchD4_tempo090.wav
 SOURCE_KEY_REGEX = r"(pair_\d+_(?:ori|comp)_\d+s)"
 
-# Base metadata columns from data/vocal_ratios_source.csv
+# Base metadata columns from results/vocal_detection/vocal_ratios_source.csv
 VOCAL_METADATA_COLUMNS = {
     "source_key": "source_key",
     "source_filename": "source_filename",

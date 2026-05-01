@@ -194,7 +194,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--pair-list",
         type=str,
-        default="data/evaluation_master_pairs.csv",
+        default="results/pairs/evaluation_master_pairs.csv",
         help="Path to pair list CSV.",
     )
     args = parser.parse_args()
