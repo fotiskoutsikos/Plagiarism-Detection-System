@@ -1,0 +1,134 @@
+2026-05-03 20:56:19 [INFO] Logging initialized for musical_attribution, file: logs\musical_attribution.txt
+2026-05-03 20:56:19 [INFO] Logging initialized for musical_attribution, file: logs\musical_attribution.txt
+======================================================================
+4-WAY MUSICAL SOURCE ATTRIBUTION
+======================================================================
+Winning metric for CLEWS: manhattan_distance
+Winning metric for WEALY: cosine_distance
+Winning metric for FUSION: manhattan_distance+cosine_distance
+
+Winning metrics loaded:
+  CLEWS: manhattan_distance
+  WEALY: cosine_distance
+  FUSION: manhattan_distance+cosine_distance
+
+──────────────────────────────────────────────────────────────────────
+Processing CLEWS | Metric: manhattan_distance
+──────────────────────────────────────────────────────────────────────
+  Loaded 217258 rows from clews_distances.csv
+  Valid 4-way groups: 45641 | Skipped: 0
+  Ranked 45641 query groups
+
+====================================================================================================
+ SOURCE ATTRIBUTION RESULTS: CLEWS
+ Metric: manhattan_distance | Protocol: 4-Way Forced Choice
+====================================================================================================
+
+  Overall:
+    Queries     : 45641
+    Top-1 Acc   : 36.4%
+    Mean Rank   : 2.397
+    MRR         : 0.5700
+    Rank Dist   : R1=36.4%  R2=5.5%  R3=40.2%  R4=17.9%  
+
+  Category                            |   Top-1 |     MRR |   MeanR |    R1 |    R2 |    R3 |    R4 |     N
+  -----------------------------------------------------------------------------------------------
+  1a. Human Plagiarism (Base)         |  62.5% |  0.7718 |   1.629 |   377 |    84 |   131 |    11 |   603
+  1b. Human Plagiarism + DSP          |  58.7% |  0.7428 |   1.726 |  3538 |   715 |  1671 |   106 |  6030
+  2. Original + DSP                   |  98.7% |  0.9927 |   1.017 | 12026 |   123 |    40 |     1 | 12190
+  3. AI Generation (Base)             |   3.0% |  0.3431 |   3.139 |    74 |   180 |  1517 |   667 |  2438
+  4. AI + DSP                         |   2.4% |  0.3336 |   3.197 |   578 |  1426 | 14981 |  7395 | 24380
+====================================================================================================
+
+  Misattribution Breakdown:
+    Global Nearest           : 28051 (96.6%)
+    Intra-Category           :  997 (3.4%)
+  Plot saved → clews_attribution_top1_by_category.pdf
+  Plot saved → clews_attribution_rank_distribution.pdf
+  Plot saved → clews_attribution_misattribution_breakdown.pdf
+
+──────────────────────────────────────────────────────────────────────
+Processing WEALY | Metric: cosine_distance
+──────────────────────────────────────────────────────────────────────
+  Loaded 217258 rows from wealy_distances.csv
+  Valid 4-way groups: 45641 | Skipped: 0
+  Ranked 45641 query groups
+
+====================================================================================================
+ SOURCE ATTRIBUTION RESULTS: WEALY
+ Metric: cosine_distance | Protocol: 4-Way Forced Choice
+====================================================================================================
+
+  Overall:
+    Queries     : 45641
+    Top-1 Acc   : 43.3%
+    Mean Rank   : 2.071
+    MRR         : 0.6456
+    Rank Dist   : R1=43.3%  R2=21.7%  R3=19.4%  R4=15.5%  
+
+  Category                            |   Top-1 |     MRR |   MeanR |    R1 |    R2 |    R3 |    R4 |     N
+  -----------------------------------------------------------------------------------------------
+  1a. Human Plagiarism (Base)         |  33.3% |  0.5797 |   2.280 |   201 |   143 |   148 |   111 |   603
+  1b. Human Plagiarism + DSP          |  32.2% |  0.5658 |   2.361 |  1940 |  1322 |  1422 |  1346 |  6030
+  2. Original + DSP                   |  77.0% |  0.8622 |   1.388 |  9384 |  1399 |   894 |   513 | 12190
+  3. AI Generation (Base)             |  37.8% |  0.6117 |   2.171 |   921 |   598 |   499 |   420 |  2438
+  4. AI + DSP                         |  30.1% |  0.5621 |   2.325 |  7337 |  6458 |  5901 |  4684 | 24380
+====================================================================================================
+
+  Misattribution Breakdown:
+    Global Nearest           : 11520 (44.6%)
+    Intra-Category           : 7386 (28.6%)
+    Random                   : 6952 (26.9%)
+  Plot saved → wealy_attribution_top1_by_category.pdf
+  Plot saved → wealy_attribution_rank_distribution.pdf
+  Plot saved → wealy_attribution_misattribution_breakdown.pdf
+
+──────────────────────────────────────────────────────────────────────
+Processing FUSION | Metric: manhattan_distance+cosine_distance
+──────────────────────────────────────────────────────────────────────
+  Loaded 217258 rows from optimal_fused_distances.csv
+  Valid 4-way groups: 45641 | Skipped: 0
+  Ranked 45641 query groups
+
+====================================================================================================
+ SOURCE ATTRIBUTION RESULTS: FUSION
+ Metric: manhattan_distance+cosine_distance | Protocol: 4-Way Forced Choice
+====================================================================================================
+
+  Overall:
+    Queries     : 45641
+    Top-1 Acc   : 36.4%
+    Mean Rank   : 2.397
+    MRR         : 0.5700
+    Rank Dist   : R1=36.4%  R2=5.5%  R3=40.2%  R4=17.9%  
+
+  Category                            |   Top-1 |     MRR |   MeanR |    R1 |    R2 |    R3 |    R4 |     N
+  -----------------------------------------------------------------------------------------------
+  1a. Human Plagiarism (Base)         |  62.5% |  0.7718 |   1.629 |   377 |    84 |   131 |    11 |   603
+  1b. Human Plagiarism + DSP          |  58.7% |  0.7428 |   1.726 |  3538 |   715 |  1671 |   106 |  6030
+  2. Original + DSP                   |  98.7% |  0.9927 |   1.017 | 12026 |   123 |    40 |     1 | 12190
+  3. AI Generation (Base)             |   3.0% |  0.3431 |   3.139 |    74 |   180 |  1517 |   667 |  2438
+  4. AI + DSP                         |   2.4% |  0.3336 |   3.197 |   578 |  1426 | 14981 |  7395 | 24380
+====================================================================================================
+
+  Misattribution Breakdown:
+    Global Nearest           : 28051 (96.6%)
+    Intra-Category           :  997 (3.4%)
+  Plot saved → fusion_attribution_top1_by_category.pdf
+  Plot saved → fusion_attribution_rank_distribution.pdf
+  Plot saved → fusion_attribution_misattribution_breakdown.pdf
+
+[SUCCESS] Attribution summary saved → results\attribution\attribution_summary.csv
+
+================================================================================
+ CROSS-MODEL ATTRIBUTION COMPARISON (4-Way Forced Choice)
+================================================================================
+  Model      | Metric                    |   Top-1 |     MRR |  Mean Rank |      N
+  ---------------------------------------------------------------------------
+  CLEWS      | manhattan_distance        |  36.4% |  0.5700 |      2.397 |  45641
+  WEALY      | cosine_distance           |  43.3% |  0.6456 |      2.071 |  45641
+  FUSION     | manhattan_distance+cosine_distance |  36.4% |  0.5700 |      2.397 |  45641
+================================================================================
+
+Results → results/attribution/
+Plots   → plots/attribution/

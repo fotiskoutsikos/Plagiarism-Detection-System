@@ -102,7 +102,9 @@ OUTPUT_DIRS = {
     "threshold_plots": "plots/threshold",
     "explainability": "results/explainability",
     "explainability_plots": "plots/explainability",
-    "negative_tiers": "plots/negative_tiers"
+    "negative_tiers": "plots/negative_tiers",
+    "attribution": "results/attribution",
+    "attribution_plots": "plots/attribution"
 }
 
 # SUMMARY / ANALYSIS FILES
@@ -113,6 +115,7 @@ SUMMARY_FILES = {
     "fusion_grid_search": "results/fusion/fusion_grid_search_results.csv",
     "optimal_fusion_config": "results/fusion/optimal_fusion_config.csv",
     "optimal_fused_distances": "results/fusion/optimal_fused_distances.csv",
+    "attribution_summary": "results/attribution/attribution_summary.csv"
 }
 
 
@@ -190,4 +193,23 @@ PLOT_STYLE_PARAMS = {
     "font.size": 9,
     "font.family": "sans-serif",
     "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans"],
+}
+
+# Tier display names & colors for attribution analysis
+ATTRIBUTION_TIER_DISPLAY = {
+    "random": "Random",
+    "intra_category_nearest": "Intra-Category",
+    "global_nearest": "Global Nearest",
+}
+ATTRIBUTION_TIER_COLORS = {
+    "random": "#2ca02c",
+    "intra_category_nearest": "#ff7f0e",
+    "global_nearest": "#1f77b4",
+}
+
+ATTRIBUTION_RANK_COLORS = {
+    1: "#4CAF50",
+    2: "#FFC107",
+    3: "#FF9800",
+    4: "#F44336",
 }

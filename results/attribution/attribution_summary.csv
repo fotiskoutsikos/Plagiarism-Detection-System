@@ -1,0 +1,4 @@
+model,metric,label,n_queries,top1_accuracy,mean_rank,mrr,rank_1_count,rank_1_rate,rank_2_count,rank_2_rate,rank_3_count,rank_3_rate,rank_4_count,rank_4_rate
+CLEWS,manhattan_distance,Overall,45641,0.3636,2.3967,0.57,16593,0.3636,2528,0.0554,18340,0.4018,8180,0.1792
+WEALY,cosine_distance,Overall,45641,0.4334,2.0707,0.6456,19783,0.4334,9920,0.2173,8864,0.1942,7074,0.155
+FUSION,manhattan_distance+cosine_distance,Overall,45641,0.3636,2.3967,0.57,16593,0.3636,2528,0.0554,18340,0.4018,8180,0.1792
