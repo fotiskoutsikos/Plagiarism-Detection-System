@@ -15,6 +15,7 @@ This module handles:
 import ast
 import numpy as np
 import pandas as pd
+from constants import MGELDM_STEMS
 
 
 def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFrame:
@@ -78,18 +79,24 @@ def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFr
     df_human_mapping = pd.DataFrame(mapping_records)
     
     # PARSE FILENAME SCHEMA
-    # Handles both AI-generated and real song DSP modifications
+    # Handles AI-generated (incl. MGE-LDM multi-stem), real song DSP modifications
     def parse_filename(filename):
         """
         Parse filename schema:
-        Format: pair_{pair_id}_{ori|comp}_{time}s[_{ai_model}][_{dsp_mod}]
+        Format: pair_{pair_id}_{ori|comp}_{time}s[_{ai_model}[_{stem}]][_{dsp_mod}]
+        
+        For MGE-LDM, the stem name (bass/drums/other) immediately follows the
+        model token and is treated as part of the ai_model identifier so that
+        each stem variant is paired back to the correct base.
         
         Examples:
-            - pair_1_ori_10s -> pair_id=1, ori_comp='ori', time=10, ai_model='none', dsp_mod='none'
-            - pair_1_comp_10s -> pair_id=1, ori_comp='comp', time=10, ai_model='none', dsp_mod='none'
-            - pair_1_ori_10s_musicgen -> pair_id=1, ori_comp='ori', time=10, ai_model='musicgen', dsp_mod='none'
-            - pair_1_ori_10s_musicgen_pitchd12 -> pair_id=1, time=10, ai_model='musicgen', dsp_mod='pitchd12'
-            - pair_1_ori_10s_pitchd12_tempo110 -> pair_id=1, dsp_mod='pitchd12_tempo110'
+            pair_1_ori_10s                              -> ai_model='none',          dsp_mod='none'
+            pair_1_ori_10s_musicgen                     -> ai_model='musicgen',      dsp_mod='none'
+            pair_1_ori_10s_musicgen_pitchU4             -> ai_model='musicgen',      dsp_mod='pitchU4'
+            pair_1_ori_10s_mgeldm_bass                  -> ai_model='mgeldm_bass',   dsp_mod='none'
+            pair_1_ori_10s_mgeldm_bass_pitchU4          -> ai_model='mgeldm_bass',   dsp_mod='pitchU4'
+            pair_1_ori_10s_mgeldm_drums_pitchD4_tempo090-> ai_model='mgeldm_drums',  dsp_mod='pitchD4_tempo090'
+            pair_1_ori_10s_pitchD4_tempo090             -> ai_model='none',          dsp_mod='pitchD4_tempo090'
         """
         try:
             clean = filename.replace('.wav', '')
@@ -106,14 +113,26 @@ def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFr
             ai_model = 'none'
             dsp_mod = 'none'
 
-            # Logic to handle both AI generations and pure SMP DSP modifications
             if len(parts) > 4:
-                if parts[4] in ai_models:
-                    ai_model = parts[4]
-                    if len(parts) > 5:
-                        dsp_mod = "_".join(parts[5:])
+                rest = parts[4:]            # everything after the time token
+
+                if rest[0] in ai_models:
+                    model_token = rest[0]
+                    rest = rest[1:]         # consume model token
+
+                    # MGE-LDM: next token may be a stem name
+                    if model_token == 'mgeldm' and rest and rest[0] in MGELDM_STEMS:
+                        ai_model = f"mgeldm_{rest[0]}"   # e.g. mgeldm_bass
+                        rest = rest[1:]                   # consume stem token
+                    else:
+                        ai_model = model_token
+
+                    # Remaining tokens (if any) are DSP modifiers
+                    if rest:
+                        dsp_mod = "_".join(rest)
                 else:
-                    dsp_mod = "_".join(parts[4:])
+                    # No AI model token → pure DSP on original/comp
+                    dsp_mod = "_".join(rest)
 
             return pd.Series([pair_id, ori_comp, time, ai_model, dsp_mod])
         except Exception as e:
@@ -161,8 +180,16 @@ def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFr
 
     # MERGE 2 - SELF-COMPARISON (AI / DSP)
     # Each derivative is compared to its own unaltered base (same pair_id, time, ori_comp).
-    # This covers: ori+DSP vs ori_base, comp+DSP vs comp_base, AI vs ori_base, AI+DSP vs ori_base.
-    # Label: none_<dsp> for pure DSP, <ai_model>_<dsp> for AI (with or without DSP).
+    # For MGE-LDM stems (ai_model = 'mgeldm_bass' etc.) the base is the SMP segment
+    # (ai_model = 'none', dsp_mod = 'none') because no "mgeldm_bass base" exists
+    # without DSP — the stem generation itself IS the derivative.
+    #
+    # Labels produced:
+    #   none_<dsp>          – pure DSP on original/comp segment
+    #   musicgen_none       – MusicGen base generation (compared to SMP segment)
+    #   musicgen_<dsp>      – MusicGen + DSP
+    #   mgeldm_bass_none    – MGE-LDM bass stem (compared to SMP segment)
+    #   mgeldm_bass_<dsp>   – MGE-LDM bass stem + DSP
     df_derivatives = df[(df['ai_model'] != 'none') | (df['dsp_mod'] != 'none')].copy()
     
     df_ai_dsp = pd.merge(
@@ -275,7 +302,7 @@ def clean_embedding(emb) -> np.ndarray:
         except Exception:
             return np.array([], dtype=np.float32)
 
-    # numpy array─
+    # numpy array
     if isinstance(emb, np.ndarray):
         # Already flat and numeric → fast path
         if emb.ndim == 1 and np.issubdtype(emb.dtype, np.number):

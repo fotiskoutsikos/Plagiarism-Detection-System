@@ -6,7 +6,6 @@ import numpy as np
 from tqdm import tqdm
 import whisper
 from omegaconf import OmegaConf
-from vad_utils import vad_vocal_ratio
 from src.utils.wealy_lib import Model as WEALYModel
 
 decoder_hidden_states = []
@@ -91,9 +90,9 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
         "data/generated_audio/musicgen",         # generated audio files (musicgen)
         "data/dsp_variants/musicgen",            # DSP variants (musicgen)
         "data/generated_audio/audioldm2",        # generated audio files (audioldm2)
-        "data/dsp_variants/audioldm2"            # DSP variants (audioldm2)
-        # "data/generated_audio/mgeldm",          # generated audio files (mgeldm)
-        # "data/dsp_variants/mgeldm"              # DSP variants (mgeldm)
+        "data/dsp_variants/audioldm2",           # DSP variants (audioldm2)
+        "data/generated_audio/mgeldm",           # generated audio files (mgeldm)
+        "data/dsp_variants/mgeldm"               # DSP variants (mgeldm)
     ]
 
     audio_files = []
@@ -172,14 +171,9 @@ def extract_wealy_embeddings(data_dir, wealy_checkpoint, wealy_config, output_pa
                 embedding = wealy_model(decoder_latents)  # [1, 512]
                 z_vector = embedding.squeeze(0).cpu().numpy()
 
-                audio_waveform_cpu = audio_waveform.cpu()
-                vocal_ratio = vad_vocal_ratio(audio_waveform_cpu, sr=16000)
-
                 results.append({
                     "filename": os.path.basename(file_path),
                     "embedding": z_vector.tolist(),
-                    "vocal_ratio": round(vocal_ratio, 4),
-                    "vocal_valid": vocal_ratio >= 0.30,
                 })
 
                 # CHECKPOINTING

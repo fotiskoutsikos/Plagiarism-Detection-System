@@ -272,7 +272,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output",
         type=str,
-        default="data/evaluation_master_pairs.csv",
+        default="results/pairs/evaluation_master_pairs.csv",
         help="Output CSV path.",
     )
     args = parser.parse_args()
