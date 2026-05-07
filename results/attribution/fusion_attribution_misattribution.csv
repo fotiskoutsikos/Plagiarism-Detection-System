@@ -1,11 +1,12 @@
 category_grouped,winner_tier,count
-1a. Human Plagiarism (Base),global_nearest,221
-1a. Human Plagiarism (Base),intra_category_nearest,5
-1b. Human Plagiarism + DSP,global_nearest,2351
-1b. Human Plagiarism + DSP,intra_category_nearest,141
-2. Original + DSP,global_nearest,154
-2. Original + DSP,intra_category_nearest,10
-3. AI Generation (Base),global_nearest,2295
-3. AI Generation (Base),intra_category_nearest,69
-4. AI + DSP,global_nearest,23030
-4. AI + DSP,intra_category_nearest,772
+1a. Human Plagiarism (Base),global_nearest,233
+1a. Human Plagiarism (Base),intra_category_nearest,4
+1b. Human Plagiarism + DSP,global_nearest,2491
+1b. Human Plagiarism + DSP,intra_category_nearest,133
+2. Original + DSP,global_nearest,120
+2. Original + DSP,intra_category_nearest,11
+3. AI Generation (Base),global_nearest,3513
+3. AI Generation (Base),intra_category_nearest,182
+3. AI Generation (Base),random,2
+4. AI + DSP,global_nearest,35566
+4. AI + DSP,intra_category_nearest,1386

@@ -1,31 +1,31 @@
-2026-05-01 19:25:28 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
-2026-05-01 19:25:28 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
+2026-05-08 00:37:22 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
+2026-05-08 00:37:22 [INFO] Logging initialized for fusion_optimization, file: logs\fusion_optimization.txt
 ======================================================================
 EXHAUSTIVE FUSION OPTIMIZATION
 ======================================================================
 Aligning datasets...
 Loading CLEWS from results/distances/clews_distances.csv
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\fusion_optimization.py:79: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\fusion_optimization.py:79: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df_c = pd.read_csv(clews_csv)
 Loading WEALY from results/distances/wealy_distances.csv
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\fusion_optimization.py:81: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\fusion_optimization.py:81: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df_w = pd.read_csv(wealy_csv)
 Loaded vocal metadata: 1219 sources, 1167 valid, 52 invalid
-Vocal metadata attached: 217258 pairs total, 199710 pair_vocal_valid=True (91.9%), 17548 pair_vocal_valid=False (8.1%)
-Alignment: 434516 total rows → 217258 perfectly matched pairs.
-Vocal-aware pairs: 199710 vocal-valid, 17548 CLEWS-only fallback.
+Vocal metadata attached: 320714 pairs total, 295369 pair_vocal_valid=True (92.1%), 25345 pair_vocal_valid=False (7.9%)
+Alignment: 641428 total rows → 320714 perfectly matched pairs.
+Vocal-aware pairs: 295369 vocal-valid, 25345 CLEWS-only fallback.
 Splitting & normalizing...
 Running exhaustive grid search (336 trials)...
 Starting exhaustive grid search: 336 trials...
-Progress: 84/336 trials. Best F0.5: 0.6453
-Progress: 168/336 trials. Best F0.5: 0.6485
-Progress: 252/336 trials. Best F0.5: 0.6486
-Progress: 336/336 trials. Best F0.5: 0.6486
-Grid search complete. Best internal validation F0.5: 0.6486
+Progress: 84/336 trials. Best F0.5: 0.6128
+Progress: 168/336 trials. Best F0.5: 0.6214
+Progress: 252/336 trials. Best F0.5: 0.6214
+Progress: 336/336 trials. Best F0.5: 0.6214
+Grid search complete. Best internal validation F0.5: 0.6214
 Generating final fused distances...
 Saved fused distances → results\fusion\optimal_fused_distances.csv
 
 ======================================================================
-WINNER : manhattan_distance + cosine_distance
-WEIGHTS: α=1.00, β=0.00
+WINNER : euclidean_distance + pearson_distance
+WEIGHTS: α=0.95, β=0.05
 ======================================================================

@@ -1,0 +1,4 @@
+stem,mean_distance,std_distance,n
+bass,0.210701,0.061887,1011
+drums,0.259018,0.047407,1011
+other,0.204442,0.057713,1010

@@ -524,14 +524,6 @@ def plot_stem_attribution(
             f"{top1:.1%}",
             ha="center", va="bottom", fontsize=11, fontweight="bold",
         )
-        # Secondary annotation inside bar (if tall enough)
-        if bar.get_height() > 15:
-            ax.text(
-                bar.get_x() + bar.get_width() / 2,
-                bar.get_height() / 2,
-                f"MRR={mrr:.3f}\nMR={mr:.2f}\nn={n}",
-                ha="center", va="center", fontsize=8, color="white",
-            )
 
     ax.set_xticks(range(len(df_plot)))
     ax.set_xticklabels(

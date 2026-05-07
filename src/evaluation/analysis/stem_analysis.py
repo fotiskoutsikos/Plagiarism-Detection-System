@@ -13,7 +13,7 @@ Reads:
     - Winning metrics + thresholds from threshold_analysis_summary.csv
 
 Outputs per model:
-    - Bar chart with threshold reference line
+    - Boxplot with threshold reference line
     - Summary CSV with mean, std, n per stem
 
 Position in pipeline: Supplementary / Diagnostic
@@ -28,9 +28,9 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
+import seaborn as sns
 
-# Resolve repository root & logging 
+# Resolve repository root & logging
 repo_root = Path(__file__).resolve()
 for _ in range(6):
     if (repo_root / "src").exists():
@@ -58,11 +58,19 @@ from utils.categorization import (
 )
 
 plt.rcParams.update(PLOT_STYLE_PARAMS)
+sns.set_style("whitegrid")
 
 
 # Output paths 
 OUTPUT_CSV_DIR  = Path("results/stem_analysis")
 OUTPUT_PLOT_DIR = Path("plots/stem_analysis")
+
+# Display names for boxplot x-axis
+STEM_DISPLAY_NAMES = {
+    'bass':  'Bass',
+    'drums': 'Drums',
+    'other': 'Other',
+}
 
 
 # Threshold loading 
@@ -83,8 +91,8 @@ def _load_threshold_map() -> dict:
 
     df = pd.read_csv(path)
     for _, row in df.iterrows():
-        model = str(row.get("model", "")).upper()
-        metric = str(row.get("metric", ""))
+        model     = str(row.get("model", "")).upper()
+        metric    = str(row.get("metric", ""))
         threshold = float(row.get("optimal_threshold", float("nan")))
         if model and metric and not np.isnan(threshold):
             result[model] = {"metric": metric, "threshold": threshold}
@@ -103,9 +111,6 @@ def _load_base_generation_stems(
       - base generation only (no DSP: dsp_category == 'Base Generation')
 
     Enrich with stem label via extract_features_with_stem().
-
-    Returns DataFrame with columns including:
-      stem, <target_metric>, final_mod_type, clean_mod_type, ...
     """
     if not Path(csv_path).exists():
         logger.warning(f"[{model_name}] Distance CSV not found: {csv_path}")
@@ -113,7 +118,6 @@ def _load_base_generation_stems(
 
     df = pd.read_csv(csv_path)
 
-    # Keep positives only
     df["is_plagiarised"] = df["final_mod_type"].apply(get_ground_truth_label)
     df = df[df["is_plagiarised"] == 1].copy()
 
@@ -123,7 +127,6 @@ def _load_base_generation_stems(
         )
         return pd.DataFrame()
 
-    # Filter to MGE-LDM rows
     df_mgeldm = df[
         df["final_mod_type"].str.contains("mgeldm", case=False, na=False)
     ].copy()
@@ -131,7 +134,6 @@ def _load_base_generation_stems(
     if df_mgeldm.empty:
         return pd.DataFrame()
 
-    # Extract stem-aware features (6 columns)
     stem_features = df_mgeldm["final_mod_type"].apply(extract_features_with_stem)
     stem_features.columns = [
         "source", "stem", "pitch_intensity", "tempo_intensity",
@@ -142,11 +144,8 @@ def _load_base_generation_stems(
         axis=1,
     )
 
-    # Keep only valid stems
     df_mgeldm = df_mgeldm[df_mgeldm["stem"].isin(MGELDM_STEM_ORDER)].copy()
-
-    # Filter to base generation (no DSP applied)
-    df_base = df_mgeldm[df_mgeldm["dsp_category"] == "Base Generation"].copy()
+    df_base   = df_mgeldm[df_mgeldm["dsp_category"] == "Base Generation"].copy()
 
     return df_base
 
@@ -157,7 +156,6 @@ def _compute_stem_base_stats(
 ) -> pd.DataFrame:
     """
     Compute mean, std, count of the target distance metric per stem.
-    Returns a DataFrame sorted by MGELDM_STEM_ORDER.
     """
     stats = (
         df_base
@@ -172,55 +170,45 @@ def _compute_stem_base_stats(
 
 # Plotting 
 def _plot_stem_base_comparison(
-    stats:       pd.DataFrame,
+    df_base:     pd.DataFrame,
     model_name:  str,
     metric:      str,
     threshold:   float | None,
     output_dir:  Path,
 ) -> None:
     """
-    Bar chart: mean distance ± std for each stem's base generation,
+    Boxplot: distance distribution for each stem's base generation,
     with optional model-level threshold reference line.
+    Styled consistently with plot_negative_tiers.py.
     """
     display_metric = metric.replace("_distance", "").replace("+", " + ").title()
 
-    fig, ax = plt.subplots(figsize=(7, 5))
+    # Add display name column for x-axis
+    df_plot = df_base.copy()
+    df_plot["stem_display"] = df_plot["stem"].map(STEM_DISPLAY_NAMES)
 
-    stems  = stats["stem"].values
-    means  = stats["mean_distance"].values
-    stds   = stats["std_distance"].fillna(0).values
-    colors = [MGELDM_STEM_COLORS.get(s, "#999999") for s in stems]
+    stem_order_display = [STEM_DISPLAY_NAMES[s] for s in MGELDM_STEM_ORDER]
+    palette            = [MGELDM_STEM_COLORS[s] for s in MGELDM_STEM_ORDER]
 
-    bars = ax.bar(
-        range(len(stems)),
-        means,
-        yerr=stds,
-        color=colors,
-        edgecolor="black",
-        linewidth=0.8,
-        capsize=6,
-        width=0.5,
-        zorder=2,
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.boxplot(
+        data=df_plot,
+        x="stem_display",
+        y=metric,
+        order=stem_order_display,
+        palette=palette,
+        ax=ax,
+        showmeans=True,
+        meanprops={
+            "marker": "o", "markerfacecolor": "white",
+            "markeredgecolor": "black", "markersize": 8,
+        },
+        linewidth=1.5,
+        flierprops={
+            "marker": "o", "markerfacecolor": "gray",
+            "markersize": 4, "alpha": 0.5,
+        },
     )
-
-    # Annotate n on top of each bar
-    for bar, (_, row) in zip(bars, stats.iterrows()):
-        y_top = bar.get_height() + (row["std_distance"] if pd.notna(row["std_distance"]) else 0)
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            y_top + 0.002,
-            f"n={int(row['n'])}",
-            ha="center", va="bottom", fontsize=9,
-        )
-        # Mean value inside bar
-        if bar.get_height() > 0.01:
-            ax.text(
-                bar.get_x() + bar.get_width() / 2,
-                bar.get_height() / 2,
-                f"{row['mean_distance']:.4f}",
-                ha="center", va="center",
-                fontsize=10, fontweight="bold", color="white",
-            )
 
     # Threshold reference line
     if threshold is not None:
@@ -232,27 +220,22 @@ def _plot_stem_base_comparison(
             label=f"Model Threshold ({threshold:.4f})",
             zorder=3,
         )
-        ax.legend(loc="upper right", fontsize=9)
+        ax.legend(loc="upper right", fontsize=10)
 
-    ax.set_xticks(range(len(stems)))
-    ax.set_xticklabels(
-        [s.capitalize() for s in stems], fontsize=12,
-    )
-    ax.set_ylabel(f"Mean {display_metric} Distance", fontsize=11, fontweight="bold")
-    ax.set_xlabel("MGE-LDM Target Stem", fontsize=11)
     ax.set_title(
-        f"{model_name} — MGE-LDM Base Generation Distance by Stem\n"
-        f"(no DSP applied — inherent generation distance from original)",
-        fontsize=12, fontweight="bold",
+        f"MGE-LDM Base Generation Distance by Stem — {model_name}\n"
+        f"({display_metric} Distance — no DSP applied)",
+        fontsize=14, fontweight="bold", pad=15,
     )
-    ax.set_ylim(bottom=0)
-    ax.grid(axis="y", alpha=0.3)
+    ax.set_xlabel("MGE-LDM Target Stem", fontsize=12, fontweight="bold")
+    ax.set_ylabel(f"{display_metric} Distance", fontsize=12, fontweight="bold")
+    ax.grid(alpha=0.3, axis="y")
     ax.set_axisbelow(True)
 
     plt.tight_layout()
 
     safe_metric = metric.replace("+", "_PLUS_")
-    plot_path = output_dir / f"{model_name.lower()}_{safe_metric}_stem_base_generation.pdf"
+    plot_path   = output_dir / f"{model_name.lower()}_{safe_metric}_stem_base_generation.pdf"
     fig.savefig(plot_path, dpi=PLOT_DPI, bbox_inches="tight")
     plt.close(fig)
     print(f"  Plot saved → {plot_path}")
@@ -299,13 +282,6 @@ def run_stem_base_analysis(
 ) -> None:
     """
     Full stem base generation analysis for one model.
-
-    Steps:
-      1. Load & filter to MGE-LDM base generation positives
-      2. Compute per-stem statistics
-      3. Print console table
-      4. Save CSV
-      5. Save bar chart with threshold line
     """
     print(f"\n{'─' * 60}")
     print(f"Stem Base Analysis — {model_name}")
@@ -313,7 +289,7 @@ def run_stem_base_analysis(
 
     df_base = _load_base_generation_stems(csv_path, model_name, metric)
     if df_base.empty:
-        print(f"  No MGE-LDM base generation rows found. Skipping.")
+        print("  No MGE-LDM base generation rows found. Skipping.")
         return
 
     print(f"  Base generation rows: {len(df_base)} "
@@ -327,7 +303,7 @@ def run_stem_base_analysis(
 
     # CSV
     OUTPUT_CSV_DIR.mkdir(parents=True, exist_ok=True)
-    safe_metric = metric.replace("+", "_PLUS_")
+    safe_metric  = metric.replace("+", "_PLUS_")
     csv_path_out = (
         OUTPUT_CSV_DIR
         / f"{model_name.lower()}_{safe_metric}_stem_base_generation.csv"
@@ -335,9 +311,9 @@ def run_stem_base_analysis(
     stats.to_csv(csv_path_out, index=False)
     print(f"  CSV saved  → {csv_path_out}")
 
-    # Plot
+    # Plot (boxplot — passes raw data, not aggregated stats)
     OUTPUT_PLOT_DIR.mkdir(parents=True, exist_ok=True)
-    _plot_stem_base_comparison(stats, model_name, metric, threshold, OUTPUT_PLOT_DIR)
+    _plot_stem_base_comparison(df_base, model_name, metric, threshold, OUTPUT_PLOT_DIR)
 
 
 # Main 

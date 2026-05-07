@@ -1,16 +1,16 @@
 category_grouped,winner_tier,count
 1a. Human Plagiarism (Base),global_nearest,188
-1a. Human Plagiarism (Base),intra_category_nearest,109
-1a. Human Plagiarism (Base),random,105
-1b. Human Plagiarism + DSP,global_nearest,1725
-1b. Human Plagiarism + DSP,random,1232
-1b. Human Plagiarism + DSP,intra_category_nearest,1133
-2. Original + DSP,global_nearest,1117
-2. Original + DSP,intra_category_nearest,953
-2. Original + DSP,random,736
-3. AI Generation (Base),global_nearest,668
-3. AI Generation (Base),intra_category_nearest,446
-3. AI Generation (Base),random,403
-4. AI + DSP,global_nearest,7822
-4. AI + DSP,intra_category_nearest,4745
-4. AI + DSP,random,4476
+1a. Human Plagiarism (Base),intra_category_nearest,112
+1a. Human Plagiarism (Base),random,102
+1b. Human Plagiarism + DSP,global_nearest,1723
+1b. Human Plagiarism + DSP,random,1279
+1b. Human Plagiarism + DSP,intra_category_nearest,1131
+2. Original + DSP,intra_category_nearest,1031
+2. Original + DSP,global_nearest,1017
+2. Original + DSP,random,735
+3. AI Generation (Base),global_nearest,1046
+3. AI Generation (Base),intra_category_nearest,878
+3. AI Generation (Base),random,799
+4. AI + DSP,global_nearest,12232
+4. AI + DSP,intra_category_nearest,9033
+4. AI + DSP,random,8087

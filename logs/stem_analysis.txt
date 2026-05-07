@@ -1,0 +1,165 @@
+2026-05-08 01:28:30 [INFO] Logging initialized for stem_analysis, file: logs\stem_analysis.txt
+2026-05-08 01:28:30 [INFO] Logging initialized for stem_analysis, file: logs\stem_analysis.txt
+============================================================
+MGE-LDM STEM BASE GENERATION ANALYSIS
+============================================================
+
+CLEWS: using manhattan_distance (threshold ref = 986.3695)
+
+────────────────────────────────────────────────────────────
+Stem Base Analysis — CLEWS
+────────────────────────────────────────────────────────────
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\stem_analysis.py:114: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+  Base generation rows: 3032 (stems: {'bass': 1011, 'drums': 1011, 'other': 1010})
+
+  ────────────────────────────────────────────────────────────
+  CLEWS — MGE-LDM Base Generation Distance by Stem
+  Metric: manhattan_distance | Threshold (ref): 986.3695
+  ────────────────────────────────────────────────────────────
+  Stem       |       Mean |        Std |      N |  vs Thresh
+  ───────────────────────────────────────────────────────
+  bass       |  1083.7403 |   303.7794 |   1011 |      ABOVE
+  drums      |  1326.6299 |   218.3856 |   1011 |      ABOVE
+  other      |  1042.1226 |   276.5136 |   1010 |      ABOVE
+  ────────────────────────────────────────────────────────────
+  CSV saved  → results\stem_analysis\clews_manhattan_distance_stem_base_generation.csv
+  Plot saved → plots\stem_analysis\clews_manhattan_distance_stem_base_generation.pdf
+
+WEALY: using pearson_distance (threshold ref = 0.7753)
+
+────────────────────────────────────────────────────────────
+Stem Base Analysis — WEALY
+────────────────────────────────────────────────────────────
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\stem_analysis.py:114: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+  Base generation rows: 3032 (stems: {'bass': 1011, 'drums': 1011, 'other': 1010})
+
+  ────────────────────────────────────────────────────────────
+  WEALY — MGE-LDM Base Generation Distance by Stem
+  Metric: pearson_distance | Threshold (ref): 0.7753
+  ────────────────────────────────────────────────────────────
+  Stem       |       Mean |        Std |      N |  vs Thresh
+  ───────────────────────────────────────────────────────
+  bass       |     0.5613 |     0.2788 |   1011 |      below
+  drums      |     0.5783 |     0.2915 |   1011 |      below
+  other      |     0.6042 |     0.2705 |   1010 |      below
+  ────────────────────────────────────────────────────────────
+  CSV saved  → results\stem_analysis\wealy_pearson_distance_stem_base_generation.csv
+  Plot saved → plots\stem_analysis\wealy_pearson_distance_stem_base_generation.pdf
+
+FUSION: using euclidean_distance+pearson_distance (threshold ref = 0.1964)
+
+────────────────────────────────────────────────────────────
+Stem Base Analysis — FUSION
+────────────────────────────────────────────────────────────
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\stem_analysis.py:114: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+  Base generation rows: 3032 (stems: {'bass': 1011, 'drums': 1011, 'other': 1010})
+
+  ────────────────────────────────────────────────────────────
+  FUSION — MGE-LDM Base Generation Distance by Stem
+  Metric: euclidean_distance+pearson_distance | Threshold (ref): 0.1964
+  ────────────────────────────────────────────────────────────
+  Stem       |       Mean |        Std |      N |  vs Thresh
+  ───────────────────────────────────────────────────────
+  bass       |     0.2107 |     0.0619 |   1011 |      ABOVE
+  drums      |     0.2590 |     0.0474 |   1011 |      ABOVE
+  other      |     0.2044 |     0.0577 |   1010 |      ABOVE
+  ────────────────────────────────────────────────────────────
+  CSV saved  → results\stem_analysis\fusion_euclidean_distance_PLUS_pearson_distance_stem_base_generation.csv
+  Plot saved → plots\stem_analysis\fusion_euclidean_distance_PLUS_pearson_distance_stem_base_generation.pdf
+
+============================================================
+STEM BASE ANALYSIS COMPLETE
+============================================================
+2026-05-08 01:36:37 [INFO] Logging initialized for stem_analysis, file: logs\stem_analysis.txt
+2026-05-08 01:36:37 [INFO] Logging initialized for stem_analysis, file: logs\stem_analysis.txt
+============================================================
+MGE-LDM STEM BASE GENERATION ANALYSIS
+============================================================
+
+CLEWS: using manhattan_distance (threshold ref = 986.3695)
+
+────────────────────────────────────────────────────────────
+Stem Base Analysis — CLEWS
+────────────────────────────────────────────────────────────
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\stem_analysis.py:119: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+  Base generation rows: 3032 (stems: {'bass': 1011, 'drums': 1011, 'other': 1010})
+
+  ────────────────────────────────────────────────────────────
+  CLEWS — MGE-LDM Base Generation Distance by Stem
+  Metric: manhattan_distance | Threshold (ref): 986.3695
+  ────────────────────────────────────────────────────────────
+  Stem       |       Mean |        Std |      N |  vs Thresh
+  ───────────────────────────────────────────────────────
+  bass       |  1083.7403 |   303.7794 |   1011 |      ABOVE
+  drums      |  1326.6299 |   218.3856 |   1011 |      ABOVE
+  other      |  1042.1226 |   276.5136 |   1010 |      ABOVE
+  ────────────────────────────────────────────────────────────
+  CSV saved  → results\stem_analysis\clews_manhattan_distance_stem_base_generation.csv
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\stem_analysis.py:194: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(
+  Plot saved → plots\stem_analysis\clews_manhattan_distance_stem_base_generation.pdf
+
+WEALY: using pearson_distance (threshold ref = 0.7753)
+
+────────────────────────────────────────────────────────────
+Stem Base Analysis — WEALY
+────────────────────────────────────────────────────────────
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\stem_analysis.py:119: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+  Base generation rows: 3032 (stems: {'bass': 1011, 'drums': 1011, 'other': 1010})
+
+  ────────────────────────────────────────────────────────────
+  WEALY — MGE-LDM Base Generation Distance by Stem
+  Metric: pearson_distance | Threshold (ref): 0.7753
+  ────────────────────────────────────────────────────────────
+  Stem       |       Mean |        Std |      N |  vs Thresh
+  ───────────────────────────────────────────────────────
+  bass       |     0.5613 |     0.2788 |   1011 |      below
+  drums      |     0.5783 |     0.2915 |   1011 |      below
+  other      |     0.6042 |     0.2705 |   1010 |      below
+  ────────────────────────────────────────────────────────────
+  CSV saved  → results\stem_analysis\wealy_pearson_distance_stem_base_generation.csv
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\stem_analysis.py:194: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(
+  Plot saved → plots\stem_analysis\wealy_pearson_distance_stem_base_generation.pdf
+
+FUSION: using euclidean_distance+pearson_distance (threshold ref = 0.1964)
+
+────────────────────────────────────────────────────────────
+Stem Base Analysis — FUSION
+────────────────────────────────────────────────────────────
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\stem_analysis.py:119: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+  Base generation rows: 3032 (stems: {'bass': 1011, 'drums': 1011, 'other': 1010})
+
+  ────────────────────────────────────────────────────────────
+  FUSION — MGE-LDM Base Generation Distance by Stem
+  Metric: euclidean_distance+pearson_distance | Threshold (ref): 0.1964
+  ────────────────────────────────────────────────────────────
+  Stem       |       Mean |        Std |      N |  vs Thresh
+  ───────────────────────────────────────────────────────
+  bass       |     0.2107 |     0.0619 |   1011 |      ABOVE
+  drums      |     0.2590 |     0.0474 |   1011 |      ABOVE
+  other      |     0.2044 |     0.0577 |   1010 |      ABOVE
+  ────────────────────────────────────────────────────────────
+  CSV saved  → results\stem_analysis\fusion_euclidean_distance_PLUS_pearson_distance_stem_base_generation.csv
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\stem_analysis.py:194: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(
+  Plot saved → plots\stem_analysis\fusion_euclidean_distance_PLUS_pearson_distance_stem_base_generation.pdf
+
+============================================================
+STEM BASE ANALYSIS COMPLETE
+============================================================

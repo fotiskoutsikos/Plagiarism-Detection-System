@@ -15,7 +15,7 @@ This module handles:
 import ast
 import numpy as np
 import pandas as pd
-from constants import MGELDM_STEMS
+from utils.constants import MGELDM_STEMS
 
 
 def build_positive_pairs(parquet_path: str, smp_metadata_path: str) -> pd.DataFrame:

@@ -1,0 +1,10 @@
+Stem,DSP_Category,mean_distance,std_distance,n
+bass,Base Generation,1083.740293,303.779444,1011
+bass,Extreme Down,1211.257478,232.719894,761
+bass,Extreme Up,1215.215216,232.954791,761
+drums,Base Generation,1326.629894,218.385604,1011
+drums,Extreme Down,1391.257501,180.432638,761
+drums,Extreme Up,1386.735667,194.292027,761
+other,Base Generation,1042.122574,276.513576,1010
+other,Extreme Down,1182.459573,249.283211,761
+other,Extreme Up,1179.92962,241.191533,761
