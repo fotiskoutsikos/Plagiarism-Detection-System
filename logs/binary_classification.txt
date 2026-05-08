@@ -1,0 +1,65 @@
+2026-05-08 12:43:53 [INFO] Logging initialized for binary_classification, file: logs\binary_classification.txt
+2026-05-08 12:43:53 [INFO] Logging initialized for binary_classification, file: logs\binary_classification.txt
+================================================================================
+STARTING BINARY CLASSIFICATION WITH OPTIMAL THRESHOLDS
+================================================================================
+Loaded 3 optimal configurations from results\threshold\threshold_analysis_summary.csv:
+  → CLEWS: manhattan_distance (Threshold: 986.3695)
+  → WEALY: pearson_distance (Threshold: 0.7753)
+  → FUSION: euclidean_distance+pearson_distance (Threshold: 0.1964)
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:239: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df_all        = pd.read_csv(csv_path_obj)
+
+===================================================================================================================
+ BINARY CLASSIFICATION PERFORMANCE: CLEWS
+ Metric: manhattan_distance | Threshold: <= 986.3695
+===================================================================================================================
+Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
+-------------------------------------------------------------------------------------------------------------------
+  1a. Human Plagiarism (Base)  |    33.3% |   30.6% |   31.9% |    32.7% |  1149 |  2303 |  2608 | 212211
+  1b. Human Plagiarism + DSP   |    81.7% |   27.4% |   41.0% |    58.5% | 10283 |  2303 | 27287 | 212211
+  2. Original + DSP            |    83.4% |   95.2% |   88.9% |    85.6% | 11605 |  2303 |   585 | 212211
+  3. AI Generation (Base)      |    26.2% |   15.0% |   19.1% |    22.8% |   819 |  2303 |  4653 | 212211
+  4. AI + DSP                  |    64.8% |    9.0% |   15.8% |    28.9% |  4247 |  2303 | 42964 | 212211
+► OVERALL                      |    92.4% |   26.5% |   41.1% |    61.7% | 28103 |  2303 | 78097 | 212211
+===================================================================================================================
+
+False Positive Tier Breakdown saved → results\binary_classification\clews_manhattan_distance_fp_tier_breakdown.csv
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:239: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df_all        = pd.read_csv(csv_path_obj)
+
+===================================================================================================================
+ BINARY CLASSIFICATION PERFORMANCE: WEALY
+ Metric: pearson_distance | Threshold: <= 0.7753
+===================================================================================================================
+Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
+-------------------------------------------------------------------------------------------------------------------
+  1a. Human Plagiarism (Base)  |     2.0% |   30.5% |    3.8% |     2.5% |  1145 | 54990 |  2612 | 159524
+  1b. Human Plagiarism + DSP   |    16.7% |   29.4% |   21.3% |    18.3% | 11038 | 54990 | 26532 | 159524
+  2. Original + DSP            |    15.5% |   82.9% |   26.1% |    18.5% | 10105 | 54990 |  2085 | 159524
+  3. AI Generation (Base)      |     5.3% |   56.2% |    9.7% |     6.5% |  3076 | 54990 |  2396 | 159524
+  4. AI + DSP                  |    25.1% |   38.9% |   30.5% |    27.0% | 18380 | 54990 | 28831 | 159524
+► OVERALL                      |    44.3% |   41.2% |   42.7% |    43.6% | 43744 | 54990 | 62456 | 159524
+===================================================================================================================
+
+False Positive Tier Breakdown saved → results\binary_classification\wealy_pearson_distance_fp_tier_breakdown.csv
+c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:239: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+  df_all        = pd.read_csv(csv_path_obj)
+
+===================================================================================================================
+ BINARY CLASSIFICATION PERFORMANCE: FUSION
+ Metric: euclidean_distance+pearson_distance | Threshold: <= 0.1964
+===================================================================================================================
+Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
+-------------------------------------------------------------------------------------------------------------------
+  1a. Human Plagiarism (Base)  |    41.9% |   28.7% |   34.1% |    38.4% |  1079 |  1496 |  2678 | 213018
+  1b. Human Plagiarism + DSP   |    86.6% |   25.8% |   39.8% |    58.9% |  9695 |  1496 | 27875 | 213018
+  2. Original + DSP            |    88.7% |   95.9% |   92.1% |    90.0% | 11687 |  1496 |   503 | 213018
+  3. AI Generation (Base)      |    38.4% |   17.0% |   23.6% |    30.7% |   931 |  1496 |  4541 | 213018
+  4. AI + DSP                  |    74.5% |    9.2% |   16.4% |    30.9% |  4362 |  1496 | 42849 | 213018
+► OVERALL                      |    94.9% |   26.1% |   41.0% |    62.2% | 27754 |  1496 | 78446 | 213018
+===================================================================================================================
+
+False Positive Tier Breakdown saved → results\binary_classification\fusion_euclidean_distance+pearson_distance_fp_tier_breakdown.csv
+
+[SUCCESS] Results saved → results/binary_classification/
