@@ -1,2 +1,2 @@
 model,metric,label,n_queries,top1_accuracy,mean_rank,mrr,rank_1_count,rank_1_rate,rank_2_count,rank_2_rate,rank_3_count,rank_3_rate,rank_4_count,rank_4_rate
-FUSION,euclidean_distance+pearson_distance,Overall,71504,0.3897,2.2395,0.6013,27863,0.3897,8339,0.1166,25616,0.3582,9686,0.1355
+FUSION,pearson_distance+cosine_distance,Overall,78832,0.3686,2.2751,0.5872,29054,0.3686,8719,0.1106,31376,0.398,9683,0.1228

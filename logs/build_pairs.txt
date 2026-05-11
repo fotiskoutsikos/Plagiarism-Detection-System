@@ -1,37 +1,37 @@
-2026-05-07 23:04:42 [INFO] Logging initialized for build_pairs, file: logs\build_pairs.txt
-2026-05-07 23:04:42 [INFO] Logging initialized for build_pairs, file: logs\build_pairs.txt
+2026-05-11 19:02:40 [INFO] Logging initialized for build_pairs, file: logs\build_pairs.txt
+2026-05-11 19:02:40 [INFO] Logging initialized for build_pairs, file: logs\build_pairs.txt
 
 ============================================================
 Building Pair List
 ============================================================
 Loading positive pairs from data/clews_embeddings.parquet …
-Loaded 106200 positive pairs.
+Loaded 113690 positive pairs.
 Building search pool …
-Search pool: 106200 candidates  |  dim: 1024
+Search pool: 113690 candidates  |  dim: 1024
 
 Mining Random / Intra-Category Nearest / Global Nearest negatives …
-  random negatives         : 106198
-  intra_category_nearest   : 106198
-  global_nearest           : 106200
+  random negatives         : 113678
+  intra_category_nearest   : 113678
+  global_nearest           : 113690
 
 Building positive pair rows …
 
 Saved pair list → results/pairs/evaluation_master_pairs.csv
-Total rows: 320714
+Total rows: 350654
 
 ==================================================
 PAIR LIST SUMMARY
 ==================================================
-  Total pairs      : 320714
-  Positives        : 106200  (33.1%)
-  Negatives        : 214514  (66.9%)
+  Total pairs      : 350654
+  Positives        : 113690  (32.4%)
+  Negatives        : 236964  (67.6%)
 
   Breakdown by tier:
          negative_tier  is_plagiarised  count
-                   N/A               1 106200
-        global_nearest               0  71506
-intra_category_nearest               0  71504
-                random               0  71504
+                   N/A               1 113690
+        global_nearest               0  78996
+intra_category_nearest               0  78984
+                random               0  78984
 
   Breakdown by mod_type:
                         final_mod_type          negative_tier  count
@@ -80,103 +80,113 @@ intra_category_nearest               0  71504
              Negative_mgeldm_bass_none         global_nearest   1011
              Negative_mgeldm_bass_none intra_category_nearest   1011
              Negative_mgeldm_bass_none                 random   1011
-          Negative_mgeldm_bass_pitchD2         global_nearest    761
-          Negative_mgeldm_bass_pitchD2 intra_category_nearest    761
-          Negative_mgeldm_bass_pitchD2                 random    761
-          Negative_mgeldm_bass_pitchD4         global_nearest    762
-          Negative_mgeldm_bass_pitchD4 intra_category_nearest    762
-          Negative_mgeldm_bass_pitchD4                 random    762
- Negative_mgeldm_bass_pitchD4_tempo090         global_nearest    761
- Negative_mgeldm_bass_pitchD4_tempo090 intra_category_nearest    761
- Negative_mgeldm_bass_pitchD4_tempo090                 random    761
-          Negative_mgeldm_bass_pitchU2         global_nearest    761
-          Negative_mgeldm_bass_pitchU2 intra_category_nearest    761
-          Negative_mgeldm_bass_pitchU2                 random    761
-          Negative_mgeldm_bass_pitchU4         global_nearest    761
-          Negative_mgeldm_bass_pitchU4 intra_category_nearest    761
-          Negative_mgeldm_bass_pitchU4                 random    761
- Negative_mgeldm_bass_pitchU4_tempo110         global_nearest    761
- Negative_mgeldm_bass_pitchU4_tempo110 intra_category_nearest    761
- Negative_mgeldm_bass_pitchU4_tempo110                 random    761
-         Negative_mgeldm_bass_tempo090         global_nearest    761
-         Negative_mgeldm_bass_tempo090 intra_category_nearest    761
-         Negative_mgeldm_bass_tempo090                 random    761
-         Negative_mgeldm_bass_tempo095         global_nearest    761
-         Negative_mgeldm_bass_tempo095 intra_category_nearest    761
-         Negative_mgeldm_bass_tempo095                 random    761
-         Negative_mgeldm_bass_tempo105         global_nearest    761
-         Negative_mgeldm_bass_tempo105 intra_category_nearest    761
-         Negative_mgeldm_bass_tempo105                 random    761
-         Negative_mgeldm_bass_tempo110         global_nearest    761
-         Negative_mgeldm_bass_tempo110 intra_category_nearest    761
-         Negative_mgeldm_bass_tempo110                 random    761
+          Negative_mgeldm_bass_pitchD2         global_nearest   1010
+          Negative_mgeldm_bass_pitchD2 intra_category_nearest   1010
+          Negative_mgeldm_bass_pitchD2                 random   1010
+          Negative_mgeldm_bass_pitchD4         global_nearest   1011
+          Negative_mgeldm_bass_pitchD4 intra_category_nearest   1011
+          Negative_mgeldm_bass_pitchD4                 random   1011
+ Negative_mgeldm_bass_pitchD4_tempo090         global_nearest   1010
+ Negative_mgeldm_bass_pitchD4_tempo090 intra_category_nearest   1010
+ Negative_mgeldm_bass_pitchD4_tempo090                 random   1010
+          Negative_mgeldm_bass_pitchU2         global_nearest   1010
+          Negative_mgeldm_bass_pitchU2 intra_category_nearest   1010
+          Negative_mgeldm_bass_pitchU2                 random   1010
+          Negative_mgeldm_bass_pitchU4         global_nearest   1010
+          Negative_mgeldm_bass_pitchU4 intra_category_nearest   1010
+          Negative_mgeldm_bass_pitchU4                 random   1010
+ Negative_mgeldm_bass_pitchU4_tempo110         global_nearest   1010
+ Negative_mgeldm_bass_pitchU4_tempo110 intra_category_nearest   1010
+ Negative_mgeldm_bass_pitchU4_tempo110                 random   1010
+         Negative_mgeldm_bass_tempo090         global_nearest   1010
+         Negative_mgeldm_bass_tempo090 intra_category_nearest   1010
+         Negative_mgeldm_bass_tempo090                 random   1010
+         Negative_mgeldm_bass_tempo095         global_nearest   1010
+         Negative_mgeldm_bass_tempo095 intra_category_nearest   1010
+         Negative_mgeldm_bass_tempo095                 random   1010
+         Negative_mgeldm_bass_tempo105         global_nearest   1010
+         Negative_mgeldm_bass_tempo105 intra_category_nearest   1010
+         Negative_mgeldm_bass_tempo105                 random   1010
+         Negative_mgeldm_bass_tempo110         global_nearest   1010
+         Negative_mgeldm_bass_tempo110 intra_category_nearest   1010
+         Negative_mgeldm_bass_tempo110                 random   1010
             Negative_mgeldm_drums_none         global_nearest   1011
             Negative_mgeldm_drums_none intra_category_nearest   1011
             Negative_mgeldm_drums_none                 random   1011
-         Negative_mgeldm_drums_pitchD2         global_nearest    761
-         Negative_mgeldm_drums_pitchD2 intra_category_nearest    761
-         Negative_mgeldm_drums_pitchD2                 random    761
-         Negative_mgeldm_drums_pitchD4         global_nearest    761
-         Negative_mgeldm_drums_pitchD4 intra_category_nearest    761
-         Negative_mgeldm_drums_pitchD4                 random    761
-Negative_mgeldm_drums_pitchD4_tempo090         global_nearest    761
-Negative_mgeldm_drums_pitchD4_tempo090 intra_category_nearest    761
-Negative_mgeldm_drums_pitchD4_tempo090                 random    761
-         Negative_mgeldm_drums_pitchU2         global_nearest    761
-         Negative_mgeldm_drums_pitchU2 intra_category_nearest    761
-         Negative_mgeldm_drums_pitchU2                 random    761
-         Negative_mgeldm_drums_pitchU4         global_nearest    761
-         Negative_mgeldm_drums_pitchU4 intra_category_nearest    761
-         Negative_mgeldm_drums_pitchU4                 random    761
-Negative_mgeldm_drums_pitchU4_tempo110         global_nearest    761
-Negative_mgeldm_drums_pitchU4_tempo110 intra_category_nearest    761
-Negative_mgeldm_drums_pitchU4_tempo110                 random    761
-        Negative_mgeldm_drums_tempo090         global_nearest    761
-        Negative_mgeldm_drums_tempo090 intra_category_nearest    761
-        Negative_mgeldm_drums_tempo090                 random    761
-        Negative_mgeldm_drums_tempo095         global_nearest    761
-        Negative_mgeldm_drums_tempo095 intra_category_nearest    761
-        Negative_mgeldm_drums_tempo095                 random    761
-        Negative_mgeldm_drums_tempo105         global_nearest    761
-        Negative_mgeldm_drums_tempo105 intra_category_nearest    761
-        Negative_mgeldm_drums_tempo105                 random    761
-        Negative_mgeldm_drums_tempo110         global_nearest    761
-        Negative_mgeldm_drums_tempo110 intra_category_nearest    761
-        Negative_mgeldm_drums_tempo110                 random    761
+         Negative_mgeldm_drums_pitchD2         global_nearest   1011
+         Negative_mgeldm_drums_pitchD2 intra_category_nearest   1011
+         Negative_mgeldm_drums_pitchD2                 random   1011
+         Negative_mgeldm_drums_pitchD4         global_nearest   1011
+         Negative_mgeldm_drums_pitchD4 intra_category_nearest   1011
+         Negative_mgeldm_drums_pitchD4                 random   1011
+Negative_mgeldm_drums_pitchD4_tempo090         global_nearest   1011
+Negative_mgeldm_drums_pitchD4_tempo090 intra_category_nearest   1011
+Negative_mgeldm_drums_pitchD4_tempo090                 random   1011
+         Negative_mgeldm_drums_pitchU2         global_nearest   1011
+         Negative_mgeldm_drums_pitchU2 intra_category_nearest   1011
+         Negative_mgeldm_drums_pitchU2                 random   1011
+         Negative_mgeldm_drums_pitchU4         global_nearest   1011
+         Negative_mgeldm_drums_pitchU4 intra_category_nearest   1011
+         Negative_mgeldm_drums_pitchU4                 random   1011
+Negative_mgeldm_drums_pitchU4_tempo110         global_nearest   1011
+Negative_mgeldm_drums_pitchU4_tempo110 intra_category_nearest   1011
+Negative_mgeldm_drums_pitchU4_tempo110                 random   1011
+        Negative_mgeldm_drums_tempo090         global_nearest   1011
+        Negative_mgeldm_drums_tempo090 intra_category_nearest   1011
+        Negative_mgeldm_drums_tempo090                 random   1011
+        Negative_mgeldm_drums_tempo095         global_nearest   1011
+        Negative_mgeldm_drums_tempo095 intra_category_nearest   1011
+        Negative_mgeldm_drums_tempo095                 random   1011
+        Negative_mgeldm_drums_tempo105         global_nearest   1011
+        Negative_mgeldm_drums_tempo105 intra_category_nearest   1011
+        Negative_mgeldm_drums_tempo105                 random   1011
+        Negative_mgeldm_drums_tempo110         global_nearest   1011
+        Negative_mgeldm_drums_tempo110 intra_category_nearest   1011
+        Negative_mgeldm_drums_tempo110                 random   1011
                   Negative_mgeldm_none         global_nearest      1
             Negative_mgeldm_other_none         global_nearest   1010
             Negative_mgeldm_other_none intra_category_nearest   1010
             Negative_mgeldm_other_none                 random   1010
-         Negative_mgeldm_other_pitchD2         global_nearest    761
-         Negative_mgeldm_other_pitchD2 intra_category_nearest    761
-         Negative_mgeldm_other_pitchD2                 random    761
-         Negative_mgeldm_other_pitchD4         global_nearest    761
-         Negative_mgeldm_other_pitchD4 intra_category_nearest    761
-         Negative_mgeldm_other_pitchD4                 random    761
-Negative_mgeldm_other_pitchD4_tempo090         global_nearest    761
-Negative_mgeldm_other_pitchD4_tempo090 intra_category_nearest    761
-Negative_mgeldm_other_pitchD4_tempo090                 random    761
-         Negative_mgeldm_other_pitchU2         global_nearest    761
-         Negative_mgeldm_other_pitchU2 intra_category_nearest    761
-         Negative_mgeldm_other_pitchU2                 random    761
-         Negative_mgeldm_other_pitchU4         global_nearest    761
-         Negative_mgeldm_other_pitchU4 intra_category_nearest    761
-         Negative_mgeldm_other_pitchU4                 random    761
-Negative_mgeldm_other_pitchU4_tempo110         global_nearest    761
-Negative_mgeldm_other_pitchU4_tempo110 intra_category_nearest    761
-Negative_mgeldm_other_pitchU4_tempo110                 random    761
-        Negative_mgeldm_other_tempo090         global_nearest    761
-        Negative_mgeldm_other_tempo090 intra_category_nearest    761
-        Negative_mgeldm_other_tempo090                 random    761
-        Negative_mgeldm_other_tempo095         global_nearest    761
-        Negative_mgeldm_other_tempo095 intra_category_nearest    761
-        Negative_mgeldm_other_tempo095                 random    761
-        Negative_mgeldm_other_tempo105         global_nearest    761
-        Negative_mgeldm_other_tempo105 intra_category_nearest    761
-        Negative_mgeldm_other_tempo105                 random    761
-        Negative_mgeldm_other_tempo110         global_nearest    761
-        Negative_mgeldm_other_tempo110 intra_category_nearest    761
-        Negative_mgeldm_other_tempo110                 random    761
+         Negative_mgeldm_other_pitchD2         global_nearest   1010
+         Negative_mgeldm_other_pitchD2 intra_category_nearest   1010
+         Negative_mgeldm_other_pitchD2                 random   1010
+         Negative_mgeldm_other_pitchD4         global_nearest   1010
+         Negative_mgeldm_other_pitchD4 intra_category_nearest   1010
+         Negative_mgeldm_other_pitchD4                 random   1010
+Negative_mgeldm_other_pitchD4_tempo090         global_nearest   1010
+Negative_mgeldm_other_pitchD4_tempo090 intra_category_nearest   1010
+Negative_mgeldm_other_pitchD4_tempo090                 random   1010
+         Negative_mgeldm_other_pitchU2         global_nearest   1010
+         Negative_mgeldm_other_pitchU2 intra_category_nearest   1010
+         Negative_mgeldm_other_pitchU2                 random   1010
+         Negative_mgeldm_other_pitchU4         global_nearest   1010
+         Negative_mgeldm_other_pitchU4 intra_category_nearest   1010
+         Negative_mgeldm_other_pitchU4                 random   1010
+Negative_mgeldm_other_pitchU4_tempo110         global_nearest   1010
+Negative_mgeldm_other_pitchU4_tempo110 intra_category_nearest   1010
+Negative_mgeldm_other_pitchU4_tempo110                 random   1010
+        Negative_mgeldm_other_tempo090         global_nearest   1010
+        Negative_mgeldm_other_tempo090 intra_category_nearest   1010
+        Negative_mgeldm_other_tempo090                 random   1010
+        Negative_mgeldm_other_tempo095         global_nearest   1010
+        Negative_mgeldm_other_tempo095 intra_category_nearest   1010
+        Negative_mgeldm_other_tempo095                 random   1010
+        Negative_mgeldm_other_tempo105         global_nearest   1010
+        Negative_mgeldm_other_tempo105 intra_category_nearest   1010
+        Negative_mgeldm_other_tempo105                 random   1010
+        Negative_mgeldm_other_tempo110         global_nearest   1010
+        Negative_mgeldm_other_tempo110 intra_category_nearest   1010
+        Negative_mgeldm_other_tempo110                 random   1010
+               Negative_mgeldm_pitchD2         global_nearest      1
+               Negative_mgeldm_pitchD4         global_nearest      1
+      Negative_mgeldm_pitchD4_tempo090         global_nearest      1
+               Negative_mgeldm_pitchU2         global_nearest      1
+               Negative_mgeldm_pitchU4         global_nearest      1
+      Negative_mgeldm_pitchU4_tempo110         global_nearest      1
+              Negative_mgeldm_tempo090         global_nearest      1
+              Negative_mgeldm_tempo095         global_nearest      1
+              Negative_mgeldm_tempo105         global_nearest      1
+              Negative_mgeldm_tempo110         global_nearest      1
                 Negative_mgeldm_vocals         global_nearest      1
                 Negative_musicgen_none         global_nearest   1219
                 Negative_musicgen_none intra_category_nearest   1219
@@ -286,39 +296,49 @@ Negative_mgeldm_other_pitchU4_tempo110                 random    761
                     audioldm2_tempo105                    N/A   1219
                     audioldm2_tempo110                    N/A   1219
                       mgeldm_bass_none                    N/A   1011
-                   mgeldm_bass_pitchD2                    N/A    761
-                   mgeldm_bass_pitchD4                    N/A    762
-          mgeldm_bass_pitchD4_tempo090                    N/A    761
-                   mgeldm_bass_pitchU2                    N/A    761
-                   mgeldm_bass_pitchU4                    N/A    761
-          mgeldm_bass_pitchU4_tempo110                    N/A    761
-                  mgeldm_bass_tempo090                    N/A    761
-                  mgeldm_bass_tempo095                    N/A    761
-                  mgeldm_bass_tempo105                    N/A    761
-                  mgeldm_bass_tempo110                    N/A    761
+                   mgeldm_bass_pitchD2                    N/A   1010
+                   mgeldm_bass_pitchD4                    N/A   1011
+          mgeldm_bass_pitchD4_tempo090                    N/A   1010
+                   mgeldm_bass_pitchU2                    N/A   1010
+                   mgeldm_bass_pitchU4                    N/A   1010
+          mgeldm_bass_pitchU4_tempo110                    N/A   1010
+                  mgeldm_bass_tempo090                    N/A   1010
+                  mgeldm_bass_tempo095                    N/A   1010
+                  mgeldm_bass_tempo105                    N/A   1010
+                  mgeldm_bass_tempo110                    N/A   1010
                      mgeldm_drums_none                    N/A   1011
-                  mgeldm_drums_pitchD2                    N/A    761
-                  mgeldm_drums_pitchD4                    N/A    761
-         mgeldm_drums_pitchD4_tempo090                    N/A    761
-                  mgeldm_drums_pitchU2                    N/A    761
-                  mgeldm_drums_pitchU4                    N/A    761
-         mgeldm_drums_pitchU4_tempo110                    N/A    761
-                 mgeldm_drums_tempo090                    N/A    761
-                 mgeldm_drums_tempo095                    N/A    761
-                 mgeldm_drums_tempo105                    N/A    761
-                 mgeldm_drums_tempo110                    N/A    761
+                  mgeldm_drums_pitchD2                    N/A   1011
+                  mgeldm_drums_pitchD4                    N/A   1011
+         mgeldm_drums_pitchD4_tempo090                    N/A   1011
+                  mgeldm_drums_pitchU2                    N/A   1011
+                  mgeldm_drums_pitchU4                    N/A   1011
+         mgeldm_drums_pitchU4_tempo110                    N/A   1011
+                 mgeldm_drums_tempo090                    N/A   1011
+                 mgeldm_drums_tempo095                    N/A   1011
+                 mgeldm_drums_tempo105                    N/A   1011
+                 mgeldm_drums_tempo110                    N/A   1011
                            mgeldm_none                    N/A      1
                      mgeldm_other_none                    N/A   1010
-                  mgeldm_other_pitchD2                    N/A    761
-                  mgeldm_other_pitchD4                    N/A    761
-         mgeldm_other_pitchD4_tempo090                    N/A    761
-                  mgeldm_other_pitchU2                    N/A    761
-                  mgeldm_other_pitchU4                    N/A    761
-         mgeldm_other_pitchU4_tempo110                    N/A    761
-                 mgeldm_other_tempo090                    N/A    761
-                 mgeldm_other_tempo095                    N/A    761
-                 mgeldm_other_tempo105                    N/A    761
-                 mgeldm_other_tempo110                    N/A    761
+                  mgeldm_other_pitchD2                    N/A   1010
+                  mgeldm_other_pitchD4                    N/A   1010
+         mgeldm_other_pitchD4_tempo090                    N/A   1010
+                  mgeldm_other_pitchU2                    N/A   1010
+                  mgeldm_other_pitchU4                    N/A   1010
+         mgeldm_other_pitchU4_tempo110                    N/A   1010
+                 mgeldm_other_tempo090                    N/A   1010
+                 mgeldm_other_tempo095                    N/A   1010
+                 mgeldm_other_tempo105                    N/A   1010
+                 mgeldm_other_tempo110                    N/A   1010
+                        mgeldm_pitchD2                    N/A      1
+                        mgeldm_pitchD4                    N/A      1
+               mgeldm_pitchD4_tempo090                    N/A      1
+                        mgeldm_pitchU2                    N/A      1
+                        mgeldm_pitchU4                    N/A      1
+               mgeldm_pitchU4_tempo110                    N/A      1
+                       mgeldm_tempo090                    N/A      1
+                       mgeldm_tempo095                    N/A      1
+                       mgeldm_tempo105                    N/A      1
+                       mgeldm_tempo110                    N/A      1
                          mgeldm_vocals                    N/A      1
                          musicgen_none                    N/A   1219
                       musicgen_pitchD2                    N/A   1219

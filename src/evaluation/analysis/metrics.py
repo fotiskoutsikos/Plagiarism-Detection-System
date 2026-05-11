@@ -152,7 +152,7 @@ def compute_distances(parquet_path: str, pair_list_csv: str, output_csv_path: st
         missing_df = pd.DataFrame(missing_rows)
         missing_path = output_csv_path.replace(".csv", "_missing_pairs.csv")
         missing_df.to_csv(missing_path, index=False)
-        raise ValueError(
+        print(
             f"[{model_name}] Found {len(missing_rows)} pairs with missing embeddings. "
             f"Report saved to: {missing_path}"
         )

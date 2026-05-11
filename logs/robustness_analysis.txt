@@ -1,47 +1,47 @@
-2026-05-08 00:41:48 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
-2026-05-08 00:41:48 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
+2026-05-11 20:53:13 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
+2026-05-11 20:53:13 [INFO] Logging initialized for robustness_analysis, file: logs\robustness_analysis.txt
 ======================================================================
 ROBUSTNESS ANALYSIS (Distances Only — Reference ↔ Plagiarized)
 ======================================================================
 
 Processing Robustness for CLEWS …
-c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\robustness_analysis.py:124: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\robustness_analysis.py:124: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df = pd.read_csv(csv_path)
-CLEWS: 106200 positive pairs loaded (Reference ↔ Plagiarized).
-Using manhattan_distance (Threshold visual line = 986.3695)
+CLEWS: 113690 positive pairs loaded (Reference ↔ Plagiarized).
+Using manhattan_distance (Threshold visual line = 986.3672)
 Saved Distance Trends → plots\robustness\clews_manhattan_distance_distance_trends.pdf
 Saved Extreme Stress Test → plots\robustness\clews_manhattan_distance_extreme_stress_test.pdf
-  MGE-LDM stem rows: 25863 (stems: {'bass': 8622, 'drums': 8621, 'other': 8620})
+  MGE-LDM stem rows: 33343 (stems: {'drums': 11121, 'bass': 11112, 'other': 11110})
 Saved MGE-LDM Stem Distance Trends → plots\robustness\clews_manhattan_distance_mgeldm_stem_distance_trends.pdf
 Saved Stem Summary CSV → results\robustness\clews_manhattan_distance_mgeldm_stem_distance_trends.csv
 Saved MGE-LDM Stem Extreme Stress Test → plots\robustness\clews_manhattan_distance_mgeldm_stem_extreme_stress_test.pdf
 Saved Stem Summary CSV → results\robustness\clews_manhattan_distance_mgeldm_stem_extreme_stress_test.csv
 
 Processing Robustness for WEALY …
-c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\robustness_analysis.py:124: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\robustness_analysis.py:124: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df = pd.read_csv(csv_path)
-WEALY: 106200 positive pairs loaded (Reference ↔ Plagiarized).
-Using pearson_distance (Threshold visual line = 0.7753)
-Saved Distance Trends → plots\robustness\wealy_pearson_distance_distance_trends.pdf
-Saved Extreme Stress Test → plots\robustness\wealy_pearson_distance_extreme_stress_test.pdf
-  MGE-LDM stem rows: 25863 (stems: {'bass': 8622, 'drums': 8621, 'other': 8620})
-Saved MGE-LDM Stem Distance Trends → plots\robustness\wealy_pearson_distance_mgeldm_stem_distance_trends.pdf
-Saved Stem Summary CSV → results\robustness\wealy_pearson_distance_mgeldm_stem_distance_trends.csv
-Saved MGE-LDM Stem Extreme Stress Test → plots\robustness\wealy_pearson_distance_mgeldm_stem_extreme_stress_test.pdf
-Saved Stem Summary CSV → results\robustness\wealy_pearson_distance_mgeldm_stem_extreme_stress_test.csv
+WEALY: 113689 positive pairs loaded (Reference ↔ Plagiarized).
+Using cosine_distance (Threshold visual line = 0.7493)
+Saved Distance Trends → plots\robustness\wealy_cosine_distance_distance_trends.pdf
+Saved Extreme Stress Test → plots\robustness\wealy_cosine_distance_extreme_stress_test.pdf
+  MGE-LDM stem rows: 33343 (stems: {'drums': 11121, 'bass': 11112, 'other': 11110})
+Saved MGE-LDM Stem Distance Trends → plots\robustness\wealy_cosine_distance_mgeldm_stem_distance_trends.pdf
+Saved Stem Summary CSV → results\robustness\wealy_cosine_distance_mgeldm_stem_distance_trends.csv
+Saved MGE-LDM Stem Extreme Stress Test → plots\robustness\wealy_cosine_distance_mgeldm_stem_extreme_stress_test.pdf
+Saved Stem Summary CSV → results\robustness\wealy_cosine_distance_mgeldm_stem_extreme_stress_test.csv
 
 Processing Robustness for FUSION …
-c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\robustness_analysis.py:124: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\robustness_analysis.py:124: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df = pd.read_csv(csv_path)
-FUSION: 106200 positive pairs loaded (Reference ↔ Plagiarized).
-Using euclidean_distance+pearson_distance (Threshold visual line = 0.1964)
-Saved Distance Trends → plots\robustness\fusion_euclidean_distance_PLUS_pearson_distance_distance_trends.pdf
-Saved Extreme Stress Test → plots\robustness\fusion_euclidean_distance_PLUS_pearson_distance_extreme_stress_test.pdf
-  MGE-LDM stem rows: 25863 (stems: {'bass': 8622, 'drums': 8621, 'other': 8620})
-Saved MGE-LDM Stem Distance Trends → plots\robustness\fusion_euclidean_distance_PLUS_pearson_distance_mgeldm_stem_distance_trends.pdf
-Saved Stem Summary CSV → results\robustness\fusion_euclidean_distance_PLUS_pearson_distance_mgeldm_stem_distance_trends.csv
-Saved MGE-LDM Stem Extreme Stress Test → plots\robustness\fusion_euclidean_distance_PLUS_pearson_distance_mgeldm_stem_extreme_stress_test.pdf
-Saved Stem Summary CSV → results\robustness\fusion_euclidean_distance_PLUS_pearson_distance_mgeldm_stem_extreme_stress_test.csv
+FUSION: 113689 positive pairs loaded (Reference ↔ Plagiarized).
+Using pearson_distance+cosine_distance (Threshold visual line = 0.2721)
+Saved Distance Trends → plots\robustness\fusion_pearson_distance_PLUS_cosine_distance_distance_trends.pdf
+Saved Extreme Stress Test → plots\robustness\fusion_pearson_distance_PLUS_cosine_distance_extreme_stress_test.pdf
+  MGE-LDM stem rows: 33343 (stems: {'drums': 11121, 'bass': 11112, 'other': 11110})
+Saved MGE-LDM Stem Distance Trends → plots\robustness\fusion_pearson_distance_PLUS_cosine_distance_mgeldm_stem_distance_trends.pdf
+Saved Stem Summary CSV → results\robustness\fusion_pearson_distance_PLUS_cosine_distance_mgeldm_stem_distance_trends.csv
+Saved MGE-LDM Stem Extreme Stress Test → plots\robustness\fusion_pearson_distance_PLUS_cosine_distance_mgeldm_stem_extreme_stress_test.pdf
+Saved Stem Summary CSV → results\robustness\fusion_pearson_distance_PLUS_cosine_distance_mgeldm_stem_extreme_stress_test.csv
 
 ======================================================================
 ANALYSIS COMPLETE. Robustness plots and stem CSVs ready.

@@ -1,5 +1,5 @@
-2026-05-01 19:27:32 [INFO] Logging initialized for plot_negative_tiers, file: logs\plot_negative_tiers.txt
-2026-05-01 19:27:32 [INFO] Logging initialized for plot_negative_tiers, file: logs\plot_negative_tiers.txt
+2026-05-11 20:54:11 [INFO] Logging initialized for plot_negative_tiers, file: logs\plot_negative_tiers.txt
+2026-05-11 20:54:11 [INFO] Logging initialized for plot_negative_tiers, file: logs\plot_negative_tiers.txt
 ======================================================================
 NEGATIVE TIER DISTRIBUTION ANALYSIS
 ======================================================================
@@ -10,13 +10,13 @@ Processing CLEWS from clews_distances.csv
 ============================================================
 c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:71: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df = pd.read_csv(csv_path)
-Loaded 217258 total rows from clews_distances.csv
-After filtering negatives: 136923 rows
-After filtering to target tiers: 136923 rows
+Loaded 350654 total rows from clews_distances.csv
+After filtering negatives: 236964 rows
+After filtering to target tiers: 236964 rows
 Tier distribution:
-  global_nearest: 45641 pairs
-  intra_category_nearest: 45641 pairs
-  random: 45641 pairs
+  global_nearest: 78996 pairs
+  intra_category_nearest: 78984 pairs
+  random: 78984 pairs
 c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:114: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
@@ -47,13 +47,13 @@ Processing WEALY from wealy_distances.csv
 ============================================================
 c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:71: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df = pd.read_csv(csv_path)
-Loaded 217258 total rows from wealy_distances.csv
-After filtering negatives: 136923 rows
-After filtering to target tiers: 136923 rows
+Loaded 350501 total rows from wealy_distances.csv
+After filtering negatives: 236812 rows
+After filtering to target tiers: 236812 rows
 Tier distribution:
-  global_nearest: 45641 pairs
-  intra_category_nearest: 45641 pairs
-  random: 45641 pairs
+  global_nearest: 78844 pairs
+  intra_category_nearest: 78984 pairs
+  random: 78984 pairs
 c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\plot_negative_tiers.py:114: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.

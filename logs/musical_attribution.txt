@@ -1,24 +1,24 @@
-2026-05-08 00:48:41 [INFO] Logging initialized for musical_attribution, file: logs\musical_attribution.txt
-2026-05-08 00:48:41 [INFO] Logging initialized for musical_attribution, file: logs\musical_attribution.txt
+2026-05-11 21:10:26 [INFO] Logging initialized for musical_attribution, file: logs\musical_attribution.txt
+2026-05-11 21:10:26 [INFO] Logging initialized for musical_attribution, file: logs\musical_attribution.txt
 ======================================================================
 4-WAY MUSICAL SOURCE ATTRIBUTION
 ======================================================================
 Winning metric for CLEWS: manhattan_distance
-Winning metric for WEALY: pearson_distance
-Winning metric for FUSION: euclidean_distance+pearson_distance
+Winning metric for WEALY: cosine_distance
+Winning metric for FUSION: pearson_distance+cosine_distance
 
 Winning metrics loaded:
   CLEWS: manhattan_distance
-  WEALY: pearson_distance
-  FUSION: euclidean_distance+pearson_distance
+  WEALY: cosine_distance
+  FUSION: pearson_distance+cosine_distance
 
 ──────────────────────────────────────────────────────────────────────
 Processing CLEWS | Metric: manhattan_distance
 ──────────────────────────────────────────────────────────────────────
-  Loaded 320714 rows from clews_distances.csv
-  Valid 4-way groups: 71504 | Skipped: 2
-    - missing_tier=intra_category_nearest: 2
-  Ranked 71504 query groups
+  Loaded 350654 rows from clews_distances.csv
+  Valid 4-way groups: 78984 | Skipped: 12
+    - missing_tier=intra_category_nearest: 12
+  Ranked 78984 query groups
 
 ====================================================================================================
  SOURCE ATTRIBUTION RESULTS: CLEWS
@@ -26,226 +26,140 @@ Processing CLEWS | Metric: manhattan_distance
 ====================================================================================================
 
   Overall:
-    Queries     : 71504
-    Top-1 Acc   : 37.6%
-    Mean Rank   : 2.272
-    MRR         : 0.5914
-    Rank Dist   : R1=37.6%  R2=11.1%  R3=37.7%  R4=13.6%  
+    Queries     : 78984
+    Top-1 Acc   : 38.2%
+    Mean Rank   : 2.251
+    MRR         : 0.5961
+    Rank Dist   : R1=38.2%  R2=11.5%  R3=37.4%  R4=13.0%  
 
   Category                            |   Top-1 |     MRR |   MeanR |    R1 |    R2 |    R3 |    R4 |     N
   -----------------------------------------------------------------------------------------------
-  1a. Human Plagiarism (Base)         |  61.2% |  0.7652 |   1.642 |   369 |    92 |   131 |    11 |   603
-  1b. Human Plagiarism + DSP          |  56.5% |  0.7321 |   1.747 |  3409 |   845 |  1670 |   106 |  6030
-  2. Original + DSP                   |  98.5% |  0.9918 |   1.019 | 12004 |   145 |    40 |     1 | 12190
-  3. AI Generation (Base)             |  29.0% |  0.5348 |   2.447 |  1588 |   670 |  2393 |   819 |  5470
-  4. AI + DSP                         |  20.2% |  0.4743 |   2.651 |  9536 |  6182 | 22722 |  8771 | 47211
+  1a. Human Plagiarism (Base)         |  60.9% |  0.7635 |   1.645 |   367 |    94 |   131 |    11 |   603
+  1b. Human Plagiarism + DSP          |  56.4% |  0.7312 |   1.749 |  3398 |   856 |  1670 |   106 |  6030
+  2. Original + DSP                   |  98.5% |  0.9917 |   1.019 | 12002 |   147 |    40 |     1 | 12190
+  3. AI Generation (Base)             |  29.0% |  0.5345 |   2.447 |  1585 |   673 |  2393 |   819 |  5470
+  4. AI + DSP                         |  23.4% |  0.4974 |   2.568 | 12792 |  7313 | 25293 |  9293 | 54691
 ====================================================================================================
 
   Misattribution Breakdown:
-    Global Nearest           : 43592 (97.7%)
-    Intra-Category           : 1006 (2.3%)
+    Global Nearest           : 47685 (97.6%)
+    Intra-Category           : 1155 (2.4%)
   Plot saved → clews_attribution_top1_by_category.pdf
   Plot saved → clews_attribution_rank_distribution.pdf
   Plot saved → clews_attribution_misattribution_breakdown.pdf
 
-  MGE-LDM stem rows: 25863 {'bass': 8622, 'drums': 8621, 'other': 8620}
+  MGE-LDM stem rows: 33343 {'drums': 11121, 'bass': 11112, 'other': 11110}
 
   ──────────────────────────────────────────────────────────────────────
   MGE-LDM Stem Attribution — CLEWS
   Stem       |   Top-1 |     MRR |   MeanR |     N
   ──────────────────────────────────────────────────
-  bass       |  48.8% |  0.6939 |   1.827 |  8622
-  drums      |  18.7% |  0.4818 |   2.543 |  8621
-  other      |  55.4% |  0.7282 |   1.754 |  8620
+  bass       |  50.5% |  0.7024 |   1.812 | 11112
+  drums      |  19.4% |  0.4845 |   2.542 | 11121
+  other      |  54.8% |  0.7227 |   1.774 | 11110
   ──────────────────────────────────────────────────────────────────────
   Stem CSV saved → clews_attribution_stem.csv
   Plot saved → clews_attribution_stem_top1.pdf
 
 ──────────────────────────────────────────────────────────────────────
-Processing WEALY | Metric: pearson_distance
+Processing WEALY | Metric: cosine_distance
 ──────────────────────────────────────────────────────────────────────
-  Loaded 320714 rows from wealy_distances.csv
-  Valid 4-way groups: 71504 | Skipped: 2
-    - missing_tier=intra_category_nearest: 2
-Traceback (most recent call last):
-  File "c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\musical_attribution.py", line 815, in <module>
-  File "c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\musical_attribution.py", line 776, in main
-    all_summaries.append({"model": model_name, "metric": metric_col, **result})
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\musical_attribution.py", line 669, in run_model_attribution
-    
-  File "c:\Users\el210\Plagiarism-Detection-System\src\evaluation\analysis\musical_attribution.py", line 199, in rank_queries
-    grp_sorted = grp.sort_values(
-                 ^^^^^^^^^^^^^^^^
-  File "C:\Users\el210\AppData\Roaming\Python\Python311\site-packages\pandas\core\frame.py", line 7183, in sort_values
-    indexer = lexsort_indexer(
-              ^^^^^^^^^^^^^^^^
-  File "C:\Users\el210\AppData\Roaming\Python\Python311\site-packages\pandas\core\sorting.py", line 357, in lexsort_indexer
-    if na_position == "last" and mask.any():
-                                 ^^^^^^^^^^
-  File "C:\Users\el210\AppData\Roaming\Python\Python311\site-packages\numpy\core\_methods.py", line 58, in _any
-    return umr_any(a, axis, dtype, out, keepdims)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-KeyboardInterrupt
-2026-05-08 00:58:27 [INFO] Logging initialized for musical_attribution, file: logs\musical_attribution.txt
-2026-05-08 00:58:27 [INFO] Logging initialized for musical_attribution, file: logs\musical_attribution.txt
-======================================================================
-4-WAY MUSICAL SOURCE ATTRIBUTION
-======================================================================
-Winning metric for CLEWS: manhattan_distance
-Winning metric for WEALY: pearson_distance
-Winning metric for FUSION: euclidean_distance+pearson_distance
-
-Winning metrics loaded:
-  CLEWS: manhattan_distance
-  WEALY: pearson_distance
-  FUSION: euclidean_distance+pearson_distance
-
-──────────────────────────────────────────────────────────────────────
-Processing CLEWS | Metric: manhattan_distance
-──────────────────────────────────────────────────────────────────────
-  Loaded 320714 rows from clews_distances.csv
-  Valid 4-way groups: 71504 | Skipped: 2
-    - missing_tier=intra_category_nearest: 2
-  Ranked 71504 query groups
-
-====================================================================================================
- SOURCE ATTRIBUTION RESULTS: CLEWS
- Metric: manhattan_distance | Protocol: 4-Way Forced Choice
-====================================================================================================
-
-  Overall:
-    Queries     : 71504
-    Top-1 Acc   : 37.6%
-    Mean Rank   : 2.272
-    MRR         : 0.5914
-    Rank Dist   : R1=37.6%  R2=11.1%  R3=37.7%  R4=13.6%  
-
-  Category                            |   Top-1 |     MRR |   MeanR |    R1 |    R2 |    R3 |    R4 |     N
-  -----------------------------------------------------------------------------------------------
-  1a. Human Plagiarism (Base)         |  61.2% |  0.7652 |   1.642 |   369 |    92 |   131 |    11 |   603
-  1b. Human Plagiarism + DSP          |  56.5% |  0.7321 |   1.747 |  3409 |   845 |  1670 |   106 |  6030
-  2. Original + DSP                   |  98.5% |  0.9918 |   1.019 | 12004 |   145 |    40 |     1 | 12190
-  3. AI Generation (Base)             |  29.0% |  0.5348 |   2.447 |  1588 |   670 |  2393 |   819 |  5470
-  4. AI + DSP                         |  20.2% |  0.4743 |   2.651 |  9536 |  6182 | 22722 |  8771 | 47211
-====================================================================================================
-
-  Misattribution Breakdown:
-    Global Nearest           : 43592 (97.7%)
-    Intra-Category           : 1006 (2.3%)
-  Plot saved → clews_attribution_top1_by_category.pdf
-  Plot saved → clews_attribution_rank_distribution.pdf
-  Plot saved → clews_attribution_misattribution_breakdown.pdf
-
-  MGE-LDM stem rows: 25863 {'bass': 8622, 'drums': 8621, 'other': 8620}
-
-  ──────────────────────────────────────────────────────────────────────
-  MGE-LDM Stem Attribution — CLEWS
-  Stem       |   Top-1 |     MRR |   MeanR |     N
-  ──────────────────────────────────────────────────
-  bass       |  48.8% |  0.6939 |   1.827 |  8622
-  drums      |  18.7% |  0.4818 |   2.543 |  8621
-  other      |  55.4% |  0.7282 |   1.754 |  8620
-  ──────────────────────────────────────────────────────────────────────
-  Stem CSV saved → clews_attribution_stem.csv
-  Plot saved → clews_attribution_stem_top1.pdf
-
-──────────────────────────────────────────────────────────────────────
-Processing WEALY | Metric: pearson_distance
-──────────────────────────────────────────────────────────────────────
-  Loaded 320714 rows from wealy_distances.csv
-  Valid 4-way groups: 71504 | Skipped: 2
-    - missing_tier=intra_category_nearest: 2
-  Ranked 71504 query groups
+  Loaded 350501 rows from wealy_distances.csv
+  Valid 4-way groups: 78832 | Skipped: 164
+    - missing_tier=global_nearest: 152
+    - missing_tier=intra_category_nearest: 11
+    - no_positive: 1
+  Ranked 78832 query groups
 
 ====================================================================================================
  SOURCE ATTRIBUTION RESULTS: WEALY
- Metric: pearson_distance | Protocol: 4-Way Forced Choice
+ Metric: cosine_distance | Protocol: 4-Way Forced Choice
 ====================================================================================================
 
   Overall:
-    Queries     : 71504
-    Top-1 Acc   : 44.9%
-    Mean Rank   : 2.022
-    MRR         : 0.6580
-    Rank Dist   : R1=44.9%  R2=22.3%  R3=18.5%  R4=14.3%  
+    Queries     : 78832
+    Top-1 Acc   : 44.8%
+    Mean Rank   : 2.024
+    MRR         : 0.6573
+    Rank Dist   : R1=44.8%  R2=22.4%  R3=18.5%  R4=14.3%  
 
   Category                            |   Top-1 |     MRR |   MeanR |    R1 |    R2 |    R3 |    R4 |     N
   -----------------------------------------------------------------------------------------------
-  1a. Human Plagiarism (Base)         |  33.3% |  0.5793 |   2.284 |   201 |   142 |   148 |   112 |   603
-  1b. Human Plagiarism + DSP          |  31.5% |  0.5642 |   2.351 |  1897 |  1413 |  1425 |  1295 |  6030
-  2. Original + DSP                   |  77.2% |  0.8647 |   1.375 |  9407 |  1470 |   839 |   474 | 12190
-  3. AI Generation (Base)             |  50.2% |  0.6956 |   1.890 |  2747 |  1224 |   855 |   644 |  5470
-  4. AI + DSP                         |  37.8% |  0.6132 |   2.159 | 17859 | 11698 |  9939 |  7715 | 47211
+  1a. Human Plagiarism (Base)         |  33.6% |  0.5817 |   2.271 |   202 |   141 |   151 |   107 |   601
+  1b. Human Plagiarism + DSP          |  31.6% |  0.5653 |   2.349 |  1901 |  1410 |  1399 |  1300 |  6010
+  2. Original + DSP                   |  77.2% |  0.8650 |   1.373 |  9397 |  1468 |   837 |   468 | 12170
+  3. AI Generation (Base)             |  50.3% |  0.6966 |   1.885 |  2749 |  1222 |   854 |   635 |  5460
+  4. AI + DSP                         |  38.6% |  0.6181 |   2.144 | 21062 | 13403 | 11345 |  8781 | 54591
 ====================================================================================================
 
   Misattribution Breakdown:
-    Global Nearest           : 16206 (41.1%)
-    Intra-Category           : 12185 (30.9%)
-    Random                   : 11002 (27.9%)
+    Global Nearest           : 17813 (40.9%)
+    Intra-Category           : 13546 (31.1%)
+    Random                   : 12162 (27.9%)
   Plot saved → wealy_attribution_top1_by_category.pdf
   Plot saved → wealy_attribution_rank_distribution.pdf
   Plot saved → wealy_attribution_misattribution_breakdown.pdf
 
-  MGE-LDM stem rows: 25863 {'bass': 8622, 'drums': 8621, 'other': 8620}
+  MGE-LDM stem rows: 33277 {'drums': 11099, 'bass': 11090, 'other': 11088}
 
   ──────────────────────────────────────────────────────────────────────
   MGE-LDM Stem Attribution — WEALY
   Stem       |   Top-1 |     MRR |   MeanR |     N
   ──────────────────────────────────────────────────
-  bass       |  51.2% |  0.7013 |   1.876 |  8622
-  drums      |  44.9% |  0.6597 |   2.004 |  8621
-  other      |  44.2% |  0.6541 |   2.034 |  8620
+  bass       |  50.4% |  0.6955 |   1.897 | 11090
+  drums      |  43.9% |  0.6534 |   2.027 | 11099
+  other      |  42.8% |  0.6452 |   2.061 | 11088
   ──────────────────────────────────────────────────────────────────────
   Stem CSV saved → wealy_attribution_stem.csv
   Plot saved → wealy_attribution_stem_top1.pdf
 
 ──────────────────────────────────────────────────────────────────────
-Processing FUSION | Metric: euclidean_distance+pearson_distance
+Processing FUSION | Metric: pearson_distance+cosine_distance
 ──────────────────────────────────────────────────────────────────────
-  Loaded 320714 rows from optimal_fused_distances.csv
-  Valid 4-way groups: 71504 | Skipped: 2
-    - missing_tier=intra_category_nearest: 2
-  Ranked 71504 query groups
+  Loaded 350501 rows from optimal_fused_distances.csv
+  Valid 4-way groups: 78832 | Skipped: 164
+    - missing_tier=global_nearest: 152
+    - missing_tier=intra_category_nearest: 11
+    - no_positive: 1
+  Ranked 78832 query groups
 
 ====================================================================================================
  SOURCE ATTRIBUTION RESULTS: FUSION
- Metric: euclidean_distance+pearson_distance | Protocol: 4-Way Forced Choice
+ Metric: pearson_distance+cosine_distance | Protocol: 4-Way Forced Choice
 ====================================================================================================
 
   Overall:
-    Queries     : 71504
-    Top-1 Acc   : 39.0%
-    Mean Rank   : 2.240
-    MRR         : 0.6013
-    Rank Dist   : R1=39.0%  R2=11.7%  R3=35.8%  R4=13.6%  
+    Queries     : 78832
+    Top-1 Acc   : 36.9%
+    Mean Rank   : 2.275
+    MRR         : 0.5872
+    Rank Dist   : R1=36.9%  R2=11.1%  R3=39.8%  R4=12.3%  
 
   Category                            |   Top-1 |     MRR |   MeanR |    R1 |    R2 |    R3 |    R4 |     N
   -----------------------------------------------------------------------------------------------
-  1a. Human Plagiarism (Base)         |  60.7% |  0.7651 |   1.632 |   366 |   103 |   124 |    10 |   603
-  1b. Human Plagiarism + DSP          |  56.5% |  0.7333 |   1.740 |  3406 |   910 |  1589 |   125 |  6030
-  2. Original + DSP                   |  98.9% |  0.9942 |   1.013 | 12059 |   100 |    30 |     1 | 12190
-  3. AI Generation (Base)             |  32.4% |  0.5589 |   2.369 |  1773 |   717 |  2166 |   814 |  5470
-  4. AI + DSP                         |  21.7% |  0.4858 |   2.613 | 10259 |  6509 | 21707 |  8736 | 47211
+  1a. Human Plagiarism (Base)         |  59.7% |  0.7583 |   1.652 |   359 |   101 |   132 |     9 |   601
+  1b. Human Plagiarism + DSP          |  56.1% |  0.7270 |   1.770 |  3370 |   785 |  1719 |   136 |  6010
+  2. Original + DSP                   |  98.2% |  0.9903 |   1.022 | 11952 |   167 |    50 |     1 | 12170
+  3. AI Generation (Base)             |  27.6% |  0.5248 |   2.475 |  1506 |   639 |  2532 |   783 |  5460
+  4. AI + DSP                         |  21.7% |  0.4863 |   2.597 | 11867 |  7027 | 26943 |  8754 | 54591
 ====================================================================================================
 
   Misattribution Breakdown:
-    Global Nearest           : 41923 (96.1%)
-    Intra-Category           : 1716 (3.9%)
-    Random                   :    2 (0.0%)
+    Global Nearest           : 49545 (99.5%)
+    Intra-Category           :  233 (0.5%)
   Plot saved → fusion_attribution_top1_by_category.pdf
   Plot saved → fusion_attribution_rank_distribution.pdf
   Plot saved → fusion_attribution_misattribution_breakdown.pdf
 
-  MGE-LDM stem rows: 25863 {'bass': 8622, 'drums': 8621, 'other': 8620}
+  MGE-LDM stem rows: 33277 {'drums': 11099, 'bass': 11090, 'other': 11088}
 
   ──────────────────────────────────────────────────────────────────────
   MGE-LDM Stem Attribution — FUSION
   Stem       |   Top-1 |     MRR |   MeanR |     N
   ──────────────────────────────────────────────────
-  bass       |  53.4% |  0.7210 |   1.757 |  8622
-  drums      |  22.6% |  0.5099 |   2.453 |  8621
-  other      |  56.0% |  0.7337 |   1.731 |  8620
+  bass       |  46.7% |  0.6788 |   1.876 | 11090
+  drums      |  17.0% |  0.4705 |   2.569 | 11099
+  other      |  52.9% |  0.7077 |   1.827 | 11088
   ──────────────────────────────────────────────────────────────────────
   Stem CSV saved → fusion_attribution_stem.csv
   Plot saved → fusion_attribution_stem_top1.pdf
@@ -257,9 +171,9 @@ Processing FUSION | Metric: euclidean_distance+pearson_distance
 ================================================================================
   Model      | Metric                    |   Top-1 |     MRR |  Mean Rank |      N
   ---------------------------------------------------------------------------
-  CLEWS      | manhattan_distance        |  37.6% |  0.5914 |      2.272 |  71504
-  WEALY      | pearson_distance          |  44.9% |  0.6580 |      2.022 |  71504
-  FUSION     | euclidean_distance+pearson_distance |  39.0% |  0.6013 |      2.240 |  71504
+  CLEWS      | manhattan_distance        |  38.2% |  0.5961 |      2.251 |  78984
+  WEALY      | cosine_distance           |  44.8% |  0.6573 |      2.024 |  78832
+  FUSION     | pearson_distance+cosine_distance |  36.9% |  0.5872 |      2.275 |  78832
 ================================================================================
 
 Results → results/attribution/
