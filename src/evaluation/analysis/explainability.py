@@ -111,6 +111,92 @@ def load_pairs(parquet_path: str, pairs_path: str, model_name: str) -> pd.DataFr
     print(f"Loaded {len(df)} pairs | Dim: {mode_dim}")
     return df
 
+def export_pairwise_delta_features(
+    df: pd.DataFrame,
+    model_name: str,
+    res_dir: str,
+) -> None:
+    """
+    Export pair-level delta summary features derived from delta_vector = |emb_mod - emb_ori|.
+
+    Note:
+        This export contains POSITIVE pairs only, because explainability.py
+        is built on top of build_positive_pairs().
+
+    Saved files:
+        - {model}_pairwise_delta_features.csv
+        - {model}_pairwise_delta_features.parquet
+    """
+    print("Exporting pairwise delta summary features…")
+
+    if df.empty or "delta_vector" not in df.columns:
+        logger.warning(f"No delta vectors available for {model_name}. Skipping export.")
+        return
+
+    delta_matrix = np.stack(df["delta_vector"].values)
+
+    # Global threshold for "active dimensions"
+    global_q75 = float(np.percentile(np.mean(delta_matrix, axis=0), 75))
+
+    # Stable / volatile dimensions (same logic as plot_stable_core)
+    global_mean       = np.mean(delta_matrix, axis=0)
+    stability_ranking = np.argsort(global_mean)
+    n_core            = min(100, delta_matrix.shape[1] // 5)
+    stable_dims       = stability_ranking[:n_core]
+    volatile_dims     = stability_ranking[-n_core:]
+
+    # Pair-level summaries
+    delta_mean   = np.mean(delta_matrix, axis=1)
+    delta_std    = np.std(delta_matrix, axis=1)
+    delta_median = np.median(delta_matrix, axis=1)
+    delta_max    = np.max(delta_matrix, axis=1)
+    delta_l2     = np.linalg.norm(delta_matrix, axis=1)
+    delta_p90    = np.percentile(delta_matrix, 90, axis=1)
+    delta_p95    = np.percentile(delta_matrix, 95, axis=1)
+
+    active_dims_q75_global = np.sum(delta_matrix > global_q75, axis=1)
+
+    stable_core_mean_delta   = np.mean(delta_matrix[:, stable_dims], axis=1)
+    volatile_shell_mean_delta = np.mean(delta_matrix[:, volatile_dims], axis=1)
+
+    stable_to_volatile_ratio = np.divide(
+        stable_core_mean_delta,
+        volatile_shell_mean_delta,
+        out=np.zeros_like(stable_core_mean_delta),
+        where=volatile_shell_mean_delta != 0,
+    )
+
+    df_export = pd.DataFrame({
+        "pair_id": df["pair_id"].values,
+        "time": df["time"].values,
+        "final_mod_type": df["final_mod_type"].values,
+        "clean_mod_type": df["clean_mod_type"].values,
+        "broad_category": df["broad_category"].values,
+        "filename_ori": df["filename_ori"].values,
+        "filename_mod": df["filename_mod"].values,
+        "delta_mean": delta_mean,
+        "delta_std": delta_std,
+        "delta_median": delta_median,
+        "delta_max": delta_max,
+        "delta_l2": delta_l2,
+        "delta_p90": delta_p90,
+        "delta_p95": delta_p95,
+        "active_dims_q75_global": active_dims_q75_global,
+        "stable_core_mean_delta": stable_core_mean_delta,
+        "volatile_shell_mean_delta": volatile_shell_mean_delta,
+        "stable_to_volatile_ratio": stable_to_volatile_ratio,
+    })
+
+    # Save CSV
+    csv_path = Path(res_dir) / f"{model_name.lower()}_pairwise_delta_features.csv"
+    _csv(df_export, csv_path)
+
+    # Save parquet
+    pq_path = Path(res_dir) / f"{model_name.lower()}_pairwise_delta_features.parquet"
+    pq_path.parent.mkdir(parents=True, exist_ok=True)
+    df_export.to_parquet(pq_path, index=False)
+    print(f"Saved Parquet → {pq_path}")
+
 
 # PLOT 1: Overall Shifts & Active Dimensions
 def plot_overall_shifts(df: pd.DataFrame, model_name: str, plt_dir: str) -> None:
@@ -436,6 +522,8 @@ def process_model(parquet_path: str, pairs_path: str, model_name: str) -> None:
     df = load_pairs(parquet_path, pairs_path, model_name)
     if df.empty:
         return
+
+    export_pairwise_delta_features(df, model_name, RES_SUBDIR)
 
     plot_overall_shifts(df, model_name, PLT_SUBDIR)
     plot_topk_and_overlap(df, model_name, RES_SUBDIR, PLT_SUBDIR)

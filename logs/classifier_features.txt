@@ -1,0 +1,44 @@
+2026-05-12 19:24:04 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-12 19:24:04 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+============================================================
+BUILDING CLASSIFIER FEATURE TABLE
+============================================================
+
+[1/7] Loading pair list…
+  Pairs: 350654 (113690 positives)
+
+[2/7] Merging CLEWS distances…
+  Added 4 CLEWS distance features
+
+[3/7] Merging WEALY distances…
+  Added 4 WEALY distance features
+
+[4/7] Computing CLEWS delta summary features…
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  [clews] Delta computed: 350654 valid, 0 missing embeddings
+  [clews] Reference: q75=1.224900, n_stable=100, n_volatile=100 (from 113690 positive pairs)
+
+[5/7] Computing WEALY delta summary features…
+  Loaded 73581 embeddings from wealy_embeddings.parquet
+  [wealy] Delta computed: 350501 valid, 153 missing embeddings
+  [wealy] Reference: q75=0.900863, n_stable=100, n_volatile=100 (from 113689 positive pairs)
+
+[6/7] Attaching vocal metadata…
+Loaded vocal metadata: 1219 sources, 1167 valid, 52 invalid
+Vocal metadata attached: 350654 pairs total, 322821 pair_vocal_valid=True (92.1%), 27833 pair_vocal_valid=False (7.9%)
+  Vocal features attached.
+
+[7/7] Saving feature table…
+  Saved → results\classification\classifier_features.parquet
+
+============================================================
+FEATURE TABLE SUMMARY
+============================================================
+  Total rows:        350654
+  Positives:         113690
+  Negatives:         236964
+  Distance features: 8
+  Delta features:    22
+  Vocal features:    5
+  Total features:    35
+============================================================

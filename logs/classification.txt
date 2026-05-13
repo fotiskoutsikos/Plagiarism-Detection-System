@@ -1,0 +1,106 @@
+2026-05-12 19:36:08 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-12 19:36:08 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-12 19:36:08 [WARNING] [LR] Found NaN in 153 rows across features. Will impute with train-fold medians.
+============================================================
+BINARY PLAGIARISM CLASSIFIERS
+============================================================
+
+Loading features from results\classification\classifier_features.parquet…
+  Rows: 350654  |  Columns: 44
+  Feature columns: 35
+    - clews_active_dims_q75_global
+    - clews_cosine_distance
+    - clews_delta_l2
+    - clews_delta_max
+    - clews_delta_mean
+    - clews_delta_median
+    - clews_delta_p90
+    - clews_delta_p95
+    - clews_delta_std
+    - clews_euclidean_distance
+    - clews_manhattan_distance
+    - clews_pearson_distance
+    - clews_stable_core_mean_delta
+    - clews_stable_to_volatile_ratio
+    - clews_volatile_shell_mean_delta
+    - pair_vocal_valid
+    - vocal_ratio_mod
+    - vocal_ratio_ori
+    - vocal_valid_mod
+    - vocal_valid_ori
+    - wealy_active_dims_q75_global
+    - wealy_cosine_distance
+    - wealy_delta_l2
+    - wealy_delta_max
+    - wealy_delta_mean
+    - wealy_delta_median
+    - wealy_delta_p90
+    - wealy_delta_p95
+    - wealy_delta_std
+    - wealy_euclidean_distance
+    - wealy_manhattan_distance
+    - wealy_pearson_distance
+    - wealy_stable_core_mean_delta
+    - wealy_stable_to_volatile_ratio
+    - wealy_volatile_shell_mean_delta
+
+Running 5-Fold StratifiedGroupKFold CV…
+  Groups: filename_ori
+  Threshold optimization: F0.5
+
+[LR] Model: LogisticRegression(class_weight='balanced')
+2026-05-12 19:36:08 [WARNING] [LR] Found NaN in 153 rows across features. Will impute with train-fold medians.
+2026-05-12 19:36:21 [WARNING] [MLP] Found NaN in 153 rows across features. Will impute with train-fold medians.
+  [LR] Fold 1: F0.5=0.6036  P=0.7980  R=0.3057  thresh=0.6732
+  [LR] Fold 2: F0.5=0.6163  P=0.8603  R=0.2888  thresh=0.6814
+  [LR] Fold 3: F0.5=0.6025  P=0.8428  R=0.2815  thresh=0.6784
+  [LR] Fold 4: F0.5=0.6222  P=0.8133  R=0.3208  thresh=0.6617
+  [LR] Fold 5: F0.5=0.6137  P=0.8444  R=0.2932  thresh=0.6834
+
+  [LR] CV Average:
+    F0.5      = 0.6117 ± 0.0085
+    F1        = 0.4384 ± 0.0141
+    Precision = 0.8318 ± 0.0254
+    Recall    = 0.2980 ± 0.0155
+    Accuracy  = 0.7527 ± 0.0026
+
+[MLP] Model: MLPClassifier(hidden_layer_sizes=(64, 32), early_stopping=True)
+2026-05-12 19:36:21 [WARNING] [MLP] Found NaN in 153 rows across features. Will impute with train-fold medians.
+  [MLP] Fold 1: F0.5=0.8430  P=0.8574  R=0.7899  thresh=0.7068
+  [MLP] Fold 2: F0.5=0.8587  P=0.8767  R=0.7937  thresh=0.6663
+  [MLP] Fold 3: F0.5=0.8279  P=0.8459  R=0.7628  thresh=0.6762
+  [MLP] Fold 4: F0.5=0.8658  P=0.8874  R=0.7891  thresh=0.6931
+  [MLP] Fold 5: F0.5=0.8594  P=0.8771  R=0.7953  thresh=0.7277
+
+  [MLP] CV Average:
+    F0.5      = 0.8510 ± 0.0154
+    F1        = 0.8254 ± 0.0140
+    Precision = 0.8689 ± 0.0168
+    Recall    = 0.7862 ± 0.0133
+    Accuracy  = 0.8922 ± 0.0084
+
+  CV results saved → results\classification\classifier_cv_results.csv
+
+Loading threshold baselines…
+  CLEWS threshold: F0.5=0.6123
+  WEALY threshold: F0.5=0.4421
+  FUSION threshold: F0.5=0.6097
+  Comparison saved → results\classification\classifier_comparison.csv
+
+==========================================================================================
+ CLASSIFIERS vs THRESHOLD BASELINES
+==========================================================================================
+  Method                           |    F0.5 |    Prec |  Recall |      F1 |     Acc
+  -------------------------------------------------------------------------------------
+  CLEWS threshold                |  0.6123 |  0.9276 |  0.2596 |  0.4056 |  0.7534
+  WEALY threshold                |  0.4421 |  0.4637 |  0.3743 |  0.4137 |  0.6479
+  FUSION threshold               |  0.6097 |  0.9040 |  0.2649 |  0.4097 |  0.7524
+► Meta-classifier (LR)           |  0.6117 |  0.8318 |  0.2980 |  0.4384 |  0.7527
+► Meta-classifier (MLP)          |  0.8510 |  0.8689 |  0.7862 |  0.8254 |  0.8922
+==========================================================================================
+  Plot saved → plots\classification\classifier_comparison.pdf
+
+Results → results\classification/
+Plots   → plots\classification/
+
+Done.
