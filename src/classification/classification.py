@@ -1,41 +1,37 @@
 """
-Binary Plagiarism Classifiers using Pre-computed Features.
+Modular Binary Plagiarism Classification Engine.
 
-Trains two classifiers on the unified feature table produced by
-classifier_features.py and compares them against the existing
-threshold-based baselines (CLEWS, WEALY, FUSION):
+Serves as the reusable execution core for all supervised classification
+experiments (e.g., feature ablation, dimensionality reduction).
 
-    1. Logistic Regression (interpretable linear baseline)
-    2. MLPClassifier      (small non-linear classifier)
+Enforces a rigorous evaluation protocol:
+    1. Single Interpretable Classifier: Logistic Regression (balanced).
+    2. Strict CV: StratifiedGroupKFold grouped by 'filename_ori' (no leakage).
+    3. Train-only Scaling: Pipeline fitted strictly per train fold.
+    4. Train-only F0.5 Thresholding: Probability decision threshold optimized
+       on train fold and evaluated on test fold.
+    5. Dynamic Dimensionality Reduction: Optional fold-wise PCA integration.
 
-Evaluation protocol:
-    - StratifiedGroupKFold (groups = filename_ori) to prevent leakage
-    - Per-fold median imputation + scaling fitted on TRAIN only
-    - F0.5-optimized probability threshold per fold (train-side)
-    - Reports: F0.5, F1, Precision, Recall, Accuracy
+Memory-safe design:
+    - Uses float32 throughout to halve memory usage vs float64.
+    - NaN handling via np.nan_to_num (no SimpleImputer copy overhead).
+    - No median sort allocation (the root cause of the previous OOM crash).
 
-Input:
-    results/classification/classifier_features.parquet
-    results/threshold/threshold_analysis_summary.csv
-
-Output:
-    results/classification/classifier_cv_results.csv
-    results/classification/classifier_comparison.csv
-    plots/classification/classifier_comparison.pdf
+This module is designed to be imported and orchestrated by ablation.py.
+If run standalone, it executes a quick baseline validation run.
 """
+
 
 import sys
 import importlib.util
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 
-from sklearn.impute import SimpleImputer
+from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     precision_recall_curve,
@@ -46,7 +42,6 @@ from sklearn.metrics import (
     accuracy_score,
 )
 from sklearn.model_selection import StratifiedGroupKFold
-from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -72,152 +67,103 @@ from utils.constants import (
     NUM_K_FOLDS,
     RANDOM_STATE,
     BETA,
-    PLOT_DPI,
-    PLOT_STYLE_PARAMS,
 )
 from utils.categorization import fbeta_score_curve
 
-plt.rcParams.update(PLOT_STYLE_PARAMS)
 
-
-# ── Paths ─────────────────────────────────────────────────────────────────────
-FEATURE_TABLE = Path("results/classification/classifier_features.parquet")
-OUTPUT_DIR    = Path("results/classification")
-PLOTS_DIR     = Path("plots/classification")
-
-# Columns that are metadata / labels — NOT features
-METADATA_COLS = {
-    "pair_id",
-    "time",
-    "filename_ori",
-    "filename_mod",
-    "final_mod_type",
-    "negative_tier",
-    "is_plagiarised",
-    "clean_mod_type",
-    "category_grouped",
-    "source_key_ori",
-    "source_key_mod",
-}
-
-# Vocal columns that ARE usable features
-VOCAL_FEATURE_COLS = {
-    "pair_vocal_valid",
-    "vocal_ratio_ori",
-    "vocal_ratio_mod",
-    "vocal_valid_ori",
-    "vocal_valid_mod",
-}
-
-
-# ── Feature selection ─────────────────────────────────────────────────────────
-def _get_feature_columns(df: pd.DataFrame) -> list:
-    """
-    Identify classifier feature columns by exclusion.
-    Everything that is not metadata and not all-NaN is a feature.
-    """
-    feature_cols = []
-    for col in df.columns:
-        if col in METADATA_COLS:
-            continue
-        if col in VOCAL_FEATURE_COLS or col.startswith(("clews_", "wealy_")):
-            if not df[col].isna().all():
-                feature_cols.append(col)
-    return sorted(feature_cols)
-
-
-# ── Threshold optimization ────────────────────────────────────────────────────
+# Threshold Optimization 
 def _find_optimal_probability_threshold(
     y_true: np.ndarray,
     y_prob: np.ndarray,
     beta: float = BETA,
 ) -> float:
     """
-    Find the probability threshold that maximizes F-beta on the given data.
-    Uses the same PR-curve sweep approach as optimal_threshold.py.
+    Find the probability decision threshold that maximizes F-beta score.
+    Optimized strictly on training-fold data to prevent leakage.
     """
     precision, recall, thresholds = precision_recall_curve(y_true, y_prob)
-    fbeta_scores = fbeta_score_curve(precision, recall, beta)
+    scores = fbeta_score_curve(precision, recall, beta)
 
-    if len(fbeta_scores) <= 1:
+    if len(scores) <= 1:
         return 0.5
 
-    optimal_idx = int(np.argmax(fbeta_scores[:-1]))
+    optimal_idx = int(np.argmax(scores[:-1]))
     return float(thresholds[optimal_idx])
 
 
-# ── Model factory ─────────────────────────────────────────────────────────────
-def _build_estimator(classifier_type: str):
+# Pipeline Factory 
+def build_classifier_pipeline(
+    use_pca: bool = False,
+    n_pca_components: int = 30,
+    random_state: int = RANDOM_STATE,
+) -> Pipeline:
     """
-    Build a sklearn Pipeline with:
-        1. median imputation
-        2. standard scaling
-        3. classifier
-    """
-    classifier_type = classifier_type.lower()
+    Construct a scikit-learn Pipeline with standard scaling,
+    optional PCA reduction, and a balanced Logistic Regression classifier.
 
-    if classifier_type == "lr":
-        clf = LogisticRegression(
+    No SimpleImputer — NaN handling is done upstream via np.nan_to_num
+    to avoid the massive memory allocation that median imputation causes
+    on high-dimensional matrices (the root cause of the OOM crash).
+    """
+    steps: list[tuple[str, Any]] = [
+        ("scaler", StandardScaler()),
+    ]
+
+    if use_pca:
+        steps.append((
+            "pca",
+            PCA(n_components=n_pca_components, random_state=random_state),
+        ))
+
+    steps.append((
+        "clf",
+        LogisticRegression(
             max_iter=1000,
-            random_state=RANDOM_STATE,
             class_weight="balanced",
             solver="lbfgs",
-        )
-    elif classifier_type == "mlp":
-        clf = MLPClassifier(
-            hidden_layer_sizes=(64, 32),
-            activation="relu",
-            solver="adam",
-            alpha=1e-4,
-            batch_size="auto",
-            learning_rate="adaptive",
-            learning_rate_init=1e-3,
-            max_iter=200,
-            early_stopping=True,
-            validation_fraction=0.1,
-            n_iter_no_change=10,
-            random_state=RANDOM_STATE,
-            verbose=False,
-        )
-    else:
-        raise ValueError(f"Unknown classifier_type: {classifier_type}")
+            random_state=random_state,
+        ),
+    ))
 
-    return Pipeline([
-        ("imputer", SimpleImputer(strategy="median")),
-        ("scaler", StandardScaler()),
-        ("clf", clf),
-    ])
+    return Pipeline(steps)
 
 
-# ── Cross-validation ──────────────────────────────────────────────────────────
-def run_classifier_cv(
-    df: pd.DataFrame,
-    feature_cols: list,
-    classifier_type: str,
+# Core Experiment Execution 
+def run_classifier_experiment(
+    X: np.ndarray | pd.DataFrame,
+    y: np.ndarray,
+    groups: np.ndarray,
+    experiment_name: str,
+    use_pca: bool = False,
+    n_pca_components: int = 30,
     n_splits: int = NUM_K_FOLDS,
     random_state: int = RANDOM_STATE,
     beta: float = BETA,
-) -> pd.DataFrame:
+) -> dict[str, Any]:
     """
-    Run StratifiedGroupKFold cross-validation for a classifier.
+    Execute a rigorous cross-validated classification experiment.
 
-    Groups by filename_ori to prevent data leakage.
-    Threshold is optimized on TRAIN probabilities for F-beta.
+    Memory-safe: converts to float32 and replaces NaN with 0.0 upfront,
+    avoiding the OOM crash caused by SimpleImputer's median sort on float64.
+
+    Args:
+        X: Feature matrix (N_samples, N_features). Can be DataFrame or numpy.
+        y: Binary ground truth labels (N_samples,).
+        groups: Grouping keys (e.g., filename_ori) for StratifiedGroupKFold.
+        experiment_name: Identifier for the experiment.
+        use_pca: If True, integrates PCA reduction into the fold pipeline.
+        n_pca_components: Number of PCA components to retain.
+        n_splits: Number of cross-validation folds.
 
     Returns:
-        DataFrame with per-fold metrics.
+        Dictionary containing aggregated evaluation metrics and fold summaries.
     """
-    y      = df["is_plagiarised"].astype(int).values
-    X      = df[feature_cols].values.astype(np.float64)
-    groups = df["filename_ori"].values
+    # Memory-safe input normalization
+    X_arr = X.values if isinstance(X, pd.DataFrame) else X
+    X_arr = np.ascontiguousarray(X_arr, dtype=np.float32)
+    X_arr = np.nan_to_num(X_arr, nan=0.0, posinf=0.0, neginf=0.0)
 
-    # Just for logging — actual handling happens fold-wise via the Pipeline
-    nan_rows = int(np.isnan(X).any(axis=1).sum())
-    if nan_rows > 0:
-        logger.warning(
-            f"[{classifier_type.upper()}] Found NaN in {nan_rows} rows across features. "
-            f"Will impute with train-fold medians."
-        )
+    n_samples, n_features = X_arr.shape
 
     sgkf = StratifiedGroupKFold(
         n_splits=n_splits,
@@ -225,71 +171,91 @@ def run_classifier_cv(
         random_state=random_state,
     )
 
-    estimator    = _build_estimator(classifier_type)
-    fold_results = []
+    pipeline = build_classifier_pipeline(
+        use_pca=use_pca,
+        n_pca_components=n_pca_components,
+        random_state=random_state,
+    )
 
-    for fold_idx, (train_idx, test_idx) in enumerate(sgkf.split(X, y, groups), start=1):
-        X_train, X_test = X[train_idx], X[test_idx]
+    fold_metrics = []
+    pca_variances = []
+
+    for fold_idx, (train_idx, test_idx) in enumerate(sgkf.split(X_arr, y, groups), start=1):
+        X_train, X_test = X_arr[train_idx], X_arr[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
 
-        estimator.fit(X_train, y_train)
+        pipeline.fit(X_train, y_train)
 
-        # Probabilities
-        y_prob_train = estimator.predict_proba(X_train)[:, 1]
-        y_prob_test  = estimator.predict_proba(X_test)[:, 1]
+        # Track PCA Explained Variance if applicable
+        if use_pca:
+            explained_var = float(pipeline.named_steps["pca"].explained_variance_ratio_.sum())
+            pca_variances.append(explained_var)
 
-        # Optimize threshold on TRAIN
-        opt_threshold = _find_optimal_probability_threshold(y_train, y_prob_train, beta=beta)
+        # Predict Probabilities
+        prob_train = pipeline.predict_proba(X_train)[:, 1]
+        prob_test  = pipeline.predict_proba(X_test)[:, 1]
 
-        # Apply threshold on TEST
-        y_pred = (y_prob_test >= opt_threshold).astype(int)
+        # Optimize Decision Threshold on TRAIN
+        opt_thresh = _find_optimal_probability_threshold(y_train, prob_train, beta=beta)
 
-        fold_results.append({
-            "classifier": classifier_type.upper(),
+        # Apply Threshold on TEST
+        y_pred = (prob_test >= opt_thresh).astype(int)
+
+        fold_metrics.append({
             "fold": fold_idx,
-            "threshold": round(opt_threshold, 4),
-            "f05": round(fbeta_score(y_test, y_pred, beta=beta, zero_division=0), 4),
-            "f1": round(f1_score(y_test, y_pred, zero_division=0), 4),
-            "precision": round(precision_score(y_test, y_pred, zero_division=0), 4),
-            "recall": round(recall_score(y_test, y_pred, zero_division=0), 4),
-            "accuracy": round(accuracy_score(y_test, y_pred), 4),
-            "n_train": len(train_idx),
-            "n_test": len(test_idx),
-            "n_pos_test": int(y_test.sum()),
-            "n_neg_test": int((y_test == 0).sum()),
+            "threshold": opt_thresh,
+            "f05": fbeta_score(y_test, y_pred, beta=beta, zero_division=0),
+            "f1": f1_score(y_test, y_pred, zero_division=0),
+            "precision": precision_score(y_test, y_pred, zero_division=0),
+            "recall": recall_score(y_test, y_pred, zero_division=0),
+            "accuracy": accuracy_score(y_test, y_pred),
         })
 
-        print(
-            f"  [{classifier_type.upper()}] Fold {fold_idx}: "
-            f"F0.5={fold_results[-1]['f05']:.4f}  "
-            f"P={fold_results[-1]['precision']:.4f}  "
-            f"R={fold_results[-1]['recall']:.4f}  "
-            f"thresh={opt_threshold:.4f}"
-        )
+    # Aggregate Metrics
+    df_folds = pd.DataFrame(fold_metrics)
+    mean_metrics = df_folds.mean(axis=0).to_dict()
 
-    return pd.DataFrame(fold_results)
+    summary: dict[str, Any] = {
+        "experiment_name": experiment_name,
+        "classifier": "LogisticRegression",
+        "n_samples": n_samples,
+        "n_features_in": n_features,
+        "n_features_model": n_pca_components if use_pca else n_features,
+        "use_pca": use_pca,
+        "f05": mean_metrics["f05"],
+        "f1": mean_metrics["f1"],
+        "precision": mean_metrics["precision"],
+        "recall": mean_metrics["recall"],
+        "accuracy": mean_metrics["accuracy"],
+        "mean_threshold": mean_metrics["threshold"],
+        "pca_explained_variance": np.mean(pca_variances) if use_pca else None,
+        "fold_results": df_folds,
+    }
+
+    return summary
 
 
-# ── Baseline loading ──────────────────────────────────────────────────────────
-def _load_threshold_baselines() -> pd.DataFrame:
+# Baseline Loading 
+def load_threshold_baselines() -> pd.DataFrame:
     """
-    Load threshold-based baselines from threshold_analysis_summary.csv.
+    Load pre-computed threshold baselines from threshold_analysis_summary.csv.
+    Useful for comparison against learned classifiers.
     """
     rows = []
     thresh_path = Path(SUMMARY_FILES["threshold_analysis"])
 
     if thresh_path.exists():
         df_thresh = pd.read_csv(thresh_path)
-        for _, row in df_thresh.iterrows():
-            model = str(row.get("model", "")).upper()
+        for _, r in df_thresh.iterrows():
+            model = str(r.get("model", "")).upper()
             rows.append({
-                "method": f"{model} threshold",
-                "f05": round(float(row.get("fbeta", 0)), 4),
-                "f1": round(float(row.get("f1", 0)), 4),
-                "precision": round(float(row.get("precision", 0)), 4),
-                "recall": round(float(row.get("recall", 0)), 4),
-                "accuracy": round(float(row.get("accuracy", 0)), 4),
-                "metric": str(row.get("metric", "")),
+                "experiment_name": f"{model} Threshold Baseline",
+                "classifier": "Distance Threshold",
+                "f05": round(float(r.get("fbeta", 0)), 4),
+                "f1": round(float(r.get("f1", 0)), 4),
+                "precision": round(float(r.get("precision", 0)), 4),
+                "recall": round(float(r.get("recall", 0)), 4),
+                "accuracy": round(float(r.get("accuracy", 0)), 4),
             })
 
     if not rows:
@@ -298,213 +264,54 @@ def _load_threshold_baselines() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-# ── Comparison table ──────────────────────────────────────────────────────────
-def _build_comparison(
-    df_cv_all: pd.DataFrame,
-    df_baselines: pd.DataFrame,
-) -> pd.DataFrame:
-    """
-    Build a unified comparison table:
-        baselines + LR + MLP averages.
-    """
-    rows = []
+# Console Reporting Utility 
+def print_experiment_summary(summary: dict[str, Any]) -> None:
+    """Print a standardized, formatted summary of a classification experiment."""
+    name = summary["experiment_name"]
+    feats = summary["n_features_model"]
+    is_pca = " (PCA)" if summary["use_pca"] else ""
+    var_str = ""
+    if summary["use_pca"] and summary["pca_explained_variance"] is not None:
+        var_str = f" [Variance Retained: {summary['pca_explained_variance'] * 100:.1f}%]"
 
-    if not df_baselines.empty:
-        for _, row in df_baselines.iterrows():
-            rows.append(row.to_dict())
-
-    for clf_name in ["LR", "MLP"]:
-        df_sub = df_cv_all[df_cv_all["classifier"] == clf_name].copy()
-        if df_sub.empty:
-            continue
-
-        rows.append({
-            "method": f"Meta-classifier ({clf_name})",
-            "f05": round(df_sub["f05"].mean(), 4),
-            "f1": round(df_sub["f1"].mean(), 4),
-            "precision": round(df_sub["precision"].mean(), 4),
-            "recall": round(df_sub["recall"].mean(), 4),
-            "accuracy": round(df_sub["accuracy"].mean(), 4),
-            "metric": "distances + Δ summaries + vocal",
-        })
-
-    return pd.DataFrame(rows)
-
-
-# ── Plotting ──────────────────────────────────────────────────────────────────
-def _plot_comparison(df_comp: pd.DataFrame, output_dir: Path) -> None:
-    """
-    Grouped bar chart comparing F0.5, Precision, Recall across methods.
-    """
-    if df_comp.empty:
-        return
-
-    fig, ax = plt.subplots(figsize=(11, 6))
-
-    methods = df_comp["method"].values
-    f05     = df_comp["f05"].values
-    prec    = df_comp["precision"].values
-    rec     = df_comp["recall"].values
-
-    x     = np.arange(len(methods))
-    width = 0.25
-
-    bars_f05  = ax.bar(x - width, f05,  width, label="F0.5",     color="#2196F3", edgecolor="white")
-    bars_prec = ax.bar(x,         prec, width, label="Precision", color="#4CAF50", edgecolor="white")
-    bars_rec  = ax.bar(x + width, rec,  width, label="Recall",    color="#FF9800", edgecolor="white")
-
-    for bars in [bars_f05, bars_prec, bars_rec]:
-        for bar in bars:
-            height = bar.get_height()
-            if height > 0.01:
-                ax.text(
-                    bar.get_x() + bar.get_width() / 2,
-                    height + 0.01,
-                    f"{height:.3f}",
-                    ha="center", va="bottom",
-                    fontsize=8, fontweight="bold",
-                )
-
-    ax.set_xticks(x)
-    ax.set_xticklabels(methods, rotation=20, ha="right", fontsize=10)
-    ax.set_ylabel("Score", fontsize=12, fontweight="bold")
-    ax.set_title(
-        "Plagiarism Detection: Threshold Baselines vs Learned Classifiers",
-        fontsize=14, fontweight="bold",
-    )
-    ax.set_ylim(0, 1.15)
-    ax.legend(loc="upper right", fontsize=10)
-    ax.grid(axis="y", alpha=0.3)
-    ax.set_axisbelow(True)
-
-    plt.tight_layout()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    path = output_dir / "classifier_comparison.pdf"
-    fig.savefig(path, dpi=PLOT_DPI, bbox_inches="tight")
-    plt.close(fig)
-    print(f"  Plot saved → {path}")
-
-
-# ── Console output ────────────────────────────────────────────────────────────
-def _print_comparison(df_comp: pd.DataFrame) -> None:
-    """Print formatted comparison table."""
-    print(f"\n{'=' * 90}")
-    print(" CLASSIFIERS vs THRESHOLD BASELINES")
-    print(f"{'=' * 90}")
+    print(f"\n  ► {name:<32} | Features: {feats:<4}{is_pca}{var_str}")
     print(
-        f"  {'Method':<32} | {'F0.5':>7} | {'Prec':>7} | "
-        f"{'Recall':>7} | {'F1':>7} | {'Acc':>7}"
+        f"    F0.5: {summary['f05']:.4f}  |  "
+        f"Prec: {summary['precision']:.4f}  |  "
+        f"Rec: {summary['recall']:.4f}  |  "
+        f"F1: {summary['f1']:.4f}  |  "
+        f"Acc: {summary['accuracy']:.4f}"
     )
-    print(f"  {'-' * 85}")
-
-    for _, row in df_comp.iterrows():
-        is_clf = "Meta-classifier" in str(row["method"])
-        prefix = "► " if is_clf else "  "
-        print(
-            f"{prefix}{row['method']:<30} | {row['f05']:>7.4f} | "
-            f"{row['precision']:>7.4f} | {row['recall']:>7.4f} | "
-            f"{row['f1']:>7.4f} | {row['accuracy']:>7.4f}"
-        )
-
-    print(f"{'=' * 90}")
 
 
-def _print_cv_summary(df_cv: pd.DataFrame, clf_name: str) -> None:
-    """Print mean ± std summary for one classifier."""
-    print(f"\n  [{clf_name}] CV Average:")
-    print(f"    F0.5      = {df_cv['f05'].mean():.4f} ± {df_cv['f05'].std():.4f}")
-    print(f"    F1        = {df_cv['f1'].mean():.4f} ± {df_cv['f1'].std():.4f}")
-    print(f"    Precision = {df_cv['precision'].mean():.4f} ± {df_cv['precision'].std():.4f}")
-    print(f"    Recall    = {df_cv['recall'].mean():.4f} ± {df_cv['recall'].std():.4f}")
-    print(f"    Accuracy  = {df_cv['accuracy'].mean():.4f} ± {df_cv['accuracy'].std():.4f}")
-
-
-# ── Main ──────────────────────────────────────────────────────────────────────
-def main() -> None:
-    print("=" * 60)
-    print("BINARY PLAGIARISM CLASSIFIERS")
-    print("=" * 60)
-
-    # Load feature table
-    if not FEATURE_TABLE.exists():
-        print(
-            f"\n[ERROR] Feature table not found: {FEATURE_TABLE}\n"
-            f"Run classifier_features.py first."
-        )
-        return
-
-    print(f"\nLoading features from {FEATURE_TABLE}…")
-    df = pd.read_parquet(FEATURE_TABLE)
-    print(f"  Rows: {len(df)}  |  Columns: {len(df.columns)}")
-
-    # Identify features
-    feature_cols = _get_feature_columns(df)
-    print(f"  Feature columns: {len(feature_cols)}")
-    for col in feature_cols:
-        print(f"    - {col}")
-
-    if not feature_cols:
-        print("[ERROR] No feature columns found.")
-        return
-
-    # Validate required columns
-    if "is_plagiarised" not in df.columns:
-        print("[ERROR] 'is_plagiarised' column not found.")
-        return
-    if "filename_ori" not in df.columns:
-        print("[ERROR] 'filename_ori' column not found (needed for grouping).")
-        return
-
-    print(f"\nRunning {NUM_K_FOLDS}-Fold StratifiedGroupKFold CV…")
-    print("  Groups: filename_ori")
-    print(f"  Threshold optimization: F{BETA}")
-
-    all_cv_results = []
-
-    # ── Logistic Regression ──
-    print("\n[LR] Model: LogisticRegression(class_weight='balanced')")
-    df_cv_lr = run_classifier_cv(df, feature_cols, classifier_type="lr")
-    _print_cv_summary(df_cv_lr, "LR")
-    all_cv_results.append(df_cv_lr)
-
-    # ── MLP ──
-    print("\n[MLP] Model: MLPClassifier(hidden_layer_sizes=(64, 32), early_stopping=True)")
-    df_cv_mlp = run_classifier_cv(df, feature_cols, classifier_type="mlp")
-    _print_cv_summary(df_cv_mlp, "MLP")
-    all_cv_results.append(df_cv_mlp)
-
-    # Save CV results
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    df_cv_all = pd.concat(all_cv_results, ignore_index=True)
-
-    cv_path = OUTPUT_DIR / "classifier_cv_results.csv"
-    df_cv_all.to_csv(cv_path, index=False)
-    print(f"\n  CV results saved → {cv_path}")
-
-    # Load threshold baselines
-    print("\nLoading threshold baselines…")
-    df_baselines = _load_threshold_baselines()
-    if not df_baselines.empty:
-        for _, row in df_baselines.iterrows():
-            print(f"  {row['method']}: F0.5={row['f05']:.4f}")
-
-    # Build comparison
-    df_comp = _build_comparison(df_cv_all, df_baselines)
-
-    comp_path = OUTPUT_DIR / "classifier_comparison.csv"
-    df_comp.to_csv(comp_path, index=False)
-    print(f"  Comparison saved → {comp_path}")
-
-    # Print comparison
-    _print_comparison(df_comp)
-
-    # Plot
-    _plot_comparison(df_comp, PLOTS_DIR)
-
-    print(f"\nResults → {OUTPUT_DIR}/")
-    print(f"Plots   → {PLOTS_DIR}/")
-    print("\nDone.")
-
-
+# Standalone Validation Run 
 if __name__ == "__main__":
-    main()
+    print("=" * 70)
+    print("CLASSIFICATION ENGINE - BASELINE VALIDATION RUN")
+    print("=" * 70)
+
+    feat_table = Path("data/classifier_features.parquet")
+    if not feat_table.exists():
+        print(f"[ERROR] Feature table not found: {feat_table}")
+        sys.exit(1)
+
+    df = pd.read_parquet(feat_table)
+    y = df["is_plagiarised"].astype(int).values
+    groups = df["filename_ori"].values
+
+    # Select engineered distance columns as a quick test
+    dist_cols = [c for c in df.columns if "distance" in c]
+    if not dist_cols:
+        print("[ERROR] No distance features found in parquet.")
+        sys.exit(1)
+
+    print(f"Loaded {len(df)} pairs. Running validation on Distances Only...")
+    res = run_classifier_experiment(
+        X=df[dist_cols],
+        y=y,
+        groups=groups,
+        experiment_name="Validation Run (Distances)",
+    )
+
+    print_experiment_summary(res)
+    print("\nClassification engine is fully operational. Ready for ablation.py.")

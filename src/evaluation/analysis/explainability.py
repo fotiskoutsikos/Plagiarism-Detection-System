@@ -46,10 +46,10 @@ logger = logging.getLogger(__name__)
 sys.path.insert(0, str(repo_root / "src"))
 from utils.constants import (
     PLOT_STYLE_PARAMS, PLOT_DPI,
-    CATEGORY_COLORS, OUTPUT_DIRS,
-    SMP_CSV, EMBEDDING_PATHS,
+    CATEGORY_COLORS, DSP_FAMILY_COLORS, SOURCE_COLORS,
+    OUTPUT_DIRS, SMP_CSV, EMBEDDING_PATHS,
 )
-from utils.categorization import clean_mod_type, get_broad_category
+from utils.categorization import clean_mod_type, get_broad_category, extract_dsp_and_source_features, get_dsp_family
 from utils.dataset_builder import build_positive_pairs, validate_and_filter_embeddings
 
 plt.rcParams.update(PLOT_STYLE_PARAMS)
@@ -62,7 +62,12 @@ PLT_SUBDIR  = OUTPUT_DIRS["explainability_plots"]
 
 # SMALL HELPERS
 def _cat_color(cat: str) -> str:
-    return CATEGORY_COLORS.get(cat, "gray")
+    return (
+        CATEGORY_COLORS.get(cat)
+        or DSP_FAMILY_COLORS.get(cat)
+        or SOURCE_COLORS.get(cat)
+        or "gray"
+    )
 
 
 def _short(cat: str) -> str:
@@ -97,6 +102,18 @@ def load_pairs(parquet_path: str, pairs_path: str, model_name: str) -> pd.DataFr
     df["clean_mod_type"] = df["final_mod_type"].apply(clean_mod_type)
     df["broad_category"] = df["clean_mod_type"].apply(get_broad_category)
 
+    # Extract DSP/source features via existing util
+    feat = df["clean_mod_type"].apply(extract_dsp_and_source_features)
+    feat_df = pd.DataFrame(feat.tolist())
+    df["source"] = feat_df["source"]
+    df["pitch_intensity"] = feat_df["pitch_intensity"]
+    df["tempo_intensity"] = feat_df["tempo_intensity"]
+    df["dsp_category"] = feat_df["dsp_category"]
+    df["dsp_family"] = df.apply(
+        lambda r: get_dsp_family(r["pitch_intensity"], r["tempo_intensity"]),
+        axis=1,
+    )
+
     df, mode_dim = validate_and_filter_embeddings(
         df, emb_cols=["embedding_ori", "embedding_mod"], clean=True
     )
@@ -115,6 +132,7 @@ def export_pairwise_delta_features(
     df: pd.DataFrame,
     model_name: str,
     res_dir: str,
+    data_dir: str = "data",
 ) -> None:
     """
     Export pair-level delta summary features derived from delta_vector = |emb_mod - emb_ori|.
@@ -174,6 +192,11 @@ def export_pairwise_delta_features(
         "broad_category": df["broad_category"].values,
         "filename_ori": df["filename_ori"].values,
         "filename_mod": df["filename_mod"].values,
+        "source": df["source"].values,
+        "dsp_category": df["dsp_category"].values,
+        "dsp_family": df["dsp_family"].values,
+        "pitch_intensity": df["pitch_intensity"].values,
+        "tempo_intensity": df["tempo_intensity"].values,
         "delta_mean": delta_mean,
         "delta_std": delta_std,
         "delta_median": delta_median,
@@ -199,12 +222,12 @@ def export_pairwise_delta_features(
 
 
 # PLOT 1: Overall Shifts & Active Dimensions
-def plot_overall_shifts(df: pd.DataFrame, model_name: str, plt_dir: str) -> None:
+def plot_overall_shifts(df, model_name, plt_dir, group_col="broad_category", suffix=""):
     print("Generating Plot 1: Overall Shifts & Active Dimensions…")
 
     delta_matrix = np.stack(df["delta_vector"].values)
-    categories   = sorted(df["broad_category"].unique())
-    cat_labels   = df["broad_category"].values
+    categories = sorted(df[group_col].dropna().unique())
+    cat_labels = df[group_col].values
 
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
 
@@ -215,6 +238,7 @@ def plot_overall_shifts(df: pd.DataFrame, model_name: str, plt_dir: str) -> None
         vals = total_shift[cat_labels == cat]
         ax1.hist(vals, bins=40, alpha=0.5, color=_cat_color(cat),
                  label=_short(cat), density=True)
+    ax1.set_xlim(0, np.percentile(total_shift, 99) * 1.05)
     ax1.set_xlabel("Mean |Δ| across all dimensions")
     ax1.set_ylabel("Density")
     ax1.set_title("A) Overall Shift Distribution", fontweight="bold")
@@ -244,22 +268,23 @@ def plot_overall_shifts(df: pd.DataFrame, model_name: str, plt_dir: str) -> None
         fontsize=14, fontweight="bold", y=1.02
     )
     plt.tight_layout()
-    _save(fig, Path(plt_dir) / f"{model_name.lower()}_overall_shifts.pdf")
+    _save(fig, Path(plt_dir) / f"{model_name.lower()}_overall_shifts{suffix}.pdf")
 
 
 # PLOTS 2 & 3: Top-K Affected Dimensions & Overlap
 def plot_topk_and_overlap(
-    df: pd.DataFrame, model_name: str, res_dir: str, plt_dir: str
+    df: pd.DataFrame, model_name: str, res_dir: str, plt_dir: str,
+    group_col: str = "broad_category", suffix: str = "",
 ) -> None:
     print(f"Generating Plots 2 & 3: Top-{TOP_K} Dimensions & Overlap…")
 
     delta_matrix = np.stack(df["delta_vector"].values)
-    categories   = sorted(df["broad_category"].unique())
+    categories   = sorted(df[group_col].dropna().unique())
     cat_top_dims = {}
     topk_records = []
 
     for cat in categories:
-        mask    = df["broad_category"] == cat
+        mask     = df[group_col] == cat
         cat_mean = np.mean(delta_matrix[mask.values], axis=0)
         cat_std  = np.std(delta_matrix[mask.values],  axis=0)
         top_idx  = np.argsort(cat_mean)[::-1][:TOP_K]
@@ -275,7 +300,7 @@ def plot_topk_and_overlap(
             })
 
     topk_df = pd.DataFrame(topk_records)
-    _csv(topk_df, Path(res_dir) / f"{model_name.lower()}_topk_dimensions.csv")
+    _csv(topk_df, Path(res_dir) / f"{model_name.lower()}_topk_dimensions{suffix}.csv")
 
     # Plot 2: Bar charts per category
     n_cats    = len(categories)
@@ -306,7 +331,7 @@ def plot_topk_and_overlap(
         fontsize=14, fontweight="bold", y=1.01
     )
     plt.tight_layout()
-    _save(fig, Path(plt_dir) / f"{model_name.lower()}_topk_dimensions.pdf")
+    _save(fig, Path(plt_dir) / f"{model_name.lower()}_topk_dimensions{suffix}.pdf")
 
     # Plot 3: Overlap Heatmap
     overlap = np.zeros((n_cats, n_cats), dtype=int)
@@ -327,21 +352,24 @@ def plot_topk_and_overlap(
     )
     plt.xticks(rotation=30, ha="right")
     plt.tight_layout()
-    _save(fig_ov, Path(plt_dir) / f"{model_name.lower()}_topk_overlap.pdf")
+    _save(fig_ov, Path(plt_dir) / f"{model_name.lower()}_topk_overlap{suffix}.pdf")
 
 
 # PLOT 4: Signed Shift Heatmap
-def plot_signed_shift(df: pd.DataFrame, model_name: str, plt_dir: str) -> None:
+def plot_signed_shift(
+    df: pd.DataFrame, model_name: str, plt_dir: str,
+    group_col: str = "broad_category", suffix: str = "",
+) -> None:
     print("Generating Plot 4: Signed Mean Shift per Dimension…")
 
     emb_ori    = np.stack(df["embedding_ori"].values)
     emb_mod    = np.stack(df["embedding_mod"].values)
     ndim       = emb_ori.shape[1]
-    categories = sorted(df["broad_category"].unique())
+    categories = sorted(df[group_col].dropna().unique())
 
     shift_matrix = np.zeros((len(categories), ndim))
     for i, cat in enumerate(categories):
-        mask = df["broad_category"] == cat
+        mask = df[group_col] == cat
         shift_matrix[i, :] = np.mean(emb_mod[mask] - emb_ori[mask], axis=0)
 
     if ndim > 400:
@@ -377,7 +405,7 @@ def plot_signed_shift(df: pd.DataFrame, model_name: str, plt_dir: str) -> None:
     )
     plt.colorbar(im, ax=ax, shrink=0.8, pad=0.02, label="Mean Signed Shift (mod − ori)")
     plt.tight_layout()
-    _save(fig, Path(plt_dir) / f"{model_name.lower()}_signed_shift_heatmap.pdf")
+    _save(fig, Path(plt_dir) / f"{model_name.lower()}_signed_shift_heatmap{suffix}.pdf")
 
 
 # PLOT 5: SMP vs AI Base Discrimination
@@ -525,11 +553,21 @@ def process_model(parquet_path: str, pairs_path: str, model_name: str) -> None:
 
     export_pairwise_delta_features(df, model_name, RES_SUBDIR)
 
+    # Run 1: broad_category analysis
     plot_overall_shifts(df, model_name, PLT_SUBDIR)
     plot_topk_and_overlap(df, model_name, RES_SUBDIR, PLT_SUBDIR)
     plot_signed_shift(df, model_name, PLT_SUBDIR)
-    plot_smp_vs_ai(df, model_name, RES_SUBDIR, PLT_SUBDIR)
     plot_stable_core(df, model_name, PLT_SUBDIR)
+
+    # Run 2: DSP Family (Pitch vs Tempo)
+    plot_overall_shifts(df, model_name, PLT_SUBDIR, group_col="dsp_family", suffix="_by_dsp_family")
+    plot_topk_and_overlap(df, model_name, RES_SUBDIR, PLT_SUBDIR, group_col="dsp_family", suffix="_by_dsp_family")
+    plot_signed_shift(df, model_name, PLT_SUBDIR, group_col="dsp_family", suffix="_by_dsp_family")
+
+    # Run 3: Source (MusicGen vs AudioLDM2 vs MGE-LDM vs Human)
+    plot_overall_shifts(df, model_name, PLT_SUBDIR, group_col="source", suffix="_by_source")
+    plot_topk_and_overlap(df, model_name, RES_SUBDIR, PLT_SUBDIR, group_col="source", suffix="_by_source")
+    plot_signed_shift(df, model_name, PLT_SUBDIR, group_col="source", suffix="_by_source")
 
     print(f"Done processing {model_name}.\n")
 

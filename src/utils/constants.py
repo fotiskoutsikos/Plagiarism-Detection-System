@@ -191,6 +191,21 @@ CATEGORY_COLORS = {
     "1. Human Plagiarism (SMP)":   "#2196F3",
 }
 
+DSP_FAMILY_COLORS = {
+    "Base": "#4CAF50",
+    "Pitch Only": "#2196F3",
+    "Tempo Only": "#FF9800",
+    "Combined (Extreme)": "#E53935",
+}
+
+SOURCE_COLORS = {
+    "Original + DSP": "#607D8B",
+    "Cover": "#FF9800",
+    "MusicGen": "#E53935",
+    "AudioLDM2": "#4CAF50",
+    "MGE-LDM": "#9C27B0",
+}
+
 PLOT_STYLE_PARAMS = {
     "figure.dpi":        200,
     "axes.titlesize":    10,

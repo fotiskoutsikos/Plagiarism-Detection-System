@@ -84,7 +84,7 @@ def extract_dsp_and_source_features(mod_type: str) -> dict:
     if mod_lower.startswith('smp_'):
         source = 'Cover'
     elif mod_lower.startswith('none_'):
-        source = 'Original'
+        source = 'Original + DSP'
     elif 'musicgen' in mod_lower:
         source = 'MusicGen'
     elif 'audioldm2' in mod_lower:
@@ -135,6 +135,25 @@ def extract_dsp_and_source_features(mod_type: str) -> dict:
         'dsp_category': dsp_category,
     }
 
+
+def get_dsp_family(pitch_intensity: float, tempo_intensity: float) -> str:
+    """
+    Collapse DSP modifications into high-level families for subclass analysis.
+
+    Returns:
+        str: 'Base', 'Pitch Only', 'Tempo Only', or 'Combined (Extreme)'
+    """
+    has_pitch = pitch_intensity != 0.0
+    has_tempo = tempo_intensity != 1.0
+
+    if not has_pitch and not has_tempo:
+        return "Base"
+    if has_pitch and not has_tempo:
+        return "Pitch Only"
+    if not has_pitch and has_tempo:
+        return "Tempo Only"
+    return "Combined (Extreme)"
+    
 
 def get_broad_category(mod_type: str) -> str:
     """

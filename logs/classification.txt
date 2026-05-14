@@ -1,106 +1,152 @@
-2026-05-12 19:36:08 [INFO] Logging initialized for classification, file: logs\classification.txt
-2026-05-12 19:36:08 [INFO] Logging initialized for classification, file: logs\classification.txt
-2026-05-12 19:36:08 [WARNING] [LR] Found NaN in 153 rows across features. Will impute with train-fold medians.
-============================================================
-BINARY PLAGIARISM CLASSIFIERS
-============================================================
+2026-05-14 18:48:03 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-14 18:48:03 [INFO] Logging initialized for classification, file: logs\classification.txt
+======================================================================
+CLASSIFICATION ENGINE - BASELINE VALIDATION RUN
+======================================================================
+Loaded 350654 pairs. Running validation on Distances Only...
 
-Loading features from results\classification\classifier_features.parquet…
-  Rows: 350654  |  Columns: 44
-  Feature columns: 35
-    - clews_active_dims_q75_global
-    - clews_cosine_distance
-    - clews_delta_l2
-    - clews_delta_max
-    - clews_delta_mean
-    - clews_delta_median
-    - clews_delta_p90
-    - clews_delta_p95
-    - clews_delta_std
-    - clews_euclidean_distance
-    - clews_manhattan_distance
-    - clews_pearson_distance
-    - clews_stable_core_mean_delta
-    - clews_stable_to_volatile_ratio
-    - clews_volatile_shell_mean_delta
-    - pair_vocal_valid
-    - vocal_ratio_mod
-    - vocal_ratio_ori
-    - vocal_valid_mod
-    - vocal_valid_ori
-    - wealy_active_dims_q75_global
-    - wealy_cosine_distance
-    - wealy_delta_l2
-    - wealy_delta_max
-    - wealy_delta_mean
-    - wealy_delta_median
-    - wealy_delta_p90
-    - wealy_delta_p95
-    - wealy_delta_std
-    - wealy_euclidean_distance
-    - wealy_manhattan_distance
-    - wealy_pearson_distance
-    - wealy_stable_core_mean_delta
-    - wealy_stable_to_volatile_ratio
-    - wealy_volatile_shell_mean_delta
+  ► Validation Run (Distances)       | Features: 8   
+    F0.5: 0.5802  |  Prec: 0.7828  |  Rec: 0.2858  |  F1: 0.4183  |  Acc: 0.7424
 
-Running 5-Fold StratifiedGroupKFold CV…
-  Groups: filename_ori
-  Threshold optimization: F0.5
+Classification engine is fully operational. Ready for ablation.py.
+2026-05-14 18:49:38 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-14 18:49:38 [INFO] Logging initialized for classification, file: logs\classification.txt
+======================================================================
+FEATURE ABLATION STUDY — BINARY PLAGIARISM CLASSIFICATION
+======================================================================
 
-[LR] Model: LogisticRegression(class_weight='balanced')
-2026-05-12 19:36:08 [WARNING] [LR] Found NaN in 153 rows across features. Will impute with train-fold medians.
-2026-05-12 19:36:21 [WARNING] [MLP] Found NaN in 153 rows across features. Will impute with train-fold medians.
-  [LR] Fold 1: F0.5=0.6036  P=0.7980  R=0.3057  thresh=0.6732
-  [LR] Fold 2: F0.5=0.6163  P=0.8603  R=0.2888  thresh=0.6814
-  [LR] Fold 3: F0.5=0.6025  P=0.8428  R=0.2815  thresh=0.6784
-  [LR] Fold 4: F0.5=0.6222  P=0.8133  R=0.3208  thresh=0.6617
-  [LR] Fold 5: F0.5=0.6137  P=0.8444  R=0.2932  thresh=0.6834
+Loading feature table from results\classification\classifier_features.parquet...
+  Loaded 350654 pairs (113690 positives, 236964 negatives)
 
-  [LR] CV Average:
-    F0.5      = 0.6117 ± 0.0085
-    F1        = 0.4384 ± 0.0141
-    Precision = 0.8318 ± 0.0254
-    Recall    = 0.2980 ± 0.0155
-    Accuracy  = 0.7527 ± 0.0026
+──────────────────────────────────────────────────────────────────────
+PHASE 1: ENGINEERED + XAI FEATURE EXPERIMENTS
+──────────────────────────────────────────────────────────────────────
 
-[MLP] Model: MLPClassifier(hidden_layer_sizes=(64, 32), early_stopping=True)
-2026-05-12 19:36:21 [WARNING] [MLP] Found NaN in 153 rows across features. Will impute with train-fold medians.
-  [MLP] Fold 1: F0.5=0.8430  P=0.8574  R=0.7899  thresh=0.7068
-  [MLP] Fold 2: F0.5=0.8587  P=0.8767  R=0.7937  thresh=0.6663
-  [MLP] Fold 3: F0.5=0.8279  P=0.8459  R=0.7628  thresh=0.6762
-  [MLP] Fold 4: F0.5=0.8658  P=0.8874  R=0.7891  thresh=0.6931
-  [MLP] Fold 5: F0.5=0.8594  P=0.8771  R=0.7953  thresh=0.7277
+  Running: 1. CLEWS Distances (4 features)
 
-  [MLP] CV Average:
-    F0.5      = 0.8510 ± 0.0154
-    F1        = 0.8254 ± 0.0140
-    Precision = 0.8689 ± 0.0168
-    Recall    = 0.7862 ± 0.0133
-    Accuracy  = 0.8922 ± 0.0084
+  ► 1. CLEWS Distances               | Features: 4   
+    F0.5: 0.5634  |  Prec: 0.8064  |  Rec: 0.2557  |  F1: 0.3882  |  Acc: 0.7387
 
-  CV results saved → results\classification\classifier_cv_results.csv
+  Running: 2. WEALY Distances (4 features)
 
-Loading threshold baselines…
-  CLEWS threshold: F0.5=0.6123
-  WEALY threshold: F0.5=0.4421
-  FUSION threshold: F0.5=0.6097
-  Comparison saved → results\classification\classifier_comparison.csv
+  ► 2. WEALY Distances               | Features: 4   
+    F0.5: 0.4358  |  Prec: 0.4738  |  Rec: 0.3302  |  F1: 0.3890  |  Acc: 0.6637
 
-==========================================================================================
- CLASSIFIERS vs THRESHOLD BASELINES
-==========================================================================================
-  Method                           |    F0.5 |    Prec |  Recall |      F1 |     Acc
-  -------------------------------------------------------------------------------------
-  CLEWS threshold                |  0.6123 |  0.9276 |  0.2596 |  0.4056 |  0.7534
-  WEALY threshold                |  0.4421 |  0.4637 |  0.3743 |  0.4137 |  0.6479
-  FUSION threshold               |  0.6097 |  0.9040 |  0.2649 |  0.4097 |  0.7524
-► Meta-classifier (LR)           |  0.6117 |  0.8318 |  0.2980 |  0.4384 |  0.7527
-► Meta-classifier (MLP)          |  0.8510 |  0.8689 |  0.7862 |  0.8254 |  0.8922
-==========================================================================================
-  Plot saved → plots\classification\classifier_comparison.pdf
+  Running: 3. All Distances (8 features)
 
-Results → results\classification/
-Plots   → plots\classification/
+  ► 3. All Distances                 | Features: 8   
+    F0.5: 0.5802  |  Prec: 0.7828  |  Rec: 0.2858  |  F1: 0.4183  |  Acc: 0.7424
+
+  Running: 4. CLEWS Delta Summaries (11 features)
+
+  ► 4. CLEWS Delta Summaries         | Features: 11  
+    F0.5: 0.6029  |  Prec: 0.9075  |  Rec: 0.2575  |  F1: 0.4011  |  Acc: 0.7508
+
+  Running: 5. WEALY Delta Summaries (11 features)
+
+  ► 5. WEALY Delta Summaries         | Features: 11  
+    F0.5: 0.4097  |  Prec: 0.4147  |  Rec: 0.3923  |  F1: 0.4027  |  Acc: 0.6230
+
+  Running: 6. All Delta Summaries (22 features)
+
+  ► 6. All Delta Summaries           | Features: 22  
+    F0.5: 0.6021  |  Prec: 0.8623  |  Rec: 0.2731  |  F1: 0.4147  |  Acc: 0.7502
+
+  Running: 7. All Engineered (35 features)
+
+  ► 7. All Engineered                | Features: 35  
+    F0.5: 0.6121  |  Prec: 0.8324  |  Rec: 0.2980  |  F1: 0.4385  |  Acc: 0.7528
+
+  Running: 8. Engineered - Vocal (30 features)
+
+  ► 8. Engineered - Vocal            | Features: 30  
+    F0.5: 0.6034  |  Prec: 0.8644  |  Rec: 0.2737  |  F1: 0.4155  |  Acc: 0.7505
+
+  Running: 9. Vocal Only (5 features)
+
+  ► 9. Vocal Only                    | Features: 5   
+    F0.5: 0.4585  |  Prec: 0.4140  |  Rec: 0.8038  |  F1: 0.5464  |  Acc: 0.5671
+
+  Running: 10. CLEWS XAI Top-30 (30 features)
+
+  ► 10. CLEWS XAI Top-30             | Features: 30  
+    F0.5: 0.5112  |  Prec: 0.6859  |  Rec: 0.2580  |  F1: 0.3726  |  Acc: 0.7192
+
+  Running: 11. WEALY XAI Top-30 (30 features)
+
+  ► 11. WEALY XAI Top-30             | Features: 30  
+    F0.5: 0.4003  |  Prec: 0.4098  |  Rec: 0.3673  |  F1: 0.3871  |  Acc: 0.6232
+
+──────────────────────────────────────────────────────────────────────
+PHASE 2: RAW EMBEDDING EXPERIMENTS (on-the-fly)
+──────────────────────────────────────────────────────────────────────
+  Loading CLEWS embeddings...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Computing CLEWS delta matrix...
+  [CLEWS] Delta: 350654/350654 valid, 0 missing, dim=1024
+
+  Running: 12. CLEWS Full Δ (1024D)
+
+  ► 12. CLEWS Full Δ (1024D)         | Features: 1024
+    F0.5: 0.6979  |  Prec: 0.7472  |  Rec: 0.5536  |  F1: 0.6355  |  Acc: 0.7944
+
+  Running: 13. CLEWS PCA-30 Δ
+
+  ► 13. CLEWS PCA-30 Δ               | Features: 30   (PCA) [Variance Retained: 18.1%]
+    F0.5: 0.5871  |  Prec: 0.8169  |  Rec: 0.2769  |  F1: 0.4133  |  Acc: 0.7453
+  Loading WEALY embeddings...
+  Loaded 73581 embeddings from wealy_embeddings.parquet
+  Computing WEALY delta matrix...
+  [WEALY] Delta: 350501/350654 valid, 153 missing, dim=512
+
+  Running: 14. WEALY Full Δ (512D)
+
+  ► 14. WEALY Full Δ (512D)          | Features: 512 
+    F0.5: 0.4452  |  Prec: 0.4738  |  Rec: 0.3601  |  F1: 0.4087  |  Acc: 0.6623
+
+  Running: 15. WEALY PCA-30 Δ
+
+  ► 15. WEALY PCA-30 Δ               | Features: 30   (PCA) [Variance Retained: 23.0%]
+    F0.5: 0.4171  |  Prec: 0.4130  |  Rec: 0.4437  |  F1: 0.4250  |  Acc: 0.6137
+
+──────────────────────────────────────────────────────────────────────
+RESULTS SUMMARY
+──────────────────────────────────────────────────────────────────────
+
+Loading threshold baselines for comparison...
+  CLEWS Threshold Baseline: F0.5=0.6123
+  WEALY Threshold Baseline: F0.5=0.4421
+  FUSION Threshold Baseline: F0.5=0.6097
+
+====================================================================================================
+  Experiment                          | Feats |    F0.5 |    Prec |     Rec |      F1 |     Acc
+  ─────────────────────────────────────────────────────────────────────────────────────────────
+  CLEWS Threshold Baseline            |     – |  0.6123 |  0.9276 |  0.2596 |  0.4056 |  0.7534
+  WEALY Threshold Baseline            |     – |  0.4421 |  0.4637 |  0.3743 |  0.4137 |  0.6479
+  FUSION Threshold Baseline           |     – |  0.6097 |  0.9040 |  0.2649 |  0.4097 |  0.7524
+  ─────────────────────────────────────────────────────────────────────────────────────────────
+  1. CLEWS Distances                  |     4 |  0.5634 |  0.8064 |  0.2557 |  0.3882 |  0.7387
+  2. WEALY Distances                  |     4 |  0.4358 |  0.4738 |  0.3302 |  0.3890 |  0.6637
+  3. All Distances                    |     8 |  0.5802 |  0.7828 |  0.2858 |  0.4183 |  0.7424
+  4. CLEWS Delta Summaries            |    11 |  0.6029 |  0.9075 |  0.2575 |  0.4011 |  0.7508
+  5. WEALY Delta Summaries            |    11 |  0.4097 |  0.4147 |  0.3923 |  0.4027 |  0.6230
+  6. All Delta Summaries              |    22 |  0.6021 |  0.8623 |  0.2731 |  0.4147 |  0.7502
+  7. All Engineered                   |    35 |  0.6121 |  0.8324 |  0.2980 |  0.4385 |  0.7528
+  8. Engineered - Vocal               |    30 |  0.6034 |  0.8644 |  0.2737 |  0.4155 |  0.7505
+  9. Vocal Only                       |     5 |  0.4585 |  0.4140 |  0.8038 |  0.5464 |  0.5671
+  10. CLEWS XAI Top-30                |    30 |  0.5112 |  0.6859 |  0.2580 |  0.3726 |  0.7192
+  11. WEALY XAI Top-30                |    30 |  0.4003 |  0.4098 |  0.3673 |  0.3871 |  0.6232
+  12. CLEWS Full Δ (1024D)            |  1024 |  0.6979 |  0.7472 |  0.5536 |  0.6355 |  0.7944
+  13. CLEWS PCA-30 Δ                  |    30 |  0.5871 |  0.8169 |  0.2769 |  0.4133 |  0.7453 *
+  14. WEALY Full Δ (512D)             |   512 |  0.4452 |  0.4738 |  0.3601 |  0.4087 |  0.6623
+  15. WEALY PCA-30 Δ                  |    30 |  0.4171 |  0.4130 |  0.4437 |  0.4250 |  0.6137 *
+====================================================================================================
+
+  Results saved → results\classification\ablation_results.csv
+  Information retention saved → results\classification\ablation_information_retention.csv
+  Plot saved → plots\classification\ablation_f05_comparison.pdf
+  Plot saved → plots\classification\ablation_information_retention.pdf
+
+  All outputs → results\classification/ and plots\classification/
 
 Done.

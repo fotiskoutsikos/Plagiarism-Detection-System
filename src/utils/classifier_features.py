@@ -3,18 +3,26 @@ Classifier Feature Builder Utility.
 
 Assembles a unified feature matrix for all evaluation pairs (positives + negatives)
 by merging:
-    - CLEWS distance metrics
-    - WEALY distance metrics
-    - CLEWS embedding delta summary features (11 features)
-    - WEALY embedding delta summary features (11 features)
-    - Vocal metadata (3 features)
+    - CLEWS distance metrics                          (4 features)
+    - WEALY distance metrics                          (4 features)
+    - CLEWS embedding delta summary features          (11 features)
+    - WEALY embedding delta summary features          (11 features)
+    - CLEWS XAI Top-K per-pair delta values           (up to 30 features)
+    - WEALY XAI Top-K per-pair delta values           (up to 30 features)
+    - Vocal metadata                                  (3 features)
 
 The delta summary features are computed using the same mathematical logic
 as explainability.py, with the stable/volatile dimension reference frame
 derived exclusively from positive pairs (no leakage from negatives).
 
+The XAI Top-K features are the per-pair absolute delta values at the
+dimensions identified by the explainability analysis (union of top-K
+across broad categories, ranked by cross-category frequency).
+These indices are READ from pre-computed CSVs — no new explainability
+computation is performed here.
+
 This module does NOT perform any training or evaluation.
-It produces a single parquet file consumed by classifier.py.
+It produces a single parquet file consumed by classifier.py / ablation.py.
 
 Usage:
     python -m src.utils.classifier_features
@@ -31,7 +39,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-#  Resolve repository root & logging 
+#  Resolve repository root & logging
 repo_root = Path(__file__).resolve()
 for _ in range(6):
     if (repo_root / "src").exists():
@@ -51,14 +59,23 @@ sys.path.insert(0, str(repo_root / "src"))
 
 from utils.constants import (
     MERGE_KEYS, MODEL_PATHS, EMBEDDING_PATHS,
-    DISTANCE_METRICS, VOCAL_RATIOS_CSV,
+    DISTANCE_METRICS, VOCAL_RATIOS_CSV, OUTPUT_DIRS,
 )
 from utils.dataset_builder import clean_embedding
 from utils.vocal_metadata import attach_vocal_metadata
 
-# Output path 
+# Output path
 OUTPUT_DIR  = Path("results/classification")
 OUTPUT_FILE = OUTPUT_DIR / "classifier_features.parquet"
+
+# XAI Top-K CSV paths (produced by explainability.py, default broad_category run)
+XAI_TOPK_CSVS = {
+    "clews": Path(OUTPUT_DIRS["explainability"]) / "clews_topk_dimensions.csv",
+    "wealy": Path(OUTPUT_DIRS["explainability"]) / "wealy_topk_dimensions.csv",
+}
+
+# Number of XAI dimensions to select (union across categories, top by frequency)
+XAI_TOP_K = 30
 
 
 def _load_csv_for_merge(path: str) -> pd.DataFrame:
@@ -79,6 +96,56 @@ def _load_csv_for_merge(path: str) -> pd.DataFrame:
             df[col] = df[col].astype(str)
 
     return df
+
+
+# XAI Top-K index loading 
+def _get_xai_top_k_indices(csv_path: Path, k: int = XAI_TOP_K) -> list[int]:
+    """
+    Load the explainability Top-K CSV and return the k most important
+    dimension indices via union-then-rank strategy:
+
+        1. Read all (category, dimension, mean_delta) rows
+        2. Group by dimension
+        3. Count how many categories each dimension appears in (frequency)
+        4. Sort by frequency (desc), then by max mean_delta (desc) as tiebreaker
+        5. Return top-k dimension indices
+
+    Args:
+        csv_path: Path to {model}_topk_dimensions.csv (no suffix = broad_category run).
+        k: Number of dimensions to select.
+
+    Returns:
+        List of integer dimension indices, length <= k.
+        Empty list if CSV not found or unreadable.
+    """
+    if not csv_path.exists():
+        logger.warning(f"  XAI Top-K CSV not found: {csv_path}. Skipping XAI features.")
+        return []
+
+    try:
+        df = pd.read_csv(csv_path)
+    except Exception as e:
+        logger.warning(f"  Failed to read XAI Top-K CSV {csv_path}: {e}")
+        return []
+
+    if "dimension" not in df.columns or "mean_delta" not in df.columns:
+        logger.warning(f"  XAI Top-K CSV missing required columns: {csv_path}")
+        return []
+
+    # Union across categories: count frequency + max delta as tiebreaker
+    agg = df.groupby("dimension").agg(
+        freq=("category", "count"),
+        max_delta=("mean_delta", "max"),
+    ).reset_index()
+
+    agg = agg.sort_values(
+        by=["freq", "max_delta"],
+        ascending=[False, False],
+    )
+
+    indices = agg["dimension"].head(k).astype(int).tolist()
+    return indices
+
 
 # Delta summary features 
 def compute_delta_summary_features(
@@ -244,7 +311,7 @@ def _compute_reference_from_positives(
     return global_q75, stable_dims, volatile_dims
 
 
-# Main assembly 
+# Main assembly
 def build_classifier_feature_table(
     pair_list_csv:  str = "results/pairs/evaluation_master_pairs.csv",
     clews_dist_csv: str = MODEL_PATHS["CLEWS"],
@@ -261,8 +328,8 @@ def build_classifier_feature_table(
         2. Merge CLEWS distances (4 features)
         3. Merge WEALY distances (4 features)
         4. Load CLEWS embeddings → compute deltas → reference from positives
-           → delta summary features for ALL pairs (11 features)
-        5. Same for WEALY (11 features)
+           → delta summary features (11) + XAI Top-K per-pair values (up to 30)
+        5. Same for WEALY (11 + up to 30)
         6. Attach vocal metadata (3 features)
         7. Save unified feature table
 
@@ -300,12 +367,12 @@ def build_classifier_feature_table(
     df = df.merge(df_wealy_dist, on=MERGE_KEYS, how="left")
     print(f"  Added {len(wealy_dist_cols)} WEALY distance features")
 
-    # 4. CLEWS delta summary features
-    print("\n[4/7] Computing CLEWS delta summary features…")
+    # 4. CLEWS delta summary + XAI features
+    print("\n[4/7] Computing CLEWS delta summary + XAI features…")
     df = _add_delta_features_for_model(df, clews_parquet, prefix="clews")
 
-    # 5. WEALY delta summary features
-    print("\n[5/7] Computing WEALY delta summary features…")
+    # 5. WEALY delta summary + XAI features
+    print("\n[5/7] Computing WEALY delta summary + XAI features…")
     df = _add_delta_features_for_model(df, wealy_parquet, prefix="wealy")
 
     # 6. Vocal metadata
@@ -335,6 +402,7 @@ def build_classifier_feature_table(
         and "source_key" not in c
     ]
     vocal_cols = [c for c in df.columns if "vocal" in c.lower()]
+    xai_cols   = [c for c in feature_cols if "_xai_dim_" in c]
 
     print(f"\n{'=' * 60}")
     print(f"FEATURE TABLE SUMMARY")
@@ -344,6 +412,7 @@ def build_classifier_feature_table(
     print(f"  Negatives:         {(~df['is_plagiarised'].astype(bool)).sum()}")
     print(f"  Distance features: {sum(1 for c in feature_cols if 'distance' in c)}")
     print(f"  Delta features:    {sum(1 for c in feature_cols if 'delta' in c or 'stable' in c or 'volatile' in c or 'active' in c)}")
+    print(f"  XAI dim features:  {len(xai_cols)}")
     print(f"  Vocal features:    {len(vocal_cols)}")
     print(f"  Total features:    {len(feature_cols) + len(vocal_cols)}")
     print(f"{'=' * 60}")
@@ -357,14 +426,17 @@ def _add_delta_features_for_model(
     prefix: str,
 ) -> pd.DataFrame:
     """
-    Compute delta summary features for one embedding model and merge into df.
+    Compute delta summary features and XAI Top-K per-pair values for one
+    embedding model and merge into df.
 
     Steps:
         1. Load embedding map
         2. Compute delta matrix for ALL pairs
         3. Compute reference (stable/volatile) from POSITIVES ONLY
-        4. Compute summary features for ALL pairs using positive reference
-        5. Merge with prefix (e.g. clews_delta_mean)
+        4a. Compute summary features for ALL pairs using positive reference
+        4b. Load XAI Top-K indices from explainability CSV
+            Extract per-pair delta values at those dimensions
+        5. Merge all new columns with prefix
 
     Args:
         df: The master pair DataFrame.
@@ -372,7 +444,7 @@ def _add_delta_features_for_model(
         prefix: Column prefix (e.g. "clews" or "wealy").
 
     Returns:
-        df with 11 new prefixed delta feature columns.
+        df with 11 summary + up to 30 XAI per-dim feature columns (prefixed).
     """
     # 1. Load embeddings
     emb_map = _build_embedding_map(parquet_path)
@@ -382,14 +454,14 @@ def _add_delta_features_for_model(
 
     if delta_matrix_all.size == 0:
         logger.warning(f"  [{prefix}] No valid deltas computed. Filling with NaN.")
-        delta_cols = [
+        summary_cols = [
             "delta_mean", "delta_std", "delta_median", "delta_max",
             "delta_l2", "delta_p90", "delta_p95",
             "active_dims_q75_global",
             "stable_core_mean_delta", "volatile_shell_mean_delta",
             "stable_to_volatile_ratio",
         ]
-        for col in delta_cols:
+        for col in summary_cols:
             df[f"{prefix}_{col}"] = np.nan
         return df
 
@@ -416,10 +488,37 @@ def _add_delta_features_for_model(
         f"(from {len(pos_delta_matrix)} positive pairs)"
     )
 
-    # 4. Compute summary features for ALL valid pairs
+    # 4a. Compute summary features for ALL valid pairs
     df_features = compute_delta_summary_features(
         delta_matrix_all, stable_dims, volatile_dims, global_q75
     )
+
+    # 4b. XAI Top-K per-pair values
+    topk_csv = XAI_TOPK_CSVS.get(prefix)
+    xai_indices = _get_xai_top_k_indices(topk_csv, k=XAI_TOP_K) if topk_csv else []
+
+    ndim = delta_matrix_all.shape[1]
+    if xai_indices:
+        # Filter out any indices that exceed the actual embedding dimensionality
+        valid_xai = [d for d in xai_indices if d < ndim]
+
+        if len(valid_xai) < len(xai_indices):
+            logger.warning(
+                f"  [{prefix}] Dropped {len(xai_indices) - len(valid_xai)} XAI dims "
+                f"exceeding embedding size {ndim}."
+            )
+
+        if valid_xai:
+            xai_values = delta_matrix_all[:, valid_xai]  # shape: (N_valid, len(valid_xai))
+
+            for col_idx, dim_idx in enumerate(valid_xai):
+                df_features[f"xai_dim_{dim_idx}"] = xai_values[:, col_idx]
+
+            print(f"  [{prefix}] Added {len(valid_xai)} XAI per-pair dimension features")
+        else:
+            print(f"  [{prefix}] No valid XAI dimensions after filtering.")
+    else:
+        print(f"  [{prefix}] XAI Top-K not available. Skipping XAI per-dim features.")
 
     # 5. Merge back — align with valid_mask
     df_features = df_features.rename(columns={c: f"{prefix}_{c}" for c in df_features.columns})
