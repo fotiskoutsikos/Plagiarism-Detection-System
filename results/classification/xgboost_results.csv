@@ -1,0 +1,5 @@
+experiment_name,classifier,n_features,f05,f1,precision,recall,accuracy,mean_threshold
+A. CLEWS Engineered (No Vocals),HistGradientBoosting,15,0.6399,0.5445,0.7252,0.4366,0.7636,0.7173
+B. All Engineered (No Vocals),HistGradientBoosting,30,0.6597,0.5711,0.7359,0.4668,0.7729,0.7168
+C. All Engineered (With Vocals),HistGradientBoosting,35,0.8636,0.8261,0.8905,0.7705,0.8949,0.7279
+D. All Engineered (No Vocals) + Top-256,HistGradientBoosting,286,0.7916,0.7311,0.8379,0.6488,0.8454,0.6541

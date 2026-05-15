@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 sys.path.insert(0, str(repo_root / "src"))
 from utils.constants import (
     PLOT_STYLE_PARAMS, PLOT_DPI,
-    CATEGORY_COLORS, DSP_FAMILY_COLORS, SOURCE_COLORS,
+    CATEGORY_COLORS, DSP_FAMILY_COLORS, SOURCE_COLORS, DIRECTIONAL_DSP_COLORS,
     OUTPUT_DIRS, SMP_CSV, EMBEDDING_PATHS,
 )
 from utils.categorization import clean_mod_type, get_broad_category, extract_dsp_and_source_features, get_dsp_family
@@ -60,14 +60,66 @@ RES_SUBDIR  = OUTPUT_DIRS["explainability"]
 PLT_SUBDIR  = OUTPUT_DIRS["explainability_plots"]
 
 
+# DIRECTIONAL DSP GROUPING
+
+def _get_directional_dsp_label(row: pd.Series) -> str:
+    """
+    Maps pitch_intensity and tempo_intensity into fine-grained directional labels.
+
+    Keeps +pitch and -pitch in separate buckets, and keeps pure pitch/tempo
+    cases separate from combined (both present) cases — avoids averaging
+    opposite directions or different sources into one distribution.
+
+    Returns one of:
+        pitch_up_small, pitch_up_large,
+        pitch_down_small, pitch_down_large,
+        tempo_up_small, tempo_up_large,
+        tempo_down_small, tempo_down_large,
+        combined, none
+
+    Args:
+        pitch_intensity: signed semitones  (0.0  = no shift)
+        tempo_intensity: ratio             (1.0  = no shift, 0.9 = -10%, 1.1 = +10%)
+    """
+    pitch = row.get("pitch_intensity", 0.0)
+    tempo = row.get("tempo_intensity", 1.0)
+
+    has_pitch = pitch != 0.0
+    has_tempo = tempo != 1.0
+
+    # Both present: label as combined — do not collapse into a single directional bucket
+    if has_pitch and has_tempo:
+        return "combined"
+
+    if has_pitch:
+        if pitch > 0:
+            return "pitch_up_small" if abs(pitch) <= 2 else "pitch_up_large"
+        else:
+            return "pitch_down_small" if abs(pitch) <= 2 else "pitch_down_large"
+
+    if has_tempo:
+        deviation = tempo - 1.0  # positive = faster, negative = slower
+        if deviation > 0:
+            return "tempo_up_small" if deviation <= 0.05 else "tempo_up_large"
+        else:
+            return "tempo_down_small" if abs(deviation) <= 0.05 else "tempo_down_large"
+
+    return "none"
+
+
 # SMALL HELPERS
 def _cat_color(cat: str) -> str:
-    return (
-        CATEGORY_COLORS.get(cat)
-        or DSP_FAMILY_COLORS.get(cat)
-        or SOURCE_COLORS.get(cat)
-        or "gray"
-    )
+    # Exact match against all known color dicts
+    for d in (CATEGORY_COLORS, DSP_FAMILY_COLORS, SOURCE_COLORS, DIRECTIONAL_DSP_COLORS):
+        if cat in d:
+            return d[cat]
+    # source_x_direction labels look like "MusicGen | pitch_up_large":
+    # use the direction part for color so bars within a source-facet are color-coded by direction
+    if " | " in cat:
+        direction = cat.split(" | ", 1)[1]
+        if direction in DIRECTIONAL_DSP_COLORS:
+            return DIRECTIONAL_DSP_COLORS[direction]
+    return "gray"
 
 
 def _short(cat: str) -> str:
@@ -215,7 +267,7 @@ def export_pairwise_delta_features(
     _csv(df_export, csv_path)
 
     # Save parquet
-    pq_path = Path(res_dir) / f"{model_name.lower()}_pairwise_delta_features.parquet"
+    pq_path = Path(data_dir) / f"{model_name.lower()}_pairwise_delta_features.parquet"
     pq_path.parent.mkdir(parents=True, exist_ok=True)
     df_export.to_parquet(pq_path, index=False)
     print(f"Saved Parquet → {pq_path}")
@@ -559,15 +611,30 @@ def process_model(parquet_path: str, pairs_path: str, model_name: str) -> None:
     plot_signed_shift(df, model_name, PLT_SUBDIR)
     plot_stable_core(df, model_name, PLT_SUBDIR)
 
-    # Run 2: DSP Family (Pitch vs Tempo)
-    plot_overall_shifts(df, model_name, PLT_SUBDIR, group_col="dsp_family", suffix="_by_dsp_family")
-    plot_topk_and_overlap(df, model_name, RES_SUBDIR, PLT_SUBDIR, group_col="dsp_family", suffix="_by_dsp_family")
-    plot_signed_shift(df, model_name, PLT_SUBDIR, group_col="dsp_family", suffix="_by_dsp_family")
+    # Run 2: Directional DSP — +pitch and -pitch in separate buckets, same for tempo.
+    # Avoids averaging opposite directions into one distribution (θολώνει την εικόνα).
+    df["directional_dsp"] = df.apply(_get_directional_dsp_label, axis=1)
+    if df["directional_dsp"].nunique() > 1:
+        plot_overall_shifts(df, model_name, PLT_SUBDIR, group_col="directional_dsp", suffix="_by_directional_dsp")
+        plot_topk_and_overlap(df, model_name, RES_SUBDIR, PLT_SUBDIR, group_col="directional_dsp", suffix="_by_directional_dsp")
+        plot_signed_shift(df, model_name, PLT_SUBDIR, group_col="directional_dsp", suffix="_by_directional_dsp")
 
     # Run 3: Source (MusicGen vs AudioLDM2 vs MGE-LDM vs Human)
     plot_overall_shifts(df, model_name, PLT_SUBDIR, group_col="source", suffix="_by_source")
     plot_topk_and_overlap(df, model_name, RES_SUBDIR, PLT_SUBDIR, group_col="source", suffix="_by_source")
     plot_signed_shift(df, model_name, PLT_SUBDIR, group_col="source", suffix="_by_source")
+
+    # Run 4: Source × Direction — one plot per source so each facet has ≤8 direction bars.
+    # Avoids the unreadable legend and cramped layout of a single 32-category plot.
+    df["source_x_direction"] = df["source"] + " | " + df["directional_dsp"]
+    for src in sorted(df["source"].dropna().unique()):
+        df_src = df[df["source"] == src]
+        if df_src["directional_dsp"].nunique() < 2:
+            continue   # nothing to compare within this source
+        src_suffix = "_by_direction_" + src.lower().replace(" ", "_").replace("+", "plus")
+        plot_overall_shifts(df_src, model_name, PLT_SUBDIR, group_col="directional_dsp", suffix=src_suffix)
+        plot_topk_and_overlap(df_src, model_name, RES_SUBDIR, PLT_SUBDIR, group_col="directional_dsp", suffix=src_suffix)
+        plot_signed_shift(df_src, model_name, PLT_SUBDIR, group_col="directional_dsp", suffix=src_suffix)
 
     print(f"Done processing {model_name}.\n")
 

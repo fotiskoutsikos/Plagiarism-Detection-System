@@ -1,60 +1,13 @@
-2026-05-14 18:17:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-14 18:17:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-============================================================
-BUILDING CLASSIFIER FEATURE TABLE
-============================================================
-
-[1/7] Loading pair list…
-  Pairs: 350654 (113690 positives)
-
-[2/7] Merging CLEWS distances…
-  Added 4 CLEWS distance features
-
-[3/7] Merging WEALY distances…
-  Added 4 WEALY distance features
-
-[4/7] Computing CLEWS delta summary + XAI features…
-  Loaded 73582 embeddings from clews_embeddings.parquet
-  [clews] Delta computed: 350654 valid, 0 missing embeddings
-  [clews] Reference: q75=1.224900, n_stable=100, n_volatile=100 (from 113690 positive pairs)
-  [clews] Added 30 XAI per-pair dimension features
-
-[5/7] Computing WEALY delta summary + XAI features…
-  Loaded 73581 embeddings from wealy_embeddings.parquet
-  [wealy] Delta computed: 350501 valid, 153 missing embeddings
-  [wealy] Reference: q75=0.900863, n_stable=100, n_volatile=100 (from 113689 positive pairs)
-  [wealy] Added 30 XAI per-pair dimension features
-
-[6/7] Attaching vocal metadata…
-Loaded vocal metadata: 1219 sources, 1167 valid, 52 invalid
-Vocal metadata attached: 350654 pairs total, 322821 pair_vocal_valid=True (92.1%), 27833 pair_vocal_valid=False (7.9%)
-  Vocal features attached.
-
-[7/7] Saving feature table…
-  Saved → results\classification\classifier_features.parquet
-
-============================================================
-FEATURE TABLE SUMMARY
-============================================================
-  Total rows:        350654
-  Positives:         113690
-  Negatives:         236964
-  Distance features: 8
-  Delta features:    22
-  XAI dim features:  60
-  Vocal features:    5
-  Total features:    95
-============================================================
-2026-05-14 18:49:38 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-14 18:49:38 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-14 18:49:38 [INFO] Logging initialized for classification, file: logs\classification.txt
-2026-05-14 18:49:38 [INFO] Logging initialized for classification, file: logs\classification.txt
-2026-05-14 18:49:38 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-15 22:14:22 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-15 22:14:22 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-15 22:14:23 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-15 22:14:23 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-15 22:14:23 [INFO] Logging initialized for classification, file: logs\classification.txt
 ======================================================================
 FEATURE ABLATION STUDY — BINARY PLAGIARISM CLASSIFICATION
 ======================================================================
 
-Loading feature table from results\classification\classifier_features.parquet...
+Loading feature table from data\classifier_features.parquet...
   Loaded 350654 pairs (113690 positives, 236964 negatives)
 
 ──────────────────────────────────────────────────────────────────────
@@ -117,7 +70,7 @@ PHASE 1: ENGINEERED + XAI FEATURE EXPERIMENTS
     F0.5: 0.4003  |  Prec: 0.4098  |  Rec: 0.3673  |  F1: 0.3871  |  Acc: 0.6232
 
 ──────────────────────────────────────────────────────────────────────
-PHASE 2: RAW EMBEDDING EXPERIMENTS (on-the-fly)
+PHASE 2: RAW EMBEDDING EXPERIMENTS
 ──────────────────────────────────────────────────────────────────────
   Loading CLEWS embeddings...
   Loaded 73582 embeddings from clews_embeddings.parquet
@@ -128,25 +81,15 @@ PHASE 2: RAW EMBEDDING EXPERIMENTS (on-the-fly)
 
   ► 12. CLEWS Full Δ (1024D)         | Features: 1024
     F0.5: 0.6979  |  Prec: 0.7472  |  Rec: 0.5536  |  F1: 0.6355  |  Acc: 0.7944
-
-  Running: 13. CLEWS PCA-30 Δ
-
-  ► 13. CLEWS PCA-30 Δ               | Features: 30   (PCA) [Variance Retained: 18.1%]
-    F0.5: 0.5871  |  Prec: 0.8169  |  Rec: 0.2769  |  F1: 0.4133  |  Acc: 0.7453
   Loading WEALY embeddings...
   Loaded 73581 embeddings from wealy_embeddings.parquet
   Computing WEALY delta matrix...
   [WEALY] Delta: 350501/350654 valid, 153 missing, dim=512
 
-  Running: 14. WEALY Full Δ (512D)
+  Running: 13. WEALY Full Δ (512D)
 
-  ► 14. WEALY Full Δ (512D)          | Features: 512 
+  ► 13. WEALY Full Δ (512D)          | Features: 512 
     F0.5: 0.4452  |  Prec: 0.4738  |  Rec: 0.3601  |  F1: 0.4087  |  Acc: 0.6623
-
-  Running: 15. WEALY PCA-30 Δ
-
-  ► 15. WEALY PCA-30 Δ               | Features: 30   (PCA) [Variance Retained: 23.0%]
-    F0.5: 0.4171  |  Prec: 0.4130  |  Rec: 0.4437  |  F1: 0.4250  |  Acc: 0.6137
 
 ──────────────────────────────────────────────────────────────────────
 RESULTS SUMMARY
@@ -176,16 +119,218 @@ Loading threshold baselines for comparison...
   10. CLEWS XAI Top-30                |    30 |  0.5112 |  0.6859 |  0.2580 |  0.3726 |  0.7192
   11. WEALY XAI Top-30                |    30 |  0.4003 |  0.4098 |  0.3673 |  0.3871 |  0.6232
   12. CLEWS Full Δ (1024D)            |  1024 |  0.6979 |  0.7472 |  0.5536 |  0.6355 |  0.7944
-  13. CLEWS PCA-30 Δ                  |    30 |  0.5871 |  0.8169 |  0.2769 |  0.4133 |  0.7453 *
-  14. WEALY Full Δ (512D)             |   512 |  0.4452 |  0.4738 |  0.3601 |  0.4087 |  0.6623
-  15. WEALY PCA-30 Δ                  |    30 |  0.4171 |  0.4130 |  0.4437 |  0.4250 |  0.6137 *
+  13. WEALY Full Δ (512D)             |   512 |  0.4452 |  0.4738 |  0.3601 |  0.4087 |  0.6623
 ====================================================================================================
 
   Results saved → results\classification\ablation_results.csv
-  Information retention saved → results\classification\ablation_information_retention.csv
   Plot saved → plots\classification\ablation_f05_comparison.pdf
-  Plot saved → plots\classification\ablation_information_retention.pdf
 
   All outputs → results\classification/ and plots\classification/
 
+2026-05-15 22:35:05 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-15 22:35:05 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-15 22:35:05 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-15 22:35:05 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-15 22:35:05 [INFO] Logging initialized for classification, file: logs\classification.txt
+======================================================================
+FINAL SUPERVISED CLASSIFIER (GRADIENT BOOSTED TREES)
+======================================================================
+
+Loading feature table...
+  Loaded 350654 pairs (113690 pos, 236964 neg)
+
+Building CLEWS Top-256 enrichment dimensions...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Top-256 enrichment shape: (350654, 256)
+
+──────────────────────────────────────────────────────────────────────
+XGBOOST EXPERIMENTS
+──────────────────────────────────────────────────────────────────────
+
+  Running: A. CLEWS Engineered (20 features)
+    Fold 1: F0.5=0.8618  P=0.8887  R=0.7686  thresh=0.7178
+    Fold 2: F0.5=0.8707  P=0.8931  R=0.7911  thresh=0.7342
+    Fold 3: F0.5=0.8416  P=0.8688  R=0.7479  thresh=0.7347
+    Fold 4: F0.5=0.8607  P=0.8808  R=0.7888  thresh=0.7108
+    Fold 5: F0.5=0.8773  P=0.9025  R=0.7893  thresh=0.7189
+
+  ► A. CLEWS Engineered                      | Features: 20
+    F0.5: 0.8624  |  Prec: 0.8868  |  Rec: 0.7772  |  F1: 0.8283  |  Acc: 0.8956
+
+  Running: B. All Engineered (35 features)
+    Fold 1: F0.5=0.8596  P=0.8861  R=0.7677  thresh=0.7264
+    Fold 2: F0.5=0.8747  P=0.8991  R=0.7890  thresh=0.7417
+    Fold 3: F0.5=0.8431  P=0.8719  R=0.7449  thresh=0.7241
+    Fold 4: F0.5=0.8666  P=0.8955  R=0.7675  thresh=0.7323
+    Fold 5: F0.5=0.8738  P=0.8997  R=0.7836  thresh=0.7151
+
+  ► B. All Engineered                        | Features: 35
+    F0.5: 0.8636  |  Prec: 0.8905  |  Rec: 0.7705  |  F1: 0.8261  |  Acc: 0.8949
+
+  Running: C. All Engineered + Top-256 (291 features)
+    Fold 1: F0.5=0.8675  P=0.9028  R=0.7501  thresh=0.6838
+    Fold 2: F0.5=0.8825  P=0.9068  R=0.7970  thresh=0.6749
+    Fold 3: F0.5=0.8615  P=0.8883  R=0.7687  thresh=0.6761
+    Fold 4: F0.5=0.8815  P=0.8994  R=0.8165  thresh=0.6661
+    Fold 5: F0.5=0.8909  P=0.9236  R=0.7803  thresh=0.6718
+
+  ► C. All Engineered + Top-256              | Features: 291
+    F0.5: 0.8768  |  Prec: 0.9042  |  Rec: 0.7825  |  F1: 0.8388  |  Acc: 0.9026
+
+──────────────────────────────────────────────────────────────────────
+COMPARISON WITH BASELINES
+──────────────────────────────────────────────────────────────────────
+
+====================================================================================================
+  Method                                        |    F0.5 |    Prec |     Rec |      F1 |     Acc
+  ─────────────────────────────────────────────────────────────────────────────────────────────
+  CLEWS Threshold Baseline                      |  0.6123 |  0.9276 |  0.2596 |  0.4056 |  0.7534
+  WEALY Threshold Baseline                      |  0.4421 |  0.4637 |  0.3743 |  0.4137 |  0.6479
+  FUSION Threshold Baseline                     |  0.6097 |  0.9040 |  0.2649 |  0.4097 |  0.7524
+  LR Best (12. CLEWS Full Δ (1024D))            |  0.6979 |  0.7472 |  0.5536 |  0.6355 |  0.7944
+  XGB A. CLEWS Engineered                       |  0.8624 |  0.8868 |  0.7772 |  0.8283 |  0.8956
+  XGB B. All Engineered                         |  0.8636 |  0.8905 |  0.7705 |  0.8261 |  0.8949
+  XGB C. All Engineered + Top-256               |  0.8768 |  0.9042 |  0.7825 |  0.8388 |  0.9026
+====================================================================================================
+
+  Plot saved → plots\classification\xgboost_comparison.pdf
+
+  Results → results\classification/
+  Plots   → plots\classification/
+
 Done.
+2026-05-15 22:43:17 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-15 22:43:17 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-15 22:43:17 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-15 22:43:17 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-15 22:43:17 [INFO] Logging initialized for classification, file: logs\classification.txt
+======================================================================
+FINAL SUPERVISED CLASSIFIER (GRADIENT BOOSTED TREES)
+======================================================================
+
+Loading feature table...
+  Loaded 350654 pairs (113690 pos, 236964 neg)
+
+Building CLEWS Top-256 enrichment dimensions...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Top-256 enrichment shape: (350654, 256)
+
+──────────────────────────────────────────────────────────────────────
+XGBOOST EXPERIMENTS
+──────────────────────────────────────────────────────────────────────
+
+  Running: A. CLEWS Engineered (No Vocals) (15 features)
+    Fold 1: F0.5=0.6386  P=0.7346  R=0.4193  thresh=0.7301
+    Fold 2: F0.5=0.6522  P=0.7228  R=0.4691  thresh=0.6988
+    Fold 3: F0.5=0.6280  P=0.7339  R=0.3982  thresh=0.7299
+    Fold 4: F0.5=0.6541  P=0.7331  R=0.4570  thresh=0.7132
+    Fold 5: F0.5=0.6268  P=0.7016  R=0.4394  thresh=0.7143
+
+  ► A. CLEWS Engineered (No Vocals)          | Features: 15
+    F0.5: 0.6399  |  Prec: 0.7252  |  Rec: 0.4366  |  F1: 0.5445  |  Acc: 0.7636
+
+  Running: B. All Engineered (No Vocals) (30 features)
+    Fold 1: F0.5=0.6596  P=0.7407  R=0.4587  thresh=0.7223
+    Fold 2: F0.5=0.6665  P=0.7333  R=0.4886  thresh=0.7052
+    Fold 3: F0.5=0.6222  P=0.7013  R=0.4286  thresh=0.7284
+    Fold 4: F0.5=0.6997  P=0.7835  R=0.4901  thresh=0.7096
+    Fold 5: F0.5=0.6503  P=0.7205  R=0.4679  thresh=0.7187
+
+  ► B. All Engineered (No Vocals)            | Features: 30
+    F0.5: 0.6597  |  Prec: 0.7359  |  Rec: 0.4668  |  F1: 0.5711  |  Acc: 0.7729
+
+  Running: C. All Engineered (With Vocals) (35 features)
+    Fold 1: F0.5=0.8596  P=0.8861  R=0.7677  thresh=0.7264
+    Fold 2: F0.5=0.8747  P=0.8991  R=0.7890  thresh=0.7417
+    Fold 3: F0.5=0.8431  P=0.8719  R=0.7449  thresh=0.7241
+    Fold 4: F0.5=0.8666  P=0.8955  R=0.7675  thresh=0.7323
+    Fold 5: F0.5=0.8738  P=0.8997  R=0.7836  thresh=0.7151
+
+  ► C. All Engineered (With Vocals)          | Features: 35
+    F0.5: 0.8636  |  Prec: 0.8905  |  Rec: 0.7705  |  F1: 0.8261  |  Acc: 0.8949
+
+  Running: D. All Engineered (No Vocals) + Top-256 (286 features)
+    Fold 1: F0.5=0.8042  P=0.8588  R=0.6413  thresh=0.6479
+    Fold 2: F0.5=0.8020  P=0.8471  R=0.6611  thresh=0.6540
+    Fold 3: F0.5=0.7811  P=0.8352  R=0.6206  thresh=0.6637
+    Fold 4: F0.5=0.7958  P=0.8321  R=0.6777  thresh=0.6551
+    Fold 5: F0.5=0.7748  P=0.8164  R=0.6435  thresh=0.6496
+
+  ► D. All Engineered (No Vocals) + Top-256  | Features: 286
+    F0.5: 0.7916  |  Prec: 0.8379  |  Rec: 0.6488  |  F1: 0.7311  |  Acc: 0.8454
+
+──────────────────────────────────────────────────────────────────────
+COMPARISON WITH BASELINES
+──────────────────────────────────────────────────────────────────────
+
+====================================================================================================
+  Method                                        |    F0.5 |    Prec |     Rec |      F1 |     Acc
+  ─────────────────────────────────────────────────────────────────────────────────────────────
+  CLEWS Threshold Baseline                      |  0.6123 |  0.9276 |  0.2596 |  0.4056 |  0.7534
+  WEALY Threshold Baseline                      |  0.4421 |  0.4637 |  0.3743 |  0.4137 |  0.6479
+  FUSION Threshold Baseline                     |  0.6097 |  0.9040 |  0.2649 |  0.4097 |  0.7524
+  LR Best (12. CLEWS Full Δ (1024D))            |  0.6979 |  0.7472 |  0.5536 |  0.6355 |  0.7944
+  XGB A. CLEWS Engineered (No Vocals)           |  0.6399 |  0.7252 |  0.4366 |  0.5445 |  0.7636
+  XGB B. All Engineered (No Vocals)             |  0.6597 |  0.7359 |  0.4668 |  0.5711 |  0.7729
+  XGB C. All Engineered (With Vocals)           |  0.8636 |  0.8905 |  0.7705 |  0.8261 |  0.8949
+  XGB D. All Engineered (No Vocals) + Top-256   |  0.7916 |  0.8379 |  0.6488 |  0.7311 |  0.8454
+====================================================================================================
+
+  Plot saved → plots\classification\xgboost_comparison.pdf
+
+  Results → results\classification/
+  Plots   → plots\classification/
+
+Done.
+2026-05-15 23:25:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-15 23:25:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+======================================================================
+TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
+======================================================================
+
+[1/5] Loading feature table...
+[ERROR] Feature table not found: results\classification\classifier_features.parquet
+2026-05-15 23:29:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-15 23:29:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+======================================================================
+TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
+======================================================================
+
+[1/5] Loading feature table...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+
+[2/5] Assembling Feature Set D (Engineered No Vocals + CLEWS XAI Top-256)...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Feature matrix: (350654, 286)  (30 engineered + 256 XAI)
+
+[3/5] Calibrating threshold on 10% hold-out...
+  Optimal F0.5 threshold (calibration set): 0.6811
+
+[4/5] Retraining on 100% of data and saving artifact...
+  Artifact saved → models\final_plagiarism_detector.pkl
+
+──────────────────────────────────────────────────────────────────────
+INFERENCE DEMO  (held-out calibration samples)
+──────────────────────────────────────────────────────────────────────
+  Pair: 50  |  Type: mgeldm_drums_tempo110 
+    Truth: PLAGIARISM        Pred: PLAGIARISM       Yes
+    Score: 78.8%  (threshold 68.1%)
+
+  Pair: 58  |  Type: mgeldm_other_tempo110 
+    Truth: PLAGIARISM        Pred: NOT PLAGIARISM   No
+    Score: 42.6%  (threshold 68.1%)
+
+  Pair: 61  |  Type: Negative_mgeldm_other_pitchU4_tempo110
+    Truth: NOT PLAGIARISM    Pred: NOT PLAGIARISM   Yes
+    Score: 25.3%  (threshold 68.1%)
+
+  Pair: 70  |  Type: Negative_audioldm2_pitchD4_tempo090
+    Truth: NOT PLAGIARISM    Pred: PLAGIARISM       No
+    Score: 69.6%  (threshold 68.1%)
+
+======================================================================
+Production artifact is ready.
+  Model   → models\final_plagiarism_detector.pkl
+  Features: 286  (30 eng + 256 XAI)
+  Threshold (F0.5): 0.6811
+======================================================================

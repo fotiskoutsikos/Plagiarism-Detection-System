@@ -55,7 +55,10 @@ logger = logging.getLogger(__name__)
 
 sys.path.insert(0, str(repo_root / "src"))
 
-from utils.constants import EMBEDDING_PATHS, OUTPUT_DIRS, PLOT_DPI, PLOT_STYLE_PARAMS
+from utils.constants import (
+    EMBEDDING_PATHS, OUTPUT_DIRS, PLOT_DPI, PLOT_STYLE_PARAMS,
+    CLASSIFIER_FEATURE_TABLE, CLASSIFICATION_RESULTS_DIR, CLASSIFICATION_PLOTS_DIR,
+)
 
 from utils.classifier_features import _build_embedding_map, _compute_delta_matrix_for_pairs
 
@@ -68,9 +71,9 @@ from classification import (
 plt.rcParams.update(PLOT_STYLE_PARAMS)
 
 # Paths 
-FEATURE_TABLE = Path("data/classifier_features.parquet")
-OUTPUT_DIR    = Path("results/classification")
-PLOTS_DIR     = Path("plots/classification")
+FEATURE_TABLE = Path(CLASSIFIER_FEATURE_TABLE)
+OUTPUT_DIR    = Path(CLASSIFICATION_RESULTS_DIR)
+PLOTS_DIR     = Path(CLASSIFICATION_PLOTS_DIR)
 
 
 # Helpers 
@@ -113,42 +116,6 @@ def _build_full_delta_matrix(
     return delta_full
 
 
-def _compute_xai_shift_energy(
-    delta_matrix: np.ndarray,
-    xai_col_indices: list[int],
-    y: np.ndarray,
-) -> float:
-    """
-    Compute fraction of total shift energy retained by XAI-selected dims.
-    Uses ONLY positive pairs for the energy calculation.
-    """
-    pos_mask = y == 1
-    if pos_mask.sum() == 0:
-        return 0.0
-
-    mean_delta = np.mean(delta_matrix[pos_mask], axis=0)
-    total_energy = float(np.sum(mean_delta ** 2))
-    if total_energy == 0:
-        return 0.0
-
-    xai_energy = float(np.sum(mean_delta[xai_col_indices] ** 2))
-    return xai_energy / total_energy
-
-
-def _get_xai_dim_indices_from_cols(
-    feature_cols: list[str],
-    prefix: str,
-) -> list[int]:
-    """Extract actual embedding dimension indices from XAI column names."""
-    indices = []
-    tag = f"{prefix}_xai_dim_"
-    for col in feature_cols:
-        if col.startswith(tag):
-            try:
-                indices.append(int(col.replace(tag, "")))
-            except ValueError:
-                pass
-    return sorted(indices)
 
 
 # Plotting 
@@ -214,38 +181,7 @@ def _plot_ablation_comparison(
     print(f"  Plot saved → {output_path}")
 
 
-def _plot_information_retention(
-    df_info: pd.DataFrame,
-    output_path: Path,
-) -> None:
-    """Side-by-side bar chart: XAI Shift Energy vs PCA Variance Retained."""
-    if df_info.empty:
-        return
 
-    fig, ax = plt.subplots(figsize=(9, 5))
-    colors = ["#4CAF50" if "XAI" in m else "#FF9800" for m in df_info["method"]]
-
-    bars = ax.bar(df_info["method"], df_info["retention_pct"], color=colors, edgecolor="black")
-    ax.set_ylim(0, 105)
-    ax.set_ylabel("% Information Retained", fontsize=11)
-    ax.set_title(
-        "Information Retention: XAI (Shift Energy) vs PCA (Variance)",
-        fontsize=13, fontweight="bold",
-    )
-
-    for bar in bars:
-        h = bar.get_height()
-        ax.text(
-            bar.get_x() + bar.get_width() / 2, h + 1,
-            f"{h:.1f}%", ha="center", fontweight="bold", fontsize=9,
-        )
-
-    plt.xticks(rotation=20, ha="right", fontsize=9)
-    plt.tight_layout()
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_path, dpi=PLOT_DPI, bbox_inches="tight")
-    plt.close(fig)
-    print(f"  Plot saved → {output_path}")
 
 
 # Main 
@@ -297,17 +233,17 @@ def main() -> None:
 
     # Define Phase 1 Experiments
     experiments = [
-        ("1. CLEWS Distances",       clews_dist_cols,  False),
-        ("2. WEALY Distances",       wealy_dist_cols,  False),
-        ("3. All Distances",         all_dist_cols,    False),
-        ("4. CLEWS Delta Summaries", clews_delta_cols, False),
-        ("5. WEALY Delta Summaries", wealy_delta_cols, False),
-        ("6. All Delta Summaries",   all_delta_cols,   False),
-        ("7. All Engineered",        all_engineered,   False),
-        ("8. Engineered - Vocal",    all_dist_cols + all_delta_cols, False),
-        ("9. Vocal Only",            vocal_cols,       False),
-        ("10. CLEWS XAI Top-30",     clews_xai_cols,   False),
-        ("11. WEALY XAI Top-30",     wealy_xai_cols,   False),
+        ("1. CLEWS Distances",       clews_dist_cols),
+        ("2. WEALY Distances",       wealy_dist_cols),
+        ("3. All Distances",         all_dist_cols),
+        ("4. CLEWS Delta Summaries", clews_delta_cols),
+        ("5. WEALY Delta Summaries", wealy_delta_cols),
+        ("6. All Delta Summaries",   all_delta_cols),
+        ("7. All Engineered",        all_engineered),
+        ("8. Engineered - Vocal",    all_dist_cols + all_delta_cols),
+        ("9. Vocal Only",            vocal_cols),
+        ("10. CLEWS XAI Top-30",     clews_xai_cols),
+        ("11. WEALY XAI Top-30",     wealy_xai_cols),
     ]
 
     # Run Phase 1
@@ -316,7 +252,7 @@ def main() -> None:
     print("─" * 70)
 
     all_summaries = []
-    for name, cols, use_pca in experiments:
+    for name, cols in experiments:
         if not cols:
             print(f"\n  ⚠ {name}: No features found. Skipping.")
             continue
@@ -324,29 +260,28 @@ def main() -> None:
         print(f"\n  Running: {name} ({len(cols)} features)")
         result = run_classifier_experiment(
             X=df[cols], y=y, groups=groups,
-            experiment_name=name, use_pca=use_pca,
+            experiment_name=name,
         )
         print_experiment_summary(result)
         all_summaries.append(result)
 
     # Run Phase 2: Raw Embedding Experiments
     print("\n" + "─" * 70)
-    print("PHASE 2: RAW EMBEDDING EXPERIMENTS (on-the-fly)")
+    print("PHASE 2: RAW EMBEDDING EXPERIMENTS")
     print("─" * 70)
 
-    info_retention_rows = []
     exp_counter = 12
+    embedding_deltas = {}  # Store for later concatenation
 
     for model_name, parquet_path in EMBEDDING_PATHS.items():
-        prefix = model_name.lower()
-
         if not Path(parquet_path).exists():
-            print(f"\n  ⚠ {model_name} embeddings not found. Skipping.")
+            print(f"\n {model_name} embeddings not found. Skipping.")
             continue
 
         # Build delta matrix using EXACT same logic as classifier_features.py
         delta_matrix = _build_full_delta_matrix(df, parquet_path, model_name)
         ndim = delta_matrix.shape[1]
+        embedding_deltas[model_name] = delta_matrix
 
         # Experiment: Full embedding delta
         exp_name_full = f"{exp_counter}. {model_name} Full Δ ({ndim}D)"
@@ -358,43 +293,6 @@ def main() -> None:
         print_experiment_summary(result_full)
         all_summaries.append(result_full)
         exp_counter += 1
-
-        # Experiment: PCA-30 embedding delta
-        exp_name_pca = f"{exp_counter}. {model_name} PCA-30 Δ"
-        print(f"\n  Running: {exp_name_pca}")
-        result_pca = run_classifier_experiment(
-            X=delta_matrix, y=y, groups=groups,
-            experiment_name=exp_name_pca,
-            use_pca=True, n_pca_components=30,
-        )
-        print_experiment_summary(result_pca)
-        all_summaries.append(result_pca)
-        exp_counter += 1
-
-        # Information Retention: PCA
-        if result_pca["pca_explained_variance"] is not None:
-            info_retention_rows.append({
-                "method": f"{model_name} PCA-30",
-                "type": "Variance Explained",
-                "retention_pct": round(result_pca["pca_explained_variance"] * 100, 2),
-            })
-
-        # Information Retention: XAI
-        xai_cols_for_model = clews_xai_cols if prefix == "clews" else wealy_xai_cols
-        xai_dim_indices = _get_xai_dim_indices_from_cols(xai_cols_for_model, prefix)
-
-        if xai_dim_indices:
-            valid_indices = [d for d in xai_dim_indices if d < ndim]
-            if valid_indices:
-                energy = _compute_xai_shift_energy(delta_matrix, valid_indices, y)
-                info_retention_rows.append({
-                    "method": f"{model_name} XAI Top-30",
-                    "type": "Shift Energy Retained",
-                    "retention_pct": round(energy * 100, 2),
-                })
-
-        # Free memory after each model
-        del delta_matrix
 
     # Build Results Table
     print("\n" + "─" * 70)
@@ -408,14 +306,12 @@ def main() -> None:
             "classifier": s["classifier"],
             "n_features_in": s["n_features_in"],
             "n_features_model": s["n_features_model"],
-            "use_pca": s["use_pca"],
             "f05": round(s["f05"], 4),
             "f1": round(s["f1"], 4),
             "precision": round(s["precision"], 4),
             "recall": round(s["recall"], 4),
             "accuracy": round(s["accuracy"], 4),
             "mean_threshold": round(s["mean_threshold"], 4),
-            "pca_variance": round(s["pca_explained_variance"], 4) if s["pca_explained_variance"] else None,
         })
 
     df_results = pd.DataFrame(result_rows)
@@ -441,10 +337,9 @@ def main() -> None:
         print(f"  {'─' * 93}")
 
     for _, r in df_results.iterrows():
-        pca_tag = " *" if r["use_pca"] else ""
         print(
             f"  {r['experiment_name']:<35} | {r['n_features_model']:>5} | {r['f05']:>7.4f} | "
-            f"{r['precision']:>7.4f} | {r['recall']:>7.4f} | {r['f1']:>7.4f} | {r['accuracy']:>7.4f}{pca_tag}"
+            f"{r['precision']:>7.4f} | {r['recall']:>7.4f} | {r['f1']:>7.4f} | {r['accuracy']:>7.4f}"
         )
 
     print(f"{'=' * 100}")
@@ -456,26 +351,12 @@ def main() -> None:
     df_results.to_csv(results_path, index=False)
     print(f"\n  Results saved → {results_path}")
 
-    if info_retention_rows:
-        df_info = pd.DataFrame(info_retention_rows)
-        info_path = OUTPUT_DIR / "ablation_information_retention.csv"
-        df_info.to_csv(info_path, index=False)
-        print(f"  Information retention saved → {info_path}")
-    else:
-        df_info = pd.DataFrame()
-
     # Plots
     PLOTS_DIR.mkdir(parents=True, exist_ok=True)
     _plot_ablation_comparison(
         df_results, df_baselines,
         PLOTS_DIR / "ablation_f05_comparison.pdf",
     )
-
-    if not df_info.empty:
-        _plot_information_retention(
-            df_info,
-            PLOTS_DIR / "ablation_information_retention.pdf",
-        )
 
     print(f"\n  All outputs → {OUTPUT_DIR}/ and {PLOTS_DIR}/")
     print("\nDone.")

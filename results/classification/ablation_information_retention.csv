@@ -1,5 +1,0 @@
-method,type,retention_pct
-CLEWS PCA-30,Variance Explained,18.12
-CLEWS XAI Top-30,Shift Energy Retained,6.32
-WEALY PCA-30,Variance Explained,22.97
-WEALY XAI Top-30,Shift Energy Retained,9.38

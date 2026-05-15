@@ -20,3 +20,6 @@ umap-learn>=0.5.5
 matplotlib>=3.7.0
 seaborn>=0.12.0
 plotly>=5.18.0
+
+# Classification & Evaluation
+joblib>=1.3.0

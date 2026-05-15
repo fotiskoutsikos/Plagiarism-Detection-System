@@ -138,6 +138,15 @@ RANDOM_STATE  = 42
 BETA          = 0.5
 
 
+# CLASSIFICATION PIPELINE PARAMETERS
+CLASSIFIER_FEATURE_TABLE       = "data/classifier_features.parquet"
+CLASSIFICATION_RESULTS_DIR     = "results/classification"
+CLASSIFICATION_PLOTS_DIR       = "plots/classification"
+XAI_TOP_K                      = 256
+CALIBRATION_SIZE               = 0.10
+FINAL_MODEL_OUTPUT             = "models/final_plagiarism_detector.pkl"
+
+
 # AUDIO PROCESSING PARAMETERS
 AUDIO_SOURCES = ["Original", "Cover", "MusicGen", "AudioLDM2", "MGE-LDM"]
 
@@ -196,6 +205,22 @@ DSP_FAMILY_COLORS = {
     "Pitch Only": "#2196F3",
     "Tempo Only": "#FF9800",
     "Combined (Extreme)": "#E53935",
+}
+
+# Colors for directional DSP labels (used in explainability Run 2).
+# Blue family = pitch up, Purple family = pitch down
+# Orange family = tempo up, Teal family = tempo down
+DIRECTIONAL_DSP_COLORS = {
+    "pitch_up_small":   "#64B5F6",   # light blue
+    "pitch_up_large":   "#1565C0",   # dark blue
+    "pitch_down_small": "#CE93D8",   # light purple
+    "pitch_down_large": "#6A1B9A",   # dark purple
+    "tempo_up_small":   "#FFCC80",   # light orange
+    "tempo_up_large":   "#E65100",   # dark orange
+    "tempo_down_small": "#80CBC4",   # light teal
+    "tempo_down_large": "#00695C",   # dark teal
+    "combined":         "#E53935",   # red
+    "none":             "#9E9E9E",   # grey
 }
 
 SOURCE_COLORS = {

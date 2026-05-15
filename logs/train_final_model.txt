@@ -1,0 +1,47 @@
+2026-05-15 23:29:32 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
+2026-05-15 23:29:32 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
+2026-05-15 23:29:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-15 23:29:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-15 23:29:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+======================================================================
+TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
+======================================================================
+
+[1/5] Loading feature table...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+
+[2/5] Assembling Feature Set D (Engineered No Vocals + CLEWS XAI Top-256)...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Feature matrix: (350654, 286)  (30 engineered + 256 XAI)
+
+[3/5] Calibrating threshold on 10% hold-out...
+  Optimal F0.5 threshold (calibration set): 0.6811
+
+[4/5] Retraining on 100% of data and saving artifact...
+  Artifact saved → models\final_plagiarism_detector.pkl
+
+──────────────────────────────────────────────────────────────────────
+INFERENCE DEMO  (held-out calibration samples)
+──────────────────────────────────────────────────────────────────────
+  Pair: 50  |  Type: mgeldm_drums_tempo110 
+    Truth: PLAGIARISM        Pred: PLAGIARISM       ✓
+    Score: 78.8%  (threshold 68.1%)
+
+  Pair: 58  |  Type: mgeldm_other_tempo110 
+    Truth: PLAGIARISM        Pred: NOT PLAGIARISM   ✗
+    Score: 42.6%  (threshold 68.1%)
+
+  Pair: 61  |  Type: Negative_mgeldm_other_pitchU4_tempo110
+    Truth: NOT PLAGIARISM    Pred: NOT PLAGIARISM   ✓
+    Score: 25.3%  (threshold 68.1%)
+
+  Pair: 70  |  Type: Negative_audioldm2_pitchD4_tempo090
+    Truth: NOT PLAGIARISM    Pred: PLAGIARISM       ✗
+    Score: 69.6%  (threshold 68.1%)
+
+======================================================================
+Production artifact is ready.
+  Model   → models\final_plagiarism_detector.pkl
+  Features: 286  (30 eng + 256 XAI)
+  Threshold (F0.5): 0.6811
+======================================================================

@@ -1,0 +1,9 @@
+method,f05,precision,recall,f1,accuracy
+CLEWS Threshold Baseline,0.6123,0.9276,0.2596,0.4056,0.7534
+WEALY Threshold Baseline,0.4421,0.4637,0.3743,0.4137,0.6479
+FUSION Threshold Baseline,0.6097,0.904,0.2649,0.4097,0.7524
+LR Best (12. CLEWS Full Δ (1024D)),0.6979,0.7472,0.5536,0.6355,0.7944
+XGB A. CLEWS Engineered (No Vocals),0.6399,0.7252,0.4366,0.5445,0.7636
+XGB B. All Engineered (No Vocals),0.6597,0.7359,0.4668,0.5711,0.7729
+XGB C. All Engineered (With Vocals),0.8636,0.8905,0.7705,0.8261,0.8949
+XGB D. All Engineered (No Vocals) + Top-256,0.7916,0.8379,0.6488,0.7311,0.8454
