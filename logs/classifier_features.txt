@@ -334,3 +334,260 @@ Production artifact is ready.
   Features: 286  (30 eng + 256 XAI)
   Threshold (F0.5): 0.6811
 ======================================================================
+2026-05-22 00:22:25 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-22 00:22:25 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-22 00:22:25 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-22 00:22:25 [INFO] Logging initialized for classification, file: logs\classification.txt
+2026-05-22 00:22:25 [INFO] Logging initialized for classification, file: logs\classification.txt
+======================================================================
+FINAL SUPERVISED CLASSIFIER (GRADIENT BOOSTED TREES)
+======================================================================
+
+Loading feature table...
+  Loaded 350654 pairs (113690 pos, 236964 neg)
+
+Building XAI enrichment dimensions (256 / 512 / 1024)...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Top-256 enrichment: (350654, 256)
+  Top-512 enrichment: (350654, 512)
+  Top-1024 enrichment: (350654, 1024)
+
+──────────────────────────────────────────────────────────────────────
+XGBOOST EXPERIMENTS
+──────────────────────────────────────────────────────────────────────
+
+  Running: A. CLEWS Engineered (No Vocals) (15 features)
+    Fold 1: F0.5=0.6386  P=0.7346  R=0.4193  thresh=0.7301
+    Fold 2: F0.5=0.6522  P=0.7228  R=0.4691  thresh=0.6988
+    Fold 3: F0.5=0.6280  P=0.7339  R=0.3982  thresh=0.7299
+    Fold 4: F0.5=0.6541  P=0.7331  R=0.4570  thresh=0.7132
+    Fold 5: F0.5=0.6268  P=0.7016  R=0.4394  thresh=0.7143
+
+  ► A. CLEWS Engineered (No Vocals)          | Features: 15
+    F0.5: 0.6399  |  Prec: 0.7252  |  Rec: 0.4366  |  F1: 0.5445  |  Acc: 0.7636
+
+  Running: B. All Engineered (No Vocals) (30 features)
+    Fold 1: F0.5=0.6596  P=0.7407  R=0.4587  thresh=0.7223
+    Fold 2: F0.5=0.6665  P=0.7333  R=0.4886  thresh=0.7052
+    Fold 3: F0.5=0.6222  P=0.7013  R=0.4286  thresh=0.7284
+    Fold 4: F0.5=0.6997  P=0.7835  R=0.4901  thresh=0.7096
+    Fold 5: F0.5=0.6503  P=0.7205  R=0.4679  thresh=0.7187
+
+  ► B. All Engineered (No Vocals)            | Features: 30
+    F0.5: 0.6597  |  Prec: 0.7359  |  Rec: 0.4668  |  F1: 0.5711  |  Acc: 0.7729
+
+  Running: C. All Engineered (With Vocals) (35 features)
+    Fold 1: F0.5=0.8596  P=0.8861  R=0.7677  thresh=0.7264
+    Fold 2: F0.5=0.8747  P=0.8991  R=0.7890  thresh=0.7417
+    Fold 3: F0.5=0.8431  P=0.8719  R=0.7449  thresh=0.7241
+    Fold 4: F0.5=0.8666  P=0.8955  R=0.7675  thresh=0.7323
+    Fold 5: F0.5=0.8738  P=0.8997  R=0.7836  thresh=0.7151
+
+  ► C. All Engineered (With Vocals)          | Features: 35
+    F0.5: 0.8636  |  Prec: 0.8905  |  Rec: 0.7705  |  F1: 0.8261  |  Acc: 0.8949
+
+  Running: D. All Engineered (No Vocals) + Top-256 (286 features)
+    Fold 1: F0.5=0.8042  P=0.8588  R=0.6413  thresh=0.6479
+    Fold 2: F0.5=0.8020  P=0.8471  R=0.6611  thresh=0.6540
+    Fold 3: F0.5=0.7811  P=0.8352  R=0.6206  thresh=0.6637
+    Fold 4: F0.5=0.7958  P=0.8321  R=0.6777  thresh=0.6551
+    Fold 5: F0.5=0.7748  P=0.8164  R=0.6435  thresh=0.6496
+
+  ► D. All Engineered (No Vocals) + Top-256  | Features: 286
+    F0.5: 0.7916  |  Prec: 0.8379  |  Rec: 0.6488  |  F1: 0.7311  |  Acc: 0.8454
+
+  Running: E. All Engineered (No Vocals) + Top-512 (542 features)
+    Fold 1: F0.5=0.8216  P=0.8762  R=0.6577  thresh=0.6575
+    Fold 2: F0.5=0.8288  P=0.8739  R=0.6872  thresh=0.6550
+    Fold 3: F0.5=0.7899  P=0.8253  R=0.6741  thresh=0.6443
+    Fold 4: F0.5=0.8249  P=0.8633  R=0.7006  thresh=0.6562
+    Fold 5: F0.5=0.8143  P=0.8673  R=0.6543  thresh=0.6562
+
+  ► E. All Engineered (No Vocals) + Top-512  | Features: 542
+    F0.5: 0.8159  |  Prec: 0.8612  |  Rec: 0.6748  |  F1: 0.7564  |  Acc: 0.8592
+
+  Running: F. All Engineered (No Vocals) + Top-1024 (1054 features)
+    Fold 1: F0.5=0.8347  P=0.8852  R=0.6796  thresh=0.6456
+    Fold 2: F0.5=0.8338  P=0.8686  R=0.7185  thresh=0.6361
+    Fold 3: F0.5=0.8143  P=0.8493  R=0.6990  thresh=0.6336
+    Fold 4: F0.5=0.8377  P=0.8703  R=0.7286  thresh=0.6384
+    Fold 5: F0.5=0.8208  P=0.8665  R=0.6778  thresh=0.6429
+
+  ► F. All Engineered (No Vocals) + Top-1024 | Features: 1054
+    F0.5: 0.8283  |  Prec: 0.8680  |  Rec: 0.7007  |  F1: 0.7752  |  Acc: 0.8684
+
+──────────────────────────────────────────────────────────────────────
+COMPARISON WITH BASELINES
+──────────────────────────────────────────────────────────────────────
+
+====================================================================================================
+  Method                                          |    F0.5 |    Prec |     Rec |      F1 |     Acc
+  ────────────────────────────────────────────────────────────────────────────────────────────────
+  CLEWS Threshold Baseline                        |  0.6123 |  0.9276 |  0.2596 |  0.4056 |  0.7534
+  WEALY Threshold Baseline                        |  0.4421 |  0.4637 |  0.3743 |  0.4137 |  0.6479
+  FUSION Threshold Baseline                       |  0.6097 |  0.9040 |  0.2649 |  0.4097 |  0.7524
+  LR Best (12. CLEWS Full Δ (1024D))              |  0.6979 |  0.7472 |  0.5536 |  0.6355 |  0.7944
+  XGB A. CLEWS Engineered (No Vocals)             |  0.6399 |  0.7252 |  0.4366 |  0.5445 |  0.7636
+  XGB B. All Engineered (No Vocals)               |  0.6597 |  0.7359 |  0.4668 |  0.5711 |  0.7729
+  XGB C. All Engineered (With Vocals)             |  0.8636 |  0.8905 |  0.7705 |  0.8261 |  0.8949
+  XGB D. All Engineered (No Vocals) + Top-256     |  0.7916 |  0.8379 |  0.6488 |  0.7311 |  0.8454
+  XGB E. All Engineered (No Vocals) + Top-512     |  0.8159 |  0.8612 |  0.6748 |  0.7564 |  0.8592
+  XGB F. All Engineered (No Vocals) + Top-1024    |  0.8283 |  0.8680 |  0.7007 |  0.7752 |  0.8684
+====================================================================================================
+
+  Plot saved → plots\classification\xgboost_comparison.pdf
+
+  Results → results\classification/
+  Plots   → plots\classification/
+
+Done.
+2026-05-22 00:45:14 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-22 00:45:14 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+======================================================================
+TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
+======================================================================
+
+[1/5] Loading feature table...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+
+[2/5] Assembling Feature Set D (Engineered No Vocals + CLEWS XAI Top-256)...
+Traceback (most recent call last):
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\train_final_model.py", line 228, in <module>
+    main()
+    ~~~~^^
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\train_final_model.py", line 139, in main
+    emb_map = _build_embedding_map(EMBEDDING_PATHS["CLEWS"])
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\classifier_features.py", line 227, in _build_embedding_map
+    cleaned = clean_embedding(emb)
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 315, in clean_embedding
+    return clean_embedding(flat.tolist())
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 336, in clean_embedding
+    return np.array(list(_flatten(emb)), dtype=np.float32)
+                    ~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 326, in _flatten
+    yield from _flatten(sub)
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 326, in _flatten
+    yield from _flatten(sub)
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 330, in _flatten
+    if not np.isnan(v):
+           ~~~~~~~~^^^
+KeyboardInterrupt
+2026-05-22 00:45:37 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-22 00:45:37 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+======================================================================
+TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
+======================================================================
+
+[1/5] Loading feature table...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+
+[2/5] Assembling Feature Set D (Engineered No Vocals + CLEWS XAI Top-256)...
+Traceback (most recent call last):
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\train_final_model.py", line 228, in <module>
+    main()
+    ~~~~^^
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\train_final_model.py", line 139, in main
+    emb_map = _build_embedding_map(EMBEDDING_PATHS["CLEWS"])
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\classifier_features.py", line 227, in _build_embedding_map
+    cleaned = clean_embedding(emb)
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 315, in clean_embedding
+    return clean_embedding(flat.tolist())
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 336, in clean_embedding
+    return np.array(list(_flatten(emb)), dtype=np.float32)
+                    ~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 326, in _flatten
+    yield from _flatten(sub)
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 326, in _flatten
+    yield from _flatten(sub)
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 330, in _flatten
+    if not np.isnan(v):
+           ~~~~~~~~^^^
+KeyboardInterrupt
+2026-05-22 00:53:31 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-22 00:53:31 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+======================================================================
+TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
+======================================================================
+
+[1/5] Loading feature table...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+
+[2/5] Assembling Feature Set D (Engineered No Vocals + CLEWS XAI Top-512)...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Feature matrix: (350654, 542)  (30 engineered + 512 XAI)
+
+[3/5] Calibrating threshold on 10% hold-out...
+  Optimal F0.5 threshold (calibration set): 0.6496
+
+[4/5] Retraining on 100% of data and saving artifact...
+  Artifact saved → models\final_plagiarism_detector.pkl
+
+──────────────────────────────────────────────────────────────────────
+INFERENCE DEMO  (held-out calibration samples)
+──────────────────────────────────────────────────────────────────────
+  Pair: 50  |  Type: mgeldm_drums_tempo110 
+    Truth: PLAGIARISM        Pred: NOT PLAGIARISM   ✗
+    Score: 56.2%  (threshold 65.0%)
+
+  Pair: 58  |  Type: mgeldm_other_tempo110 
+    Truth: PLAGIARISM        Pred: NOT PLAGIARISM   ✗
+    Score: 38.9%  (threshold 65.0%)
+
+  Pair: 61  |  Type: Negative_mgeldm_other_pitchU4_tempo110
+    Truth: NOT PLAGIARISM    Pred: NOT PLAGIARISM   ✓
+    Score: 25.7%  (threshold 65.0%)
+
+  Pair: 70  |  Type: Negative_audioldm2_pitchD4_tempo090
+    Truth: NOT PLAGIARISM    Pred: NOT PLAGIARISM   ✓
+    Score: 60.6%  (threshold 65.0%)
+
+======================================================================
+Production artifact is ready.
+  Model   → models\final_plagiarism_detector.pkl
+  Features: 542  (30 eng + 512 XAI)
+  Threshold (F0.5): 0.6496
+======================================================================
+2026-05-22 01:06:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-22 01:06:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+======================================================================
+TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
+======================================================================
+
+[1/5] Loading feature table...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+
+[2/5] Assembling Feature Set D (Engineered No Vocals + CLEWS XAI Top-512)...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Feature matrix: (350654, 542)  (30 engineered + 512 XAI)
+
+[3/5] Calibrating threshold on 10% hold-out...
+  Optimal F0.5 threshold (calibration set): 0.6496
+
+[4/5] Retraining on 100% of data and saving artifact...
+  Artifact saved → models\final_plagiarism_detector.pkl
+
+──────────────────────────────────────────────────────────────────────
+INFERENCE DEMO  (held-out calibration samples)
+──────────────────────────────────────────────────────────────────────
+  Pair: 50  |  Type: mgeldm_drums_tempo110 
+    Truth: PLAGIARISM        Pred: NOT PLAGIARISM   ✗
+    Score: 56.2%  (threshold 65.0%)
+
+  Pair: 58  |  Type: mgeldm_other_tempo110 
+    Truth: PLAGIARISM        Pred: NOT PLAGIARISM   ✗
+    Score: 38.9%  (threshold 65.0%)
+
+  Pair: 61  |  Type: Negative_mgeldm_other_pitchU4_tempo110
+    Truth: NOT PLAGIARISM    Pred: NOT PLAGIARISM   ✓
+    Score: 25.7%  (threshold 65.0%)
+
+  Pair: 70  |  Type: Negative_audioldm2_pitchD4_tempo090
+    Truth: NOT PLAGIARISM    Pred: NOT PLAGIARISM   ✓
+    Score: 60.6%  (threshold 65.0%)
+
+======================================================================
+Production artifact is ready.
+  Model   → models\final_plagiarism_detector.pkl
+  Features: 542  (30 eng + 512 XAI)
+  Threshold (F0.5): 0.6496
+======================================================================

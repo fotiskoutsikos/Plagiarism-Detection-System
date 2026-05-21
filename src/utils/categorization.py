@@ -45,6 +45,52 @@ def clean_mod_type(mod_type: str) -> str:
     return mod_str
 
 
+# DSP LABEL EXTRACTION 
+def _get_dsp_label(mod_type: str) -> str:
+    """
+    Extracts the DSP label directly from clean_mod_type using regex.
+    Preserves the exact encoding used in filenames for consistency.
+
+    Examples:
+        'musicgen_pitchU4'           → 'pitchU4'
+        'musicgen_tempo90'           → 'tempo90'
+        'musicgen_pitchU4_tempo90'   → 'pitchU4_tempo90'
+        'musicgen'                   → 'base'
+        'smp_pitchD2'                → 'pitchD2'
+        'none_tempo110'              → 'tempo110'
+        'mgeldm_bass_pitchU2'        → 'pitchU2'
+    """
+    mod_lower = str(mod_type).lower()
+    pitch = re.search(r'(pitch[ud]\d+)', mod_lower)
+    tempo = re.search(r'(tempo\d+)', mod_lower)
+
+    if pitch and tempo:
+        # Preserve original casing from source string for the combined label
+        p_orig = re.search(r'(pitch[uUdD]\d+)', mod_type)
+        t_orig = re.search(r'(tempo\d+)', mod_type)
+        p_str  = p_orig.group(1) if p_orig else pitch.group(1)
+        t_str  = t_orig.group(1) if t_orig else tempo.group(1)
+        return f"{p_str}_{t_str}"
+    if pitch:
+        p_orig = re.search(r'(pitch[uUdD]\d+)', mod_type)
+        return p_orig.group(1) if p_orig else pitch.group(1)
+    if tempo:
+        return re.search(r'(tempo\d+)', mod_type).group(1)
+    return 'base'
+
+
+def _get_source_group(row: pd.Series) -> str:
+    """
+    Level-1 grouping by source.
+    For MGE-LDM, incorporates stem into the label (e.g. 'MGE-LDM_bass').
+    Uses already-computed columns — no recalculation.
+    """
+    src  = row["source"]
+    stem = row.get("stem")
+    if src == "MGE-LDM" and stem:
+        return f"MGE-LDM_{stem}"
+    return src
+
 def extract_dsp_and_source_features(mod_type: str) -> dict:
     """
     Extracts DSP modifications and source information from modification type.

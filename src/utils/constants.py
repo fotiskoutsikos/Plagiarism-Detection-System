@@ -142,7 +142,7 @@ BETA          = 0.5
 CLASSIFIER_FEATURE_TABLE       = "data/classifier_features.parquet"
 CLASSIFICATION_RESULTS_DIR     = "results/classification"
 CLASSIFICATION_PLOTS_DIR       = "plots/classification"
-XAI_TOP_K                      = 256
+XAI_TOP_K                      = 512
 CALIBRATION_SIZE               = 0.10
 FINAL_MODEL_OUTPUT             = "models/final_plagiarism_detector.pkl"
 

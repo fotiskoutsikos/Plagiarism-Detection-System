@@ -1,45 +1,5 @@
-2026-05-16 00:28:38 [INFO] Logging initialized for explainability, file: logs\explainability.txt
-2026-05-16 00:28:38 [INFO] Logging initialized for explainability, file: logs\explainability.txt
-============================================================
-ANALYZING PLAGIARISM SIGNATURES: CLEWS
-============================================================
-Loading pairs for CLEWS…
-Cleaning column 'embedding_ori'…
-Traceback (most recent call last):
-  File "c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\explainability.py", line 656, in <module>
-    main()
-  File "c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\explainability.py", line 650, in main
-    process_model(str(parquet_path), str(pairs_path), model_name)
-  File "c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\explainability.py", line 602, in process_model
-    df = load_pairs(parquet_path, pairs_path, model_name)
-  File "c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\explainability.py", line 169, in load_pairs
-    df, mode_dim = validate_and_filter_embeddings(
-  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 374, in validate_and_filter_embeddings
-    df[col] = df[col].apply(clean_embedding)
-  File "C:\Users\Fotis\Plagiarism-Detection-System\.venv\lib\site-packages\pandas\core\series.py", line 4943, in apply
-    ).apply()
-  File "C:\Users\Fotis\Plagiarism-Detection-System\.venv\lib\site-packages\pandas\core\apply.py", line 1422, in apply
-    return self.apply_standard()
-  File "C:\Users\Fotis\Plagiarism-Detection-System\.venv\lib\site-packages\pandas\core\apply.py", line 1502, in apply_standard
-    mapped = obj._map_values(
-  File "C:\Users\Fotis\Plagiarism-Detection-System\.venv\lib\site-packages\pandas\core\base.py", line 925, in _map_values
-    return algorithms.map_array(arr, mapper, na_action=na_action, convert=convert)
-  File "C:\Users\Fotis\Plagiarism-Detection-System\.venv\lib\site-packages\pandas\core\algorithms.py", line 1743, in map_array
-    return lib.map_infer(values, mapper, convert=convert)
-  File "pandas/_libs/lib.pyx", line 2999, in pandas._libs.lib.map_infer
-  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 315, in clean_embedding
-    return clean_embedding(flat.tolist())
-  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 336, in clean_embedding
-    return np.array(list(_flatten(emb)), dtype=np.float32)
-  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 326, in _flatten
-    yield from _flatten(sub)
-  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 326, in _flatten
-    yield from _flatten(sub)
-  File "C:\Users\Fotis\Plagiarism-Detection-System\src\utils\dataset_builder.py", line 329, in _flatten
-    v = float(item)
-KeyboardInterrupt
-2026-05-16 00:30:32 [INFO] Logging initialized for explainability, file: logs\explainability.txt
-2026-05-16 00:30:32 [INFO] Logging initialized for explainability, file: logs\explainability.txt
+2026-05-21 22:10:11 [INFO] Logging initialized for explainability, file: logs\explainability.txt
+2026-05-21 22:10:11 [INFO] Logging initialized for explainability, file: logs\explainability.txt
 ============================================================
 ANALYZING PLAGIARISM SIGNATURES: CLEWS
 ============================================================
@@ -50,74 +10,107 @@ validate_and_filter_embeddings: removed 26209 / 113690 rows with inconsistent or
 Kept 87481 rows with embedding dim=1024.
 Loaded 87481 pairs | Dim: 1024
 Exporting pairwise delta summary features…
-Saved CSV  → results\explainability\clews_pairwise_delta_features.csv
-Saved Parquet → data\clews_pairwise_delta_features.parquet
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\clews_overall_shifts.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\clews_topk_dimensions.csv
-Saved Plot → plots\explainability\clews_topk_dimensions.pdf
-Saved Plot → plots\explainability\clews_topk_overlap.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\clews_signed_shift_heatmap.pdf
-Generating Plot 6: Stable Core Preservation…
-Saved Plot → plots\explainability\clews_stable_core.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\clews_overall_shifts_by_directional_dsp.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\clews_topk_dimensions_by_directional_dsp.csv
-Saved Plot → plots\explainability\clews_topk_dimensions_by_directional_dsp.pdf
-Saved Plot → plots\explainability\clews_topk_overlap_by_directional_dsp.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_directional_dsp.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\clews_overall_shifts_by_source.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\clews_topk_dimensions_by_source.csv
-Saved Plot → plots\explainability\clews_topk_dimensions_by_source.pdf
-Saved Plot → plots\explainability\clews_topk_overlap_by_source.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_source.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\clews_overall_shifts_by_direction_audioldm2.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\clews_topk_dimensions_by_direction_audioldm2.csv
-Saved Plot → plots\explainability\clews_topk_dimensions_by_direction_audioldm2.pdf
-Saved Plot → plots\explainability\clews_topk_overlap_by_direction_audioldm2.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_direction_audioldm2.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\clews_overall_shifts_by_direction_cover.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\clews_topk_dimensions_by_direction_cover.csv
-Saved Plot → plots\explainability\clews_topk_dimensions_by_direction_cover.pdf
-Saved Plot → plots\explainability\clews_topk_overlap_by_direction_cover.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_direction_cover.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\clews_overall_shifts_by_direction_mge-ldm.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\clews_topk_dimensions_by_direction_mge-ldm.csv
-Saved Plot → plots\explainability\clews_topk_dimensions_by_direction_mge-ldm.pdf
-Saved Plot → plots\explainability\clews_topk_overlap_by_direction_mge-ldm.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_direction_mge-ldm.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\clews_overall_shifts_by_direction_musicgen.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\clews_topk_dimensions_by_direction_musicgen.csv
-Saved Plot → plots\explainability\clews_topk_dimensions_by_direction_musicgen.pdf
-Saved Plot → plots\explainability\clews_topk_overlap_by_direction_musicgen.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_direction_musicgen.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\clews_overall_shifts_by_direction_original_plus_dsp.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\clews_topk_dimensions_by_direction_original_plus_dsp.csv
-Saved Plot → plots\explainability\clews_topk_dimensions_by_direction_original_plus_dsp.pdf
-Saved Plot → plots\explainability\clews_topk_overlap_by_direction_original_plus_dsp.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_direction_original_plus_dsp.pdf
+  Saved CSV  → results\explainability\clews_pairwise_delta_features.csv
+  Saved Parquet → data\clews_pairwise_delta_features.parquet
+
+10 analysis runs scheduled.
+
+Run: suffix='' | n=87481
+  [Plot 1] Overall Shifts & Active Dimensions — All sources  ·  Grouped by: Broad Category
+  Saved Plot → plots\explainability\clews_overall_shifts.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — All sources  ·  Grouped by: Broad Category
+  Saved CSV  → results\explainability\clews_topk_dimensions.csv
+  Saved Plot → plots\explainability\clews_topk_dimensions.pdf
+  Saved Plot → plots\explainability\clews_topk_overlap.pdf
+  [Plot 4] Signed Mean Shift — All sources  ·  Grouped by: Broad Category
+  Saved Plot → plots\explainability\clews_signed_shift_heatmap.pdf
+  [Plot 6] Stable Core vs Volatile Shell — All sources  ·  Grouped by: Broad Category
+  Saved Plot → plots\explainability\clews_stable_core.pdf
+  [Plot 5] SMP vs AI Base — All sources  ·  Grouped by: Broad Category
+  Saved CSV  → results\explainability\clews_smp_vs_ai.csv
+  Saved Plot → plots\explainability\clews_smp_vs_ai.pdf
+Run: suffix='_by_dsp' | n=87481
+  [Plot 1] Overall Shifts & Active Dimensions — All sources  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_overall_shifts_by_dsp.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — All sources  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\clews_topk_dimensions_by_dsp.csv
+  Saved Plot → plots\explainability\clews_topk_dimensions_by_dsp.pdf
+  Saved Plot → plots\explainability\clews_topk_overlap_by_dsp.pdf
+  [Plot 4] Signed Mean Shift — All sources  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_dsp.pdf
+Run: suffix='_by_source' | n=87481
+  [Plot 1] Overall Shifts & Active Dimensions — All sources  ·  Grouped by: Source
+  Saved Plot → plots\explainability\clews_overall_shifts_by_source.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — All sources  ·  Grouped by: Source
+  Saved CSV  → results\explainability\clews_topk_dimensions_by_source.csv
+  Saved Plot → plots\explainability\clews_topk_dimensions_by_source.pdf
+  Saved Plot → plots\explainability\clews_topk_overlap_by_source.pdf
+  [Plot 4] Signed Mean Shift — All sources  ·  Grouped by: Source
+  Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_source.pdf
+Run: suffix='_by_dsp_audioldm2' | n=13409
+  [Plot 1] Overall Shifts & Active Dimensions — AudioLDM2  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_overall_shifts_by_dsp_audioldm2.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — AudioLDM2  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\clews_topk_dimensions_by_dsp_audioldm2.csv
+  Saved Plot → plots\explainability\clews_topk_dimensions_by_dsp_audioldm2.pdf
+  Saved Plot → plots\explainability\clews_topk_overlap_by_dsp_audioldm2.pdf
+  [Plot 4] Signed Mean Shift — AudioLDM2  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_dsp_audioldm2.pdf
+Run: suffix='_by_dsp_cover' | n=30346
+  [Plot 1] Overall Shifts & Active Dimensions — Cover  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_overall_shifts_by_dsp_cover.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — Cover  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\clews_topk_dimensions_by_dsp_cover.csv
+  Saved Plot → plots\explainability\clews_topk_dimensions_by_dsp_cover.pdf
+  Saved Plot → plots\explainability\clews_topk_overlap_by_dsp_cover.pdf
+  [Plot 4] Signed Mean Shift — Cover  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_dsp_cover.pdf
+Run: suffix='_by_dsp_musicgen' | n=10094
+  [Plot 1] Overall Shifts & Active Dimensions — MusicGen  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_overall_shifts_by_dsp_musicgen.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — MusicGen  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\clews_topk_dimensions_by_dsp_musicgen.csv
+  Saved Plot → plots\explainability\clews_topk_dimensions_by_dsp_musicgen.pdf
+  Saved Plot → plots\explainability\clews_topk_overlap_by_dsp_musicgen.pdf
+  [Plot 4] Signed Mean Shift — MusicGen  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_dsp_musicgen.pdf
+Run: suffix='_by_dsp_original_dsp' | n=8581
+  [Plot 1] Overall Shifts & Active Dimensions — Original + DSP  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_overall_shifts_by_dsp_original_dsp.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — Original + DSP  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\clews_topk_dimensions_by_dsp_original_dsp.csv
+  Saved Plot → plots\explainability\clews_topk_dimensions_by_dsp_original_dsp.pdf
+  Saved Plot → plots\explainability\clews_topk_overlap_by_dsp_original_dsp.pdf
+  [Plot 4] Signed Mean Shift — Original + DSP  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_dsp_original_dsp.pdf
+Run: suffix='_by_dsp_mgeldm_bass' | n=8347
+  [Plot 1] Overall Shifts & Active Dimensions — MGE-LDM Bass  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_overall_shifts_by_dsp_mgeldm_bass.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — MGE-LDM Bass  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\clews_topk_dimensions_by_dsp_mgeldm_bass.csv
+  Saved Plot → plots\explainability\clews_topk_dimensions_by_dsp_mgeldm_bass.pdf
+  Saved Plot → plots\explainability\clews_topk_overlap_by_dsp_mgeldm_bass.pdf
+  [Plot 4] Signed Mean Shift — MGE-LDM Bass  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_dsp_mgeldm_bass.pdf
+Run: suffix='_by_dsp_mgeldm_drums' | n=8352
+  [Plot 1] Overall Shifts & Active Dimensions — MGE-LDM Drums  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_overall_shifts_by_dsp_mgeldm_drums.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — MGE-LDM Drums  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\clews_topk_dimensions_by_dsp_mgeldm_drums.csv
+  Saved Plot → plots\explainability\clews_topk_dimensions_by_dsp_mgeldm_drums.pdf
+  Saved Plot → plots\explainability\clews_topk_overlap_by_dsp_mgeldm_drums.pdf
+  [Plot 4] Signed Mean Shift — MGE-LDM Drums  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_dsp_mgeldm_drums.pdf
+Run: suffix='_by_dsp_mgeldm_other' | n=8343
+  [Plot 1] Overall Shifts & Active Dimensions — MGE-LDM Other  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_overall_shifts_by_dsp_mgeldm_other.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — MGE-LDM Other  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\clews_topk_dimensions_by_dsp_mgeldm_other.csv
+  Saved Plot → plots\explainability\clews_topk_dimensions_by_dsp_mgeldm_other.pdf
+  Saved Plot → plots\explainability\clews_topk_overlap_by_dsp_mgeldm_other.pdf
+  [Plot 4] Signed Mean Shift — MGE-LDM Other  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\clews_signed_shift_heatmap_by_dsp_mgeldm_other.pdf
+
 Done processing CLEWS.
 
 ============================================================
@@ -129,73 +122,106 @@ Cleaning column 'embedding_mod'…
 Kept 113689 rows with embedding dim=512.
 Loaded 113689 pairs | Dim: 512
 Exporting pairwise delta summary features…
-Saved CSV  → results\explainability\wealy_pairwise_delta_features.csv
-Saved Parquet → data\wealy_pairwise_delta_features.parquet
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\wealy_overall_shifts.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\wealy_topk_dimensions.csv
-Saved Plot → plots\explainability\wealy_topk_dimensions.pdf
-Saved Plot → plots\explainability\wealy_topk_overlap.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\wealy_signed_shift_heatmap.pdf
-Generating Plot 6: Stable Core Preservation…
-Saved Plot → plots\explainability\wealy_stable_core.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\wealy_overall_shifts_by_directional_dsp.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\wealy_topk_dimensions_by_directional_dsp.csv
-Saved Plot → plots\explainability\wealy_topk_dimensions_by_directional_dsp.pdf
-Saved Plot → plots\explainability\wealy_topk_overlap_by_directional_dsp.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_directional_dsp.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\wealy_overall_shifts_by_source.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\wealy_topk_dimensions_by_source.csv
-Saved Plot → plots\explainability\wealy_topk_dimensions_by_source.pdf
-Saved Plot → plots\explainability\wealy_topk_overlap_by_source.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_source.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\wealy_overall_shifts_by_direction_audioldm2.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\wealy_topk_dimensions_by_direction_audioldm2.csv
-Saved Plot → plots\explainability\wealy_topk_dimensions_by_direction_audioldm2.pdf
-Saved Plot → plots\explainability\wealy_topk_overlap_by_direction_audioldm2.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_direction_audioldm2.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\wealy_overall_shifts_by_direction_cover.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\wealy_topk_dimensions_by_direction_cover.csv
-Saved Plot → plots\explainability\wealy_topk_dimensions_by_direction_cover.pdf
-Saved Plot → plots\explainability\wealy_topk_overlap_by_direction_cover.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_direction_cover.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\wealy_overall_shifts_by_direction_mge-ldm.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\wealy_topk_dimensions_by_direction_mge-ldm.csv
-Saved Plot → plots\explainability\wealy_topk_dimensions_by_direction_mge-ldm.pdf
-Saved Plot → plots\explainability\wealy_topk_overlap_by_direction_mge-ldm.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_direction_mge-ldm.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\wealy_overall_shifts_by_direction_musicgen.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\wealy_topk_dimensions_by_direction_musicgen.csv
-Saved Plot → plots\explainability\wealy_topk_dimensions_by_direction_musicgen.pdf
-Saved Plot → plots\explainability\wealy_topk_overlap_by_direction_musicgen.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_direction_musicgen.pdf
-Generating Plot 1: Overall Shifts & Active Dimensions…
-Saved Plot → plots\explainability\wealy_overall_shifts_by_direction_original_plus_dsp.pdf
-Generating Plots 2 & 3: Top-30 Dimensions & Overlap…
-Saved CSV  → results\explainability\wealy_topk_dimensions_by_direction_original_plus_dsp.csv
-Saved Plot → plots\explainability\wealy_topk_dimensions_by_direction_original_plus_dsp.pdf
-Saved Plot → plots\explainability\wealy_topk_overlap_by_direction_original_plus_dsp.pdf
-Generating Plot 4: Signed Mean Shift per Dimension…
-Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_direction_original_plus_dsp.pdf
+  Saved CSV  → results\explainability\wealy_pairwise_delta_features.csv
+  Saved Parquet → data\wealy_pairwise_delta_features.parquet
+
+10 analysis runs scheduled.
+
+Run: suffix='' | n=113689
+  [Plot 1] Overall Shifts & Active Dimensions — All sources  ·  Grouped by: Broad Category
+  Saved Plot → plots\explainability\wealy_overall_shifts.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — All sources  ·  Grouped by: Broad Category
+  Saved CSV  → results\explainability\wealy_topk_dimensions.csv
+  Saved Plot → plots\explainability\wealy_topk_dimensions.pdf
+  Saved Plot → plots\explainability\wealy_topk_overlap.pdf
+  [Plot 4] Signed Mean Shift — All sources  ·  Grouped by: Broad Category
+  Saved Plot → plots\explainability\wealy_signed_shift_heatmap.pdf
+  [Plot 6] Stable Core vs Volatile Shell — All sources  ·  Grouped by: Broad Category
+  Saved Plot → plots\explainability\wealy_stable_core.pdf
+  [Plot 5] SMP vs AI Base — All sources  ·  Grouped by: Broad Category
+  Saved CSV  → results\explainability\wealy_smp_vs_ai.csv
+  Saved Plot → plots\explainability\wealy_smp_vs_ai.pdf
+Run: suffix='_by_dsp' | n=113689
+  [Plot 1] Overall Shifts & Active Dimensions — All sources  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_overall_shifts_by_dsp.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — All sources  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\wealy_topk_dimensions_by_dsp.csv
+  Saved Plot → plots\explainability\wealy_topk_dimensions_by_dsp.pdf
+  Saved Plot → plots\explainability\wealy_topk_overlap_by_dsp.pdf
+  [Plot 4] Signed Mean Shift — All sources  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_dsp.pdf
+Run: suffix='_by_source' | n=113689
+  [Plot 1] Overall Shifts & Active Dimensions — All sources  ·  Grouped by: Source
+  Saved Plot → plots\explainability\wealy_overall_shifts_by_source.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — All sources  ·  Grouped by: Source
+  Saved CSV  → results\explainability\wealy_topk_dimensions_by_source.csv
+  Saved Plot → plots\explainability\wealy_topk_dimensions_by_source.pdf
+  Saved Plot → plots\explainability\wealy_topk_overlap_by_source.pdf
+  [Plot 4] Signed Mean Shift — All sources  ·  Grouped by: Source
+  Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_source.pdf
+Run: suffix='_by_dsp_audioldm2' | n=13409
+  [Plot 1] Overall Shifts & Active Dimensions — AudioLDM2  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_overall_shifts_by_dsp_audioldm2.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — AudioLDM2  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\wealy_topk_dimensions_by_dsp_audioldm2.csv
+  Saved Plot → plots\explainability\wealy_topk_dimensions_by_dsp_audioldm2.pdf
+  Saved Plot → plots\explainability\wealy_topk_overlap_by_dsp_audioldm2.pdf
+  [Plot 4] Signed Mean Shift — AudioLDM2  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_dsp_audioldm2.pdf
+Run: suffix='_by_dsp_cover' | n=41327
+  [Plot 1] Overall Shifts & Active Dimensions — Cover  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_overall_shifts_by_dsp_cover.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — Cover  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\wealy_topk_dimensions_by_dsp_cover.csv
+  Saved Plot → plots\explainability\wealy_topk_dimensions_by_dsp_cover.pdf
+  Saved Plot → plots\explainability\wealy_topk_overlap_by_dsp_cover.pdf
+  [Plot 4] Signed Mean Shift — Cover  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_dsp_cover.pdf
+Run: suffix='_by_dsp_musicgen' | n=13409
+  [Plot 1] Overall Shifts & Active Dimensions — MusicGen  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_overall_shifts_by_dsp_musicgen.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — MusicGen  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\wealy_topk_dimensions_by_dsp_musicgen.csv
+  Saved Plot → plots\explainability\wealy_topk_dimensions_by_dsp_musicgen.pdf
+  Saved Plot → plots\explainability\wealy_topk_overlap_by_dsp_musicgen.pdf
+  [Plot 4] Signed Mean Shift — MusicGen  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_dsp_musicgen.pdf
+Run: suffix='_by_dsp_original_dsp' | n=12190
+  [Plot 1] Overall Shifts & Active Dimensions — Original + DSP  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_overall_shifts_by_dsp_original_dsp.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — Original + DSP  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\wealy_topk_dimensions_by_dsp_original_dsp.csv
+  Saved Plot → plots\explainability\wealy_topk_dimensions_by_dsp_original_dsp.pdf
+  Saved Plot → plots\explainability\wealy_topk_overlap_by_dsp_original_dsp.pdf
+  [Plot 4] Signed Mean Shift — Original + DSP  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_dsp_original_dsp.pdf
+Run: suffix='_by_dsp_mgeldm_bass' | n=11112
+  [Plot 1] Overall Shifts & Active Dimensions — MGE-LDM Bass  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_overall_shifts_by_dsp_mgeldm_bass.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — MGE-LDM Bass  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\wealy_topk_dimensions_by_dsp_mgeldm_bass.csv
+  Saved Plot → plots\explainability\wealy_topk_dimensions_by_dsp_mgeldm_bass.pdf
+  Saved Plot → plots\explainability\wealy_topk_overlap_by_dsp_mgeldm_bass.pdf
+  [Plot 4] Signed Mean Shift — MGE-LDM Bass  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_dsp_mgeldm_bass.pdf
+Run: suffix='_by_dsp_mgeldm_drums' | n=11121
+  [Plot 1] Overall Shifts & Active Dimensions — MGE-LDM Drums  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_overall_shifts_by_dsp_mgeldm_drums.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — MGE-LDM Drums  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\wealy_topk_dimensions_by_dsp_mgeldm_drums.csv
+  Saved Plot → plots\explainability\wealy_topk_dimensions_by_dsp_mgeldm_drums.pdf
+  Saved Plot → plots\explainability\wealy_topk_overlap_by_dsp_mgeldm_drums.pdf
+  [Plot 4] Signed Mean Shift — MGE-LDM Drums  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_dsp_mgeldm_drums.pdf
+Run: suffix='_by_dsp_mgeldm_other' | n=11110
+  [Plot 1] Overall Shifts & Active Dimensions — MGE-LDM Other  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_overall_shifts_by_dsp_mgeldm_other.pdf
+  [Plot 2/3] Top-30 Dimensions & Overlap — MGE-LDM Other  ·  Grouped by: DSP Label
+  Saved CSV  → results\explainability\wealy_topk_dimensions_by_dsp_mgeldm_other.csv
+  Saved Plot → plots\explainability\wealy_topk_dimensions_by_dsp_mgeldm_other.pdf
+  Saved Plot → plots\explainability\wealy_topk_overlap_by_dsp_mgeldm_other.pdf
+  [Plot 4] Signed Mean Shift — MGE-LDM Other  ·  Grouped by: DSP Label
+  Saved Plot → plots\explainability\wealy_signed_shift_heatmap_by_dsp_mgeldm_other.pdf
+
 Done processing WEALY.
 

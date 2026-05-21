@@ -1,8 +1,8 @@
-2026-05-15 23:29:32 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
-2026-05-15 23:29:32 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
-2026-05-15 23:29:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-15 23:29:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-15 23:29:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-22 01:06:06 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
+2026-05-22 01:06:06 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
+2026-05-22 01:06:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-22 01:06:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-22 01:06:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
 ======================================================================
 TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
 ======================================================================
@@ -10,12 +10,12 @@ TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
 [1/5] Loading feature table...
   Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
 
-[2/5] Assembling Feature Set D (Engineered No Vocals + CLEWS XAI Top-256)...
+[2/5] Assembling Feature Set D (Engineered No Vocals + CLEWS XAI Top-512)...
   Loaded 73582 embeddings from clews_embeddings.parquet
-  Feature matrix: (350654, 286)  (30 engineered + 256 XAI)
+  Feature matrix: (350654, 542)  (30 engineered + 512 XAI)
 
 [3/5] Calibrating threshold on 10% hold-out...
-  Optimal F0.5 threshold (calibration set): 0.6811
+  Optimal F0.5 threshold (calibration set): 0.6496
 
 [4/5] Retraining on 100% of data and saving artifact...
   Artifact saved → models\final_plagiarism_detector.pkl
@@ -24,24 +24,24 @@ TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
 INFERENCE DEMO  (held-out calibration samples)
 ──────────────────────────────────────────────────────────────────────
   Pair: 50  |  Type: mgeldm_drums_tempo110 
-    Truth: PLAGIARISM        Pred: PLAGIARISM       ✓
-    Score: 78.8%  (threshold 68.1%)
+    Truth: PLAGIARISM        Pred: NOT PLAGIARISM   ✗
+    Score: 56.2%  (threshold 65.0%)
 
   Pair: 58  |  Type: mgeldm_other_tempo110 
     Truth: PLAGIARISM        Pred: NOT PLAGIARISM   ✗
-    Score: 42.6%  (threshold 68.1%)
+    Score: 38.9%  (threshold 65.0%)
 
   Pair: 61  |  Type: Negative_mgeldm_other_pitchU4_tempo110
     Truth: NOT PLAGIARISM    Pred: NOT PLAGIARISM   ✓
-    Score: 25.3%  (threshold 68.1%)
+    Score: 25.7%  (threshold 65.0%)
 
   Pair: 70  |  Type: Negative_audioldm2_pitchD4_tempo090
-    Truth: NOT PLAGIARISM    Pred: PLAGIARISM       ✗
-    Score: 69.6%  (threshold 68.1%)
+    Truth: NOT PLAGIARISM    Pred: NOT PLAGIARISM   ✓
+    Score: 60.6%  (threshold 65.0%)
 
 ======================================================================
 Production artifact is ready.
   Model   → models\final_plagiarism_detector.pkl
-  Features: 286  (30 eng + 256 XAI)
-  Threshold (F0.5): 0.6811
+  Features: 542  (30 eng + 512 XAI)
+  Threshold (F0.5): 0.6496
 ======================================================================

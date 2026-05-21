@@ -7,3 +7,5 @@ XGB A. CLEWS Engineered (No Vocals),0.6399,0.7252,0.4366,0.5445,0.7636
 XGB B. All Engineered (No Vocals),0.6597,0.7359,0.4668,0.5711,0.7729
 XGB C. All Engineered (With Vocals),0.8636,0.8905,0.7705,0.8261,0.8949
 XGB D. All Engineered (No Vocals) + Top-256,0.7916,0.8379,0.6488,0.7311,0.8454
+XGB E. All Engineered (No Vocals) + Top-512,0.8159,0.8612,0.6748,0.7564,0.8592
+XGB F. All Engineered (No Vocals) + Top-1024,0.8283,0.868,0.7007,0.7752,0.8684

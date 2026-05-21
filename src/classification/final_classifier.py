@@ -5,9 +5,12 @@ Trains an XGBoost-style classifier (HistGradientBoostingClassifier) on
 pairwise engineered features to produce a binary plagiarism decision.
 
 Experiments:
-    A. CLEWS Engineered    — CLEWS distances + CLEWS delta summaries + vocal
-    B. All Engineered      — CLEWS + WEALY distances + all delta summaries + vocal
-    C. All Engineered + XAI Top-256 — B + top-256 actual CLEWS delta dimensions
+    A. CLEWS Engineered         — CLEWS distances + CLEWS delta summaries
+    B. All Engineered           — CLEWS + WEALY distances + all delta summaries
+    C. All Engineered + Vocals  — B + vocal metadata
+    D. All Engineered + Top-256 — B + top-256 actual CLEWS delta dimensions
+    E. All Engineered + Top-512 — B + top-512 actual CLEWS delta dimensions
+    F. All Engineered + Top-1024 — B + top-1024 actual CLEWS delta dimensions
 
 Evaluation:
     - StratifiedGroupKFold (groups=filename_ori, 5 folds)
@@ -62,7 +65,6 @@ from utils.constants import (
     CLASSIFIER_FEATURE_TABLE,
     CLASSIFICATION_RESULTS_DIR,
     CLASSIFICATION_PLOTS_DIR,
-    XAI_TOP_K,
 )
 from utils.categorization import fbeta_score_curve
 from utils.classifier_features import _build_embedding_map, _compute_delta_matrix_for_pairs
@@ -71,12 +73,15 @@ from classification import load_threshold_baselines
 plt.rcParams.update(PLOT_STYLE_PARAMS)
 
 FEATURE_TABLE  = Path(CLASSIFIER_FEATURE_TABLE)
-ABLATION_TABLE = Path("results/classification/ablation_results.csv")
+ABLATION_TABLE  = Path("results/classification/ablation_results.csv")
 OUTPUT_DIR     = Path(CLASSIFICATION_RESULTS_DIR)
 PLOTS_DIR      = Path(CLASSIFICATION_PLOTS_DIR)
 
+# K values to evaluate in the convergence study
+K_VALUES = [256, 512, 1024]
 
-# Helpers 
+
+# Helpers
 def _select_columns(df: pd.DataFrame, pattern: str) -> list[str]:
     return sorted([c for c in df.columns if pattern in c])
 
@@ -183,12 +188,12 @@ def _print_summary(res: dict) -> None:
     )
 
 
-# Plotting 
+# Plotting
 def _plot_comparison(df_comp: pd.DataFrame, output_path: Path) -> None:
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(14, 7))
 
     x = np.arange(len(df_comp))
-    width = 0.25
+    width = 0.22
 
     ax.bar(x - width, df_comp["f05"],       width, label="F0.5",      color="#2196F3", edgecolor="white")
     ax.bar(x,         df_comp["precision"],  width, label="Precision",  color="#4CAF50", edgecolor="white")
@@ -200,14 +205,14 @@ def _plot_comparison(df_comp: pd.DataFrame, output_path: Path) -> None:
                 ax.text(
                     i + offset, val + 0.008,
                     f"{val:.3f}", ha="center", va="bottom",
-                    fontsize=7, fontweight="bold",
+                    fontsize=6.5, fontweight="bold",
                 )
 
     ax.set_xticks(x)
     ax.set_xticklabels(df_comp["method"], rotation=30, ha="right", fontsize=8)
     ax.set_ylabel("Score", fontsize=11)
     ax.set_title(
-        "Final Classifier Comparison: Thresholds vs LR vs XGBoost",
+        "XGBoost Convergence Study: Engineered + Top-K Actual Dimensions",
         fontsize=13, fontweight="bold",
     )
     ax.set_ylim(0, 1.12)
@@ -222,7 +227,7 @@ def _plot_comparison(df_comp: pd.DataFrame, output_path: Path) -> None:
     print(f"\n  Plot saved → {output_path}")
 
 
-# Main 
+# Main
 def main() -> None:
     print("=" * 70)
     print("FINAL SUPERVISED CLASSIFIER (GRADIENT BOOSTED TREES)")
@@ -253,7 +258,7 @@ def main() -> None:
     vocal_cols = [
         c for c in df.columns
         if c in {"pair_vocal_valid", "vocal_ratio_ori", "vocal_ratio_mod",
-                  "vocal_valid_ori", "vocal_valid_mod"}
+                 "vocal_valid_ori", "vocal_valid_mod"}
         and not df[c].isna().all()
     ]
 
@@ -261,33 +266,36 @@ def main() -> None:
 
     # Feature Sets
     clews_engineered_no_vocal = clews_dist_cols + clews_delta_cols
-    all_engineered_no_vocal   = clews_dist_cols + wealy_dist_cols + clews_delta_cols + wealy_delta_cols
+    all_engineered_no_vocal   = (clews_dist_cols + wealy_dist_cols
+                                 + clews_delta_cols + wealy_delta_cols)
     all_engineered            = all_engineered_no_vocal + vocal_cols
 
-    # Build XAI Top-256 enrichment from raw embeddings
-    print("\nBuilding CLEWS Top-256 enrichment dimensions...")
+    # ── Build XAI enrichment for ALL K values in one pass ─────────────────────
+    print("\nBuilding XAI enrichment dimensions (256 / 512 / 1024)...")
     emb_map = _build_embedding_map(EMBEDDING_PATHS["CLEWS"])
     delta_valid, valid_mask = _compute_delta_matrix_for_pairs(df, emb_map)
 
     ndim = delta_valid.shape[1]
     delta_matrix = np.zeros((len(df), ndim), dtype=np.float32)
     delta_matrix[valid_mask] = delta_valid.astype(np.float32)
+    del delta_valid, valid_mask
 
     # Rank by positive-pair mean shift
-    pos_deltas = delta_matrix[y == 1]
-    mean_shifts = np.mean(pos_deltas, axis=0)
-    ranked_indices = np.argsort(mean_shifts)[::-1]
+    pos_deltas   = delta_matrix[y == 1]
+    mean_shifts  = np.mean(pos_deltas, axis=0)
+    ranked_idx    = np.argsort(mean_shifts)[::-1]
+    del pos_deltas, mean_shifts
 
-    top_k_indices = ranked_indices[:XAI_TOP_K]
-    xai_enrichment = delta_matrix[:, top_k_indices]
+    # Pre-compute all K enrichments
+    enrichments = {}
+    for k_val in K_VALUES:
+        enrichments[k_val] = delta_matrix[:, ranked_idx[:k_val]]
+        print(f"  Top-{k_val} enrichment: {enrichments[k_val].shape}")
 
-    print(f"  Top-{XAI_TOP_K} enrichment shape: {xai_enrichment.shape}")
+    # Free delta matrix — we only need the enrichments from now on
+    del delta_matrix, emb_map
 
-    # Free raw delta memory
-    del delta_matrix, delta_valid, pos_deltas
-    del emb_map
-
-    # Define Experiments
+    # ── Define Experiments ─────────────────────────────────────────────────────
     experiments = [
         (
             "A. CLEWS Engineered (No Vocals)",
@@ -302,12 +310,20 @@ def main() -> None:
             df[all_engineered].values,
         ),
         (
-            f"D. All Engineered (No Vocals) + Top-{XAI_TOP_K}",
-            np.hstack([df[all_engineered_no_vocal].values, xai_enrichment]),
+            "D. All Engineered (No Vocals) + Top-256",
+            np.hstack([df[all_engineered_no_vocal].values, enrichments[256]]),
+        ),
+        (
+            "E. All Engineered (No Vocals) + Top-512",
+            np.hstack([df[all_engineered_no_vocal].values, enrichments[512]]),
+        ),
+        (
+            "F. All Engineered (No Vocals) + Top-1024",
+            np.hstack([df[all_engineered_no_vocal].values, enrichments[1024]]),
         ),
     ]
 
-    # Run Experiments
+    # ── Run Experiments ────────────────────────────────────────────────────────
     print("\n" + "─" * 70)
     print("XGBOOST EXPERIMENTS")
     print("─" * 70)
@@ -319,7 +335,7 @@ def main() -> None:
         _print_summary(res)
         xgb_results.append(res)
 
-    # Build Comparison Table
+    # ── Build Comparison Table ────────────────────────────────────────────────
     print("\n" + "─" * 70)
     print("COMPARISON WITH BASELINES")
     print("─" * 70)
@@ -345,11 +361,11 @@ def main() -> None:
             best_lr = df_ab.loc[df_ab["f05"].idxmax()]
             comp_rows.append({
                 "method": f"LR Best ({best_lr['experiment_name']})",
-                "f05": best_lr["f05"],
-                "precision": best_lr["precision"],
-                "recall": best_lr["recall"],
-                "f1": best_lr["f1"],
-                "accuracy": best_lr["accuracy"],
+                "f05": float(best_lr["f05"]),
+                "precision": float(best_lr["precision"]),
+                "recall": float(best_lr["recall"]),
+                "f1": float(best_lr["f1"]),
+                "accuracy": float(best_lr["accuracy"]),
             })
 
     # XGBoost results
@@ -367,20 +383,19 @@ def main() -> None:
 
     # Print
     print(f"\n{'=' * 100}")
-    print(f"  {'Method':<45} | {'F0.5':>7} | {'Prec':>7} | {'Rec':>7} | {'F1':>7} | {'Acc':>7}")
-    print(f"  {'─' * 93}")
+    print(f"  {'Method':<47} | {'F0.5':>7} | {'Prec':>7} | {'Rec':>7} | {'F1':>7} | {'Acc':>7}")
+    print(f"  {'─' * 96}")
     for _, r in df_comp.iterrows():
         print(
-            f"  {r['method']:<45} | {r['f05']:>7.4f} | "
+            f"  {r['method']:<47} | {r['f05']:>7.4f} | "
             f"{r['precision']:>7.4f} | {r['recall']:>7.4f} | "
             f"{r['f1']:>7.4f} | {r['accuracy']:>7.4f}"
         )
     print(f"{'=' * 100}")
 
-    # Save
+    # ── Save Results ───────────────────────────────────────────────────────────
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # XGBoost detailed results
     xgb_rows = []
     for res in xgb_results:
         xgb_rows.append({
@@ -396,10 +411,8 @@ def main() -> None:
         })
     pd.DataFrame(xgb_rows).to_csv(OUTPUT_DIR / "xgboost_results.csv", index=False)
 
-    # Full comparison
     df_comp.to_csv(OUTPUT_DIR / "xgboost_comparison.csv", index=False)
 
-    # Plot
     _plot_comparison(df_comp, PLOTS_DIR / "xgboost_comparison.pdf")
 
     print(f"\n  Results → {OUTPUT_DIR}/")

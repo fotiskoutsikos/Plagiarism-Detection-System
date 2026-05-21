@@ -30,7 +30,7 @@ for _ in range(6):
     repo_root = repo_root.parent
 
 sys.path.insert(0, str(repo_root / "src"))
-from utils.constants import PLOT_COLORS, PLOT_STYLE_PARAMS, PLOT_DPI
+from utils.constants import PLOT_COLORS, SOURCE_COLORS, PLOT_STYLE_PARAMS, PLOT_DPI
 from utils.categorization import extract_dsp_and_source_features, clean_mod_type
 from utils.dataset_builder import clean_embedding, validate_and_filter_embeddings
 
@@ -40,6 +40,12 @@ plt.rcParams.update(PLOT_STYLE_PARAMS)
 BASE_ALPHA = 1.00
 DSP_FADE_ALPHA = 0.35
 
+_SOURCE_GROUP_COLORS = {
+    **SOURCE_COLORS,                      # MusicGen, AudioLDM2, MGE-LDM, Cover, Original + DSP
+    "MGE-LDM_bass":   "#AB47BC",          # lighter purple
+    "MGE-LDM_drums":  "#7B1FA2",          # mid purple
+    "MGE-LDM_other":  "#4A148C",          # dark purple
+}
 
 # DATA LOADING
 def load_and_clean_data(distances_csv, embeddings_parquet):
@@ -104,7 +110,7 @@ def load_and_clean_data(distances_csv, embeddings_parquet):
 def _get_umap_visual_meta(mod_type: str):
     """
     Returns (source, is_base, is_human) for UMAP styling.
-      - source:   'Original' | 'Cover' | 'MusicGen' | 'AudioLDM2' | 'MGE-LDM'
+      - source:   'Original' | 'Cover' | 'MusicGen' | 'AudioLDM2' | 'MGE-LDM' | 'MGE-LDM_bass' | 'MGE-LDM_drums' | 'MGE-LDM_other'
       - is_base:  True if no DSP applied (clean generation or base SMP)
       - is_human: True if Human Plagiarism (SMP) base pair
     """
@@ -118,6 +124,12 @@ def _get_umap_visual_meta(mod_type: str):
     feats = extract_dsp_and_source_features(cleaned)
 
     source = feats['source']
+    stem = feats.get('stem')
+    
+    # Append stem to MGE-LDM source for stem-specific coloring
+    if source == 'MGE-LDM' and stem:
+        source = f'MGE-LDM_{stem}'
+    
     is_base = (feats['dsp_category'] == 'Base Generation')
     is_human = False
 
@@ -131,6 +143,8 @@ def _build_color_alpha_maps(mod_types):
       - Original + DSP               -> DSP_FADE_ALPHA (faded blue circle)
       - AI base (e.g. musicgen_none) -> BASE_ALPHA (full color circle)
       - AI + DSP                     -> DSP_FADE_ALPHA (faded color circle)
+    
+    Uses _SOURCE_GROUP_COLORS for stem-specific MGE-LDM coloring, falls back to PLOT_COLORS.
     """
     color_map = {}
     alpha_map = {}
@@ -138,7 +152,10 @@ def _build_color_alpha_maps(mod_types):
     for mod_type in mod_types:
         source, is_base, is_human = _get_umap_visual_meta(mod_type)
 
-        if source in PLOT_COLORS:
+        # Try _SOURCE_GROUP_COLORS first (has stem-specific MGE-LDM colors), then PLOT_COLORS
+        if source in _SOURCE_GROUP_COLORS:
+            color = to_rgba(_SOURCE_GROUP_COLORS[source])
+        elif source in PLOT_COLORS:
             color = to_rgba(PLOT_COLORS[source])
         else:
             print(f"[warn] Unmapped source for mod_type='{mod_type}' (source={source})")
@@ -212,8 +229,10 @@ def plot_trajectories_grid(df_all, output_path, title):
         )
 
         # Find AI base coordinates for DSP variant connections
+        # MusicGen & AudioLDM2 DSP variants connect to their respective bases (ecosystem model)
+        # MGE-LDM stems: each stem connects to its own base (bass base → bass DSP, etc.)
         ai_base_coords = {}
-        for ai_source in ['MusicGen', 'AudioLDM2', 'MGE-LDM']:
+        for ai_source in ['MusicGen', 'AudioLDM2', 'MGE-LDM_bass', 'MGE-LDM_drums', 'MGE-LDM_other']:
             base_rows = pair_data[
                 (pair_data['source'] == ai_source) & (pair_data['is_base'])
             ]
@@ -304,10 +323,10 @@ def plot_trajectories_grid(df_all, output_path, title):
         markersize=10, label="Original + DSP", linestyle='None'
     ))
 
-    for base_model in ['MusicGen', 'AudioLDM2', 'MGE-LDM']:
-        if base_model not in PLOT_COLORS:
+    for base_model in ['MusicGen', 'AudioLDM2', 'MGE-LDM_bass', 'MGE-LDM_drums', 'MGE-LDM_other']:
+        if base_model not in _SOURCE_GROUP_COLORS:
             continue
-        c = to_rgba(PLOT_COLORS[base_model])
+        c = to_rgba(_SOURCE_GROUP_COLORS[base_model])
         legend_elems.append(Line2D(
             [0], [0], marker="o", color='w',
             markerfacecolor=c, markeredgecolor='black',
