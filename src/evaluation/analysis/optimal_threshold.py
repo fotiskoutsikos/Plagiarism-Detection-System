@@ -292,6 +292,14 @@ def plot_distance_distributions(
     plagiarised = df[df['is_plagiarised'] == 1][distance_col]
     baseline    = df[df['is_plagiarised'] == 0][distance_col]
 
+    # Clip to 99th percentile to remove outliers
+    if not plagiarised.empty:
+        p99 = np.percentile(plagiarised.dropna(), 99)
+        plagiarised = plagiarised[plagiarised <= p99]
+    if not baseline.empty:
+        p99 = np.percentile(baseline.dropna(), 99)
+        baseline = baseline[baseline <= p99]
+
     if not plagiarised.empty:
         sns.kdeplot(
             data=plagiarised, fill=True, color='red',

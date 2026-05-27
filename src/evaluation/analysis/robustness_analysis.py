@@ -217,6 +217,13 @@ def _draw_threshold(ax, threshold: float) -> None:
     )
 
 
+def _source_palette_with_original_dsp() -> dict:
+    palette = dict(PLOT_COLORS)
+    if 'Original + DSP' not in palette:
+        palette['Original + DSP'] = palette.get('Original', 'blue')
+    return palette
+
+
 # Source-level plots
 def plot_distance_trends(
     df:         pd.DataFrame,
@@ -233,7 +240,9 @@ def plot_distance_trends(
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
     display_metric = metric.replace("_distance", "").replace("+", " + ").title()
 
-    existing_sources = [s for s in AUDIO_SOURCES if s in df['Source'].unique()]
+    unique_sources = [s for s in df['Source'].dropna().unique()]
+    existing_sources = [s for s in AUDIO_SOURCES if s in unique_sources]
+    existing_sources.extend([s for s in unique_sources if s not in existing_sources])
     if not existing_sources:
         logger.warning(f"No valid sources in {model_name} for distance trends.")
         plt.close(fig)
@@ -249,7 +258,7 @@ def plot_distance_trends(
     if len(pitch_df) > 0 and len(pitch_df['Pitch_Intensity'].unique()) > 1:
         sns.lineplot(
             data=pitch_df, x='Pitch_Intensity', y=metric, hue='Source',
-            hue_order=existing_sources, palette=PLOT_COLORS,
+            hue_order=existing_sources, palette=_source_palette_with_original_dsp(),
             marker='o', markersize=8, ax=axes[0], errorbar=None, linewidth=2,
         )
         axes[0].set_title('Distance vs Pitch Shift', fontsize=13, fontweight='bold')
@@ -260,7 +269,7 @@ def plot_distance_trends(
         axes[0].grid(alpha=0.3)
         axes[0].legend(title='Source', loc='upper left')
 
-    # ── Tempo ──
+    # Tempo
     tempo_df = df[
         ((df['Pitch_Intensity'] == 0.0) & (~df['Is_Extreme'])) |
         (df['DSP_Category'] == 'Base Generation')
@@ -270,7 +279,7 @@ def plot_distance_trends(
     if len(tempo_df) > 0 and len(tempo_df['Tempo_Intensity'].unique()) > 1:
         sns.lineplot(
             data=tempo_df, x='Tempo_Intensity', y=metric, hue='Source',
-            hue_order=existing_sources, palette=PLOT_COLORS,
+            hue_order=existing_sources, palette=_source_palette_with_original_dsp(),
             marker='o', markersize=8, ax=axes[1], errorbar=None, linewidth=2,
         )
         axes[1].set_title('Distance vs Tempo Shift', fontsize=13, fontweight='bold')
@@ -314,10 +323,15 @@ def plot_extreme_scenarios(
 
     display_metric = metric.replace("_distance", "").replace("+", " + ").title()
 
+    # Clip to 99th percentile to remove outliers that compress visualization
+    if metric in df_extremes.columns:
+        p99 = np.percentile(df_extremes[metric].dropna(), 99)
+        df_extremes = df_extremes[df_extremes[metric] <= p99].copy()
+
     fig, ax = plt.subplots(figsize=(12, 6))
     sns.boxplot(
         data=df_extremes, x='DSP_Category', y=metric, hue='Source',
-        order=target_cats, palette=PLOT_COLORS, ax=ax,
+        order=target_cats, palette=_source_palette_with_original_dsp(), ax=ax,
         showmeans=True,
         meanprops={"marker": "o", "markerfacecolor": "white",
                    "markeredgecolor": "black"},
@@ -470,6 +484,11 @@ def plot_stem_extreme_scenarios(
         return
 
     display_metric = metric.replace("_distance", "").replace("+", " + ").title()
+
+    # Clip to 99th percentile to remove outliers that compress visualization
+    if metric in df_extremes.columns:
+        p99 = np.percentile(df_extremes[metric].dropna(), 99)
+        df_extremes = df_extremes[df_extremes[metric] <= p99].copy()
 
     fig, ax = plt.subplots(figsize=(12, 6))
     sns.boxplot(

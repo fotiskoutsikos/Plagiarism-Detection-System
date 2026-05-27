@@ -1,54 +1,5 @@
-2026-05-11 20:50:44 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
-2026-05-11 20:50:44 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
-2026-05-11 20:50:56 [WARNING] results/fusion/optimal_fused_distances.csv not found. Skipping FUSION.
-======================================================================
-ABLATION STUDY & THRESHOLD ANALYSIS  (optimising F0.5)
-======================================================================
-
-Vocal-aware policy:
-  CLEWS  : all pairs
-  WEALY  : vocal-valid pairs only
-  FUSION : all pairs (adaptive fused distances)
-
-Loading distances from results\distances\clews_distances.csv...
-Dataset loaded: 350654 pairs, 113690 positives.
-
-=== ABLATION STUDY (CLEWS) — optimising F0.5 ===
-Metric                                   | PR-AUC  | F0.5 (test)  | F1 (test)  | Opt. Threshold
------------------------------------------------------------------------------------------------
-Euclidean       | 0.5645  | 0.6123       | 0.4128     | 39.5086       
-Cosine          | 0.5553  | 0.6100       | 0.4094     | 0.3581        
-Manhattan       | 0.5644  | 0.6123       | 0.4056     | 986.3672      
-Pearson         | 0.5553  | 0.6097       | 0.4097     | 0.3586        
-=> WINNING METRIC: Manhattan Distance (Best F0.5: 0.6123, F1 at same threshold: 0.4056)
-Saved PR curve plot -> plots/threshold/clews_ablation_pr.pdf
-Saved distance distribution plot -> plots/threshold/clews_manhattan_distance_distributions.pdf
-Loading distances from results\distances\wealy_distances.csv...
-Loaded vocal metadata: 1219 sources, 1167 valid, 52 invalid
-Vocal metadata attached: 350501 pairs total, 322668 pair_vocal_valid=True (92.1%), 27833 pair_vocal_valid=False (7.9%)
-Vocal filter applied: 350501 -> 322668 rows (27833 removed)
-[WEALY] Vocal filter applied: 350501 → 322668 pairs (27833 non-vocal pairs excluded from threshold optimization)
-Dataset loaded: 322668 pairs, 107240 positives.
-
-=== ABLATION STUDY (WEALY) — optimising F0.5 ===
-Metric                                   | PR-AUC  | F0.5 (test)  | F1 (test)  | Opt. Threshold
------------------------------------------------------------------------------------------------
-Euclidean       | 0.4523  | 0.4166       | 0.4019     | 24.2802       
-Cosine          | 0.4688  | 0.4421       | 0.4137     | 0.7493        
-Manhattan       | 0.4522  | 0.4173       | 0.4061     | 440.3499      
-Pearson         | 0.4688  | 0.4417       | 0.4188     | 0.7564        
-=> WINNING METRIC: Cosine Distance (Best F0.5: 0.4421, F1 at same threshold: 0.4137)
-Saved PR curve plot -> plots/threshold/wealy_ablation_pr.pdf
-Saved distance distribution plot -> plots/threshold/wealy_cosine_distance_distributions.pdf
-2026-05-11 20:50:56 [WARNING] results/fusion/optimal_fused_distances.csv not found. Skipping FUSION.
-Summary saved -> results/threshold/threshold_analysis_summary.csv
-Detailed report saved -> results/threshold/all_metrics_detailed_summary.csv
-
-======================================================================
-ANALYSIS COMPLETE
-======================================================================
-2026-05-11 20:52:01 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
-2026-05-11 20:52:01 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
+2026-05-27 21:47:45 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
+2026-05-27 21:47:45 [INFO] Logging initialized for optimal_threshold, file: logs\optimal_threshold.txt
 ======================================================================
 ABLATION STUDY & THRESHOLD ANALYSIS  (optimising F0.5)
 ======================================================================
