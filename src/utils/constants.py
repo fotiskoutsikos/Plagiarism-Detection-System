@@ -263,3 +263,13 @@ ATTRIBUTION_RANK_COLORS = {
     3: "#FF9800",
     4: "#F44336",
 }
+
+
+# FINAL SELECTED CONFIGURATION FOR CLASSIFIER TRAINING & EVALUATION
+SELECTED_CONFIG = "hybrid_top512"
+# Valid options currently supported:
+#   - "engineered_no_vocals"
+#   - "engineered_with_vocals"
+#   - "hybrid_top256"
+#   - "hybrid_top512"
+#   - "hybrid_top1024"

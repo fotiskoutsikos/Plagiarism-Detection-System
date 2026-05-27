@@ -3,6 +3,7 @@ torch>=2.0.0
 torchaudio>=2.0.0
 einops>=0.6.1
 nnAudio==0.3.3
+xgboost>=1.7.0
 
 # Whisper
 git+https://github.com/helemanc/whisper.git

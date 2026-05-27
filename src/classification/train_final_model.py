@@ -1,17 +1,36 @@
 """
 Final Plagiarism Detection Model Training.
 
-Trains the final production-ready supervised classifier using the best
-feature configuration identified by the classification experiments:
-    Feature Set D: All Engineered (No Vocals) + CLEWS XAI Top-K
+Trains the final production classifier artifact using the manually selected
+supervised configuration.
 
-This script:
-    1. Extracts the exact features for the whole dataset.
-    2. Computes global XAI Top-K indices from the full positive set.
-    3. Trains on 90% of data, calibrates threshold on held-out 10%.
-    4. Retrains on 100% with the calibrated threshold.
-    5. Packages everything into a .pkl artifact.
-    6. Runs a quick inference demo on calibration samples.
+Important
+---------
+This script does NOT perform model selection, ablation, or evaluation.
+Its sole purpose is to:
+
+    1. Rebuild the exact selected feature configuration on the full dataset.
+    2. Compute and store all training-derived reference statistics needed
+       for exact feature reconstruction at inference time.
+    3. Calibrate a probability threshold on a stratified hold-out split.
+    4. Retrain the classifier on 100% of the available data.
+    5. Save a deployment-ready .pkl artifact containing everything needed
+       by predict_pair.py to produce identical feature vectors for new pairs.
+
+Current final configuration:
+    SELECTED_CONFIG = "hybrid_top512"
+
+This means:
+    - Engineered features (no vocal metadata)
+    - + Top-512 CLEWS raw delta dimensions
+
+Feature computation consistency:
+    - Distances are computed by metrics.py::_compute_all_distances
+    - Delta summaries are computed by classifier_features.py::compute_delta_summary_features
+    - Reference statistics (stable_dims, volatile_dims, global_q75) are derived
+      from positive pairs only via classifier_features.py::_compute_reference_from_positives
+    - Top-K CLEWS ranking uses mean absolute shift on positive pairs
+    - All of these are stored in the artifact for exact inference reproduction
 
 Output:
     models/final_plagiarism_detector.pkl
@@ -20,17 +39,15 @@ Output:
 import sys
 import importlib.util
 import logging
+from datetime import datetime
 from pathlib import Path
 
 import joblib
 import numpy as np
 import pandas as pd
-
-from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.metrics import precision_recall_curve
 from sklearn.model_selection import train_test_split
 
-# Resolve repository root & logging
+# Resolve repository root & logging 
 repo_root = Path(__file__).resolve()
 for _ in range(6):
     if (repo_root / "src").exists():
@@ -53,81 +70,132 @@ from utils.constants import (
     RANDOM_STATE,
     BETA,
     CLASSIFIER_FEATURE_TABLE,
-    CLASSIFICATION_RESULTS_DIR,
-    XAI_TOP_K,
     CALIBRATION_SIZE,
     FINAL_MODEL_OUTPUT,
+    SELECTED_CONFIG,
 )
-from utils.categorization import fbeta_score_curve
+
+# Centralized feature computation utilities
 from utils.classifier_features import (
     _build_embedding_map,
     _compute_delta_matrix_for_pairs,
+    _compute_reference_from_positives,
+)
+
+# Centralized classifier engine
+from classifier import (
+    build_classifier,
+    find_optimal_probability_threshold,
 )
 
 FEATURE_TABLE = Path(CLASSIFIER_FEATURE_TABLE)
-OUTPUT_DIR    = Path(CLASSIFICATION_RESULTS_DIR)
 MODEL_OUTPUT  = Path(FINAL_MODEL_OUTPUT)
 CAL_SIZE      = CALIBRATION_SIZE
 
 
-# Helpers
+# Helpers 
 def _select_columns(df: pd.DataFrame, pattern: str) -> list[str]:
     return sorted([c for c in df.columns if pattern in c])
 
 
-def _find_optimal_threshold(y_true: np.ndarray, y_prob: np.ndarray) -> float:
-    """Return the probability threshold that maximises F-beta."""
-    precision, recall, thresholds = precision_recall_curve(y_true, y_prob)
-    scores = fbeta_score_curve(precision, recall, BETA)
-    if len(scores) <= 1:
-        return 0.5
-    return float(thresholds[int(np.argmax(scores[:-1]))])
+def _parse_hybrid_k(config_name: str) -> int | None:
+    if config_name.startswith("hybrid_top"):
+        suffix = config_name.replace("hybrid_top", "")
+        try:
+            return int(suffix)
+        except ValueError:
+            raise ValueError(f"Invalid hybrid configuration name: {config_name}")
+    return None
 
 
-def _build_clf() -> HistGradientBoostingClassifier:
-    return HistGradientBoostingClassifier(
-        max_iter=300,
-        max_depth=6,
-        learning_rate=0.1,
-        min_samples_leaf=20,
-        max_leaf_nodes=31,
-        l2_regularization=1.0,
-        class_weight="balanced",
-        random_state=RANDOM_STATE,
-        verbose=0,
+def _compute_reference_stats_for_model(
+    df: pd.DataFrame,
+    y: np.ndarray,
+    parquet_path: str,
+    model_name: str,
+) -> dict:
+    """
+    Compute training-derived reference statistics for one embedding model.
+
+    Uses the SAME centralized functions as classifier_features.py:
+        - _build_embedding_map
+        - _compute_delta_matrix_for_pairs
+        - _compute_reference_from_positives
+
+    These statistics are essential for exact feature reconstruction
+    at inference time and must be stored in the artifact.
+
+    Args:
+        df: Full training DataFrame with filename_ori/filename_mod columns.
+        y: Binary labels.
+        parquet_path: Path to embedding parquet.
+        model_name: "CLEWS" or "WEALY" (for logging).
+
+    Returns:
+        Dictionary with global_q75, stable_dims, volatile_dims.
+    """
+    print(f"  Computing {model_name} reference statistics...")
+
+    emb_map = _build_embedding_map(parquet_path)
+    delta_valid, valid_mask = _compute_delta_matrix_for_pairs(df, emb_map)
+    del emb_map
+
+    if delta_valid.size == 0:
+        logger.warning("[%s] No valid deltas. Reference stats will be empty.", model_name)
+        return {
+            "global_q75": 0.0,
+            "stable_dims": [],
+            "volatile_dims": [],
+        }
+
+    # Extract positive-only deltas (same logic as classifier_features.py)
+    pos_in_valid = y[valid_mask].astype(bool)
+
+    if pos_in_valid.sum() == 0:
+        logger.warning("[%s] No positive deltas for reference. Using all.", model_name)
+        pos_delta_matrix = delta_valid
+    else:
+        pos_delta_matrix = delta_valid[pos_in_valid]
+
+    # Use the SAME centralized function
+    global_q75, stable_dims, volatile_dims = _compute_reference_from_positives(
+        pos_delta_matrix
     )
 
-
-# Main
-def main() -> None:
-    print("=" * 70)
-    print("TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)")
-    print("=" * 70)
-
-    # 1. Load feature table
-    print("\n[1/5] Loading feature table...")
-    if not FEATURE_TABLE.exists():
-        sys.exit(f"[ERROR] Feature table not found: {FEATURE_TABLE}")
-
-    df = pd.read_parquet(FEATURE_TABLE)
-    y  = df["is_plagiarised"].astype(int).values
-    print(f"  Loaded {len(df):,} pairs  ({y.sum():,} pos / {(1-y).sum():,} neg)")
-
-    # 2. Assemble feature set
     print(
-        f"\n[2/5] Assembling Feature Set D "
-        f"(Engineered No Vocals + CLEWS XAI Top-{XAI_TOP_K})..."
+        f"    [{model_name}] q75={global_q75:.6f}, "
+        f"n_stable={len(stable_dims)}, n_volatile={len(volatile_dims)} "
+        f"(from {len(pos_delta_matrix)} positive pairs)"
     )
 
-    # 2a. Engineered columns (no vocal metadata)
-    clews_dist_cols = [
-        c for c in _select_columns(df, "clews_")
-        if "distance" in c
-    ]
-    wealy_dist_cols = [
-        c for c in _select_columns(df, "wealy_")
-        if "distance" in c
-    ]
+    return {
+        "global_q75": float(global_q75),
+        "stable_dims": stable_dims.astype(int).tolist(),
+        "volatile_dims": volatile_dims.astype(int).tolist(),
+    }
+
+
+def build_features_for_selected_config(
+    df: pd.DataFrame,
+    y: np.ndarray,
+    config_name: str,
+) -> tuple[np.ndarray, dict]:
+    """
+    Build the exact feature matrix for the selected final configuration.
+
+    All feature computation uses centralized utilities from:
+        - classifier_features.py (delta summaries, reference stats)
+        - metrics.py (distances — already precomputed in feature table)
+
+    Returns:
+        X_final : np.ndarray
+        metadata: dict containing feature schema, top-K info, and
+                  training reference statistics for inference consistency.
+    """
+    # Identify feature columns 
+    clews_dist_cols = [c for c in _select_columns(df, "clews_") if "distance" in c]
+    wealy_dist_cols = [c for c in _select_columns(df, "wealy_") if "distance" in c]
+
     clews_delta_cols = [
         c for c in _select_columns(df, "clews_")
         if any(x in c for x in ["delta_", "stable_", "volatile_", "active_"])
@@ -139,115 +207,254 @@ def main() -> None:
         and "xai_dim" not in c
     ]
 
-    engineered_cols = (
+    vocal_cols = [
+        c for c in df.columns
+        if c in {
+            "pair_vocal_valid",
+            "vocal_ratio_ori",
+            "vocal_ratio_mod",
+            "vocal_valid_ori",
+            "vocal_valid_mod",
+        }
+        and not df[c].isna().all()
+    ]
+
+    engineered_no_vocals = (
         clews_dist_cols + wealy_dist_cols
         + clews_delta_cols + wealy_delta_cols
     )
-    X_eng = df[engineered_cols].values.astype(np.float32)
+    engineered_with_vocals = engineered_no_vocals + vocal_cols
 
-    # 2b. Global XAI Top-K indices from CLEWS raw deltas
-    # NOTE:
-    # This ranking is computed on the full dataset for production training.
-    # The validity of the feature family itself was already established
-    # during the earlier cross-validated experiments.
-    emb_map = _build_embedding_map(EMBEDDING_PATHS["CLEWS"])
-    delta_valid, valid_mask = _compute_delta_matrix_for_pairs(df, emb_map)
-    del emb_map
+    # Compute training reference statistics 
+    # These are needed by predict_pair.py for exact inference reproduction
+    print("\n  Computing training reference statistics for inference consistency...")
 
-    ndim = delta_valid.shape[1]
-    delta_matrix = np.zeros((len(df), ndim), dtype=np.float32)
-    delta_matrix[valid_mask] = delta_valid.astype(np.float32)
-    del delta_valid, valid_mask
-
-    mean_shifts  = np.mean(delta_matrix[y == 1], axis=0)
-    top_k_indices = np.argsort(mean_shifts)[::-1][:XAI_TOP_K]
-    X_xai        = delta_matrix[:, top_k_indices]
-    del delta_matrix, mean_shifts
-
-    # 2c. Combine
-    X_final = np.ascontiguousarray(
-        np.hstack([X_eng, X_xai]),
-        dtype=np.float32,
+    clews_ref = _compute_reference_stats_for_model(
+        df, y, EMBEDDING_PATHS["CLEWS"], "CLEWS"
     )
-    X_final = np.nan_to_num(X_final, nan=0.0, posinf=0.0, neginf=0.0)
-
-    print(
-        f"  Feature matrix: {X_final.shape}  "
-        f"({len(engineered_cols)} engineered + {XAI_TOP_K} XAI)"
+    wealy_ref = _compute_reference_stats_for_model(
+        df, y, EMBEDDING_PATHS["WEALY"], "WEALY"
     )
 
-    # 3. Calibrate threshold on a stratified hold-out
-    print(f"\n[3/5] Calibrating threshold on {int(CAL_SIZE * 100)}% hold-out...")
-    X_tr, X_cal, y_tr, y_cal, idx_tr, idx_cal = train_test_split(
+    # Case 1: Engineered (No Vocals) 
+    if config_name == "engineered_no_vocals":
+        X = df[engineered_no_vocals].values.astype(np.float32)
+        X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
+
+        metadata = {
+            "selected_config": config_name,
+            "engineered_feature_columns": engineered_no_vocals,
+            "full_feature_names": engineered_no_vocals,
+            "clews_top_k_indices": [],
+            "clews_top_k": 0,
+            "uses_vocals": False,
+            "uses_clews_topk": False,
+            # Training reference statistics
+            "clews_reference": clews_ref,
+            "wealy_reference": wealy_ref,
+        }
+        return X, metadata
+
+    # Case 2: Engineered (With Vocals) 
+    if config_name == "engineered_with_vocals":
+        X = df[engineered_with_vocals].values.astype(np.float32)
+        X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
+
+        metadata = {
+            "selected_config": config_name,
+            "engineered_feature_columns": engineered_with_vocals,
+            "full_feature_names": engineered_with_vocals,
+            "clews_top_k_indices": [],
+            "clews_top_k": 0,
+            "uses_vocals": True,
+            "uses_clews_topk": False,
+            # Training reference statistics
+            "clews_reference": clews_ref,
+            "wealy_reference": wealy_ref,
+        }
+        return X, metadata
+
+    # Case 3: Hybrid (Engineered No Vocals + Top-K CLEWS) 
+    k = _parse_hybrid_k(config_name)
+    if k is not None:
+        logger.info("Building hybrid feature matrix with CLEWS Top-%d.", k)
+
+        # Base engineered features (already in feature table)
+        X_eng = df[engineered_no_vocals].values.astype(np.float32)
+        X_eng = np.nan_to_num(X_eng, nan=0.0, posinf=0.0, neginf=0.0)
+
+        # Build CLEWS full delta matrix (using centralized utility)
+        emb_map = _build_embedding_map(EMBEDDING_PATHS["CLEWS"])
+        delta_valid, valid_mask = _compute_delta_matrix_for_pairs(df, emb_map)
+        del emb_map
+
+        if delta_valid.size == 0:
+            raise RuntimeError(
+                "No valid CLEWS deltas could be computed for hybrid training."
+            )
+
+        ndim = delta_valid.shape[1]
+        delta_matrix = np.zeros((len(df), ndim), dtype=np.float32)
+        delta_matrix[valid_mask] = delta_valid.astype(np.float32)
+        del delta_valid, valid_mask
+
+        # Rank dimensions (same logic as hybrid_experiments.py)
+        pos_mask    = y == 1
+        mean_shifts = np.mean(np.abs(delta_matrix[pos_mask]), axis=0)
+        ranked_idx  = np.argsort(mean_shifts)[::-1]
+
+        top_k_indices = ranked_idx[:k]
+        X_topk        = delta_matrix[:, top_k_indices].astype(np.float32)
+
+        # Final hybrid matrix
+        X = np.ascontiguousarray(
+            np.hstack([X_eng, X_topk]), dtype=np.float32
+        )
+        X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
+
+        top_k_feature_names = [
+            f"clews_topdim_{int(i)}" for i in top_k_indices
+        ]
+
+        metadata = {
+            "selected_config": config_name,
+            "engineered_feature_columns": engineered_no_vocals,
+            "full_feature_names": engineered_no_vocals + top_k_feature_names,
+            "clews_top_k_indices": top_k_indices.astype(int).tolist(),
+            "clews_top_k": int(k),
+            "uses_vocals": False,
+            "uses_clews_topk": True,
+            # Training reference statistics
+            "clews_reference": clews_ref,
+            "wealy_reference": wealy_ref,
+        }
+        return X, metadata
+
+    raise ValueError(
+        f"Unknown SELECTED_CONFIG: {config_name}. "
+        f"Supported: engineered_no_vocals, engineered_with_vocals, "
+        f"hybrid_top256, hybrid_top512, hybrid_top1024."
+    )
+
+
+# Main 
+def main() -> None:
+    print("=" * 70)
+    print("TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION ARTIFACT)")
+    print("=" * 70)
+    print(f"Selected configuration: {SELECTED_CONFIG}")
+
+    # [1/4] Load feature table
+    print("\n[1/4] Loading feature table...")
+    if not FEATURE_TABLE.exists():
+        sys.exit(f"[ERROR] Feature table not found: {FEATURE_TABLE}")
+
+    df = pd.read_parquet(FEATURE_TABLE)
+    y  = df["is_plagiarised"].astype(int).values
+
+    print(f"  Loaded {len(df):,} pairs")
+    print(f"  Positives: {int(y.sum()):,}")
+    print(f"  Negatives: {int((y == 0).sum()):,}")
+
+    # [2/4] Build selected feature matrix + reference stats
+    print("\n[2/4] Building selected feature matrix...")
+    X_final, feature_meta = build_features_for_selected_config(
+        df, y, SELECTED_CONFIG
+    )
+
+    print(f"\n  Final feature matrix: {X_final.shape}")
+    print(f"  Uses vocals: {feature_meta['uses_vocals']}")
+    print(f"  Uses CLEWS Top-K: {feature_meta['uses_clews_topk']}")
+    if feature_meta["uses_clews_topk"]:
+        print(f"  CLEWS Top-K: {feature_meta['clews_top_k']}")
+    print(f"  CLEWS ref q75: {feature_meta['clews_reference']['global_q75']:.6f}")
+    print(f"  WEALY ref q75: {feature_meta['wealy_reference']['global_q75']:.6f}")
+
+    # [3/4] Calibrate threshold on stratified hold-out
+    print(f"\n[3/4] Calibrating threshold on {int(CAL_SIZE * 100)}% hold-out...")
+
+    X_tr, X_cal, y_tr, y_cal = train_test_split(
         X_final,
         y,
-        np.arange(len(df)),
         test_size=CAL_SIZE,
         stratify=y,
         random_state=RANDOM_STATE,
     )
 
-    clf_cal = _build_clf()
+    clf_cal = build_classifier(y_tr, random_state=RANDOM_STATE)
     clf_cal.fit(X_tr, y_tr)
+
     prob_cal = clf_cal.predict_proba(X_cal)[:, 1]
-    optimal_threshold = _find_optimal_threshold(y_cal, prob_cal)
+    optimal_threshold = find_optimal_probability_threshold(
+        y_cal, prob_cal, beta=BETA
+    )
+
     print(f"  Optimal F{BETA} threshold (calibration set): {optimal_threshold:.4f}")
 
-    del clf_cal, X_tr, y_tr
+    del clf_cal, X_tr, X_cal, y_tr, y_cal
 
-    # 4. Retrain on 100% and save artifact
-    print("\n[4/5] Retraining on 100% of data and saving artifact...")
-    clf_final = _build_clf()
+    # [4/4] Retrain on 100% and save artifact
+    print("\n[4/4] Retraining on 100% of data and saving artifact...")
+
+    clf_final = build_classifier(y, random_state=RANDOM_STATE)
     clf_final.fit(X_final, y)
 
-    MODEL_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     artifact = {
+        # Model 
         "classifier": clf_final,
-        "optimal_threshold": optimal_threshold,
-        "engineered_feature_columns": engineered_cols,
-        "clews_top_k_indices": top_k_indices.tolist(),
-        "xai_top_k": XAI_TOP_K,
+        "optimal_threshold": float(optimal_threshold),
+
+        # Configuration 
+        "selected_config": feature_meta["selected_config"],
+        "classifier_type": "XGBoost",
+        "n_features": int(X_final.shape[1]),
+
+        # Feature schema 
+        "engineered_feature_columns": feature_meta["engineered_feature_columns"],
+        "full_feature_names": feature_meta["full_feature_names"],
+        "clews_top_k_indices": feature_meta["clews_top_k_indices"],
+        "clews_top_k": int(feature_meta["clews_top_k"]),
+        "uses_vocals": bool(feature_meta["uses_vocals"]),
+        "uses_clews_topk": bool(feature_meta["uses_clews_topk"]),
+
+        # Training reference statistics (for inference consistency) 
+        # These are computed from positive pairs only via
+        # classifier_features.py::_compute_reference_from_positives
+        # and must be used by predict_pair.py to reconstruct exact
+        # delta summary features for new unseen pairs.
+        "clews_reference": feature_meta["clews_reference"],
+        "wealy_reference": feature_meta["wealy_reference"],
+
+        # Reproducibility / metadata 
         "random_state": RANDOM_STATE,
         "beta": BETA,
         "calibration_size": CAL_SIZE,
+        "training_pairs": int(len(df)),
+        "positive_pairs": int(y.sum()),
+        "negative_pairs": int((y == 0).sum()),
+        "trained_on": datetime.now().isoformat(timespec="seconds"),
     }
+
+    MODEL_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(artifact, MODEL_OUTPUT)
+
     print(f"  Artifact saved → {MODEL_OUTPUT}")
 
-    # 5. Inference demo on calibration samples
-    print("\n" + "─" * 70)
-    print("INFERENCE DEMO  (held-out calibration samples)")
-    print("─" * 70)
-
-    rng = np.random.default_rng(RANDOM_STATE)
-    pos_pool = np.where(y_cal == 1)[0]
-    neg_pool = np.where(y_cal == 0)[0]
-    demo_local = np.concatenate([
-        rng.choice(pos_pool, min(2, len(pos_pool)), replace=False),
-        rng.choice(neg_pool, min(2, len(neg_pool)), replace=False),
-    ])
-
-    # Use calibration probabilities (out-of-sample relative to clf_cal)
-    for local_i in demo_local:
-        global_i   = idx_cal[local_i]
-        real_label = "PLAGIARISM" if y_cal[local_i] == 1 else "NOT PLAGIARISM"
-        prob       = prob_cal[local_i]
-        pred       = "PLAGIARISM" if prob >= optimal_threshold else "NOT PLAGIARISM"
-        match      = "✓" if real_label == pred else "✗"
-
-        row = df.iloc[global_i]
-        print(f"  Pair: {row['pair_id']}  |  Type: {row['final_mod_type']:<22}")
-        print(f"    Truth: {real_label:<16}  Pred: {pred:<16} {match}")
-        print(f"    Score: {prob*100:.1f}%  (threshold {optimal_threshold*100:.1f}%)\n")
-
-    print("=" * 70)
+    # Summary 
+    print("\n" + "=" * 70)
     print("Production artifact is ready.")
-    print(f"  Model   → {MODEL_OUTPUT}")
-    print(
-        f"  Features: {X_final.shape[1]}  "
-        f"({len(engineered_cols)} eng + {XAI_TOP_K} XAI)"
-    )
-    print(f"  Threshold (F{BETA}): {optimal_threshold:.4f}")
+    print(f"  Model        → {MODEL_OUTPUT}")
+    print(f"  Config       → {feature_meta['selected_config']}")
+    print(f"  Features     → {X_final.shape[1]}")
+    print(f"  Threshold    → {optimal_threshold:.4f}")
+    print(f"  CLEWS ref q75 → {feature_meta['clews_reference']['global_q75']:.6f}")
+    print(f"  WEALY ref q75 → {feature_meta['wealy_reference']['global_q75']:.6f}")
+    print(f"  CLEWS stable  → {len(feature_meta['clews_reference']['stable_dims'])} dims")
+    print(f"  CLEWS volatile→ {len(feature_meta['clews_reference']['volatile_dims'])} dims")
+    print(f"  WEALY stable  → {len(feature_meta['wealy_reference']['stable_dims'])} dims")
+    print(f"  WEALY volatile→ {len(feature_meta['wealy_reference']['volatile_dims'])} dims")
+    if feature_meta["uses_clews_topk"]:
+        print(f"  CLEWS Top-K   → {feature_meta['clews_top_k']} dims")
     print("=" * 70)
 
 

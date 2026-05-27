@@ -1,14 +1,12 @@
-experiment_name,classifier,n_features_in,n_features_model,f05,f1,precision,recall,accuracy,mean_threshold
-1. CLEWS Distances,LogisticRegression,4,4,0.5634,0.3882,0.8064,0.2557,0.7387,0.6471
-2. WEALY Distances,LogisticRegression,4,4,0.4358,0.389,0.4738,0.3302,0.6637,0.5352
-3. All Distances,LogisticRegression,8,8,0.5802,0.4183,0.7828,0.2858,0.7424,0.6478
-4. CLEWS Delta Summaries,LogisticRegression,11,11,0.6029,0.4011,0.9075,0.2575,0.7508,0.6635
-5. WEALY Delta Summaries,LogisticRegression,11,11,0.4097,0.4027,0.4147,0.3923,0.623,0.5026
-6. All Delta Summaries,LogisticRegression,22,22,0.6021,0.4147,0.8623,0.2731,0.7502,0.6686
-7. All Engineered,LogisticRegression,35,35,0.6121,0.4385,0.8324,0.298,0.7528,0.6756
-8. Engineered - Vocal,LogisticRegression,30,30,0.6034,0.4155,0.8644,0.2737,0.7505,0.681
-9. Vocal Only,LogisticRegression,5,5,0.4585,0.5464,0.414,0.8038,0.5671,0.5069
-10. CLEWS XAI Top-30,LogisticRegression,30,30,0.5112,0.3726,0.6859,0.258,0.7192,0.6463
-11. WEALY XAI Top-30,LogisticRegression,30,30,0.4003,0.3871,0.4098,0.3673,0.6232,0.5418
-12. CLEWS Full Δ (1024D),LogisticRegression,1024,1024,0.6979,0.6355,0.7472,0.5536,0.7944,0.7271
-13. WEALY Full Δ (512D),LogisticRegression,512,512,0.4452,0.4087,0.4738,0.3601,0.6623,0.6001
+experiment_name,classifier,n_features,f05,f1,precision,recall,accuracy,mean_threshold
+1. CLEWS Distances,XGBoost,4,0.6335,0.5237,0.7365,0.4065,0.7603,0.6937
+2. WEALY Distances,XGBoost,4,0.427,0.4147,0.4359,0.3966,0.6376,0.5495
+3. All Distances,XGBoost,8,0.6454,0.5526,0.7269,0.4459,0.7661,0.7056
+4. CLEWS Delta Summaries,XGBoost,11,0.5841,0.4819,0.6804,0.3732,0.74,0.6691
+5. WEALY Delta Summaries,XGBoost,11,0.4007,0.4113,0.394,0.4308,0.6007,0.5464
+6. All Delta Summaries,XGBoost,22,0.608,0.5112,0.696,0.404,0.7494,0.6829
+7. All Engineered (No Vocal),XGBoost,30,0.6573,0.574,0.7278,0.4739,0.772,0.7144
+8. All Engineered (Vocal),XGBoost,35,0.8651,0.8304,0.89,0.7784,0.897,0.7222
+9. Vocal Only,XGBoost,5,0.8367,0.7664,0.8917,0.6732,0.8671,0.7655
+10. CLEWS Full Δ (1024D),XGBoost,1024,0.8144,0.7544,0.86,0.672,0.8582,0.6346
+11. WEALY Full Δ (512D),XGBoost,512,0.4885,0.449,0.5191,0.3957,0.6852,0.6284

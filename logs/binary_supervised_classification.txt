@@ -1,0 +1,38 @@
+2026-05-26 22:39:03 [INFO] Logging initialized for binary_supervised_classification, file: logs\binary_supervised_classification.txt
+2026-05-26 22:39:03 [INFO] Logging initialized for binary_supervised_classification, file: logs\binary_supervised_classification.txt
+================================================================================
+SUPERVISED CLASSIFICATION RESULTS — PRESENTATION
+================================================================================
+
+Selected configuration: hybrid_top512
+(Edit SELECTED_CONFIG at the top of the script to change)
+
+===================================================================================================================
+ SUPERVISED CLASSIFICATION PERFORMANCE: HYBRID_TOP512
+ Model: XGBoost | Out-of-Fold Predictions (5-Fold StratifiedGroupKFold)
+===================================================================================================================
+Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
+-------------------------------------------------------------------------------------------------------------------
+  1a. Human Plagiarism (Base)  |    19.7% |   86.1% |   32.1% |    23.3% |  3236 | 13176 |   521 | 223788
+  1b. Human Plagiarism + DSP   |    70.4% |   83.4% |   76.3% |    72.6% | 31317 | 13176 |  6253 | 223788
+  2. Original + DSP            |    47.9% |   99.2% |   64.6% |    53.4% | 12097 | 13176 |    93 | 223788
+  3. AI Generation (Base)      |    19.8% |   59.3% |   29.7% |    22.8% |  3247 | 13176 |  2225 | 223788
+  4. AI + DSP                  |    69.1% |   53.9% |   60.5% |    65.4% | 29462 | 13176 | 25239 | 223788
+► OVERALL                      |    85.8% |   69.8% |   77.0% |    82.0% | 79359 | 13176 | 34331 | 223788
+===================================================================================================================
+
+  Broad metrics saved → results\binary_supervised_classification\supervised_broad_metrics.csv
+  Detailed metrics saved → results\binary_supervised_classification\supervised_detailed_metrics.csv
+  FP tier breakdown saved → results\binary_supervised_classification\supervised_fp_tier_breakdown.csv
+
+  False Positive Breakdown:
+category_grouped          negative_tier  FP_Count
+  Negative Pairs         global_nearest      6702
+  Negative Pairs intra_category_nearest      3612
+  Negative Pairs                 random      2862
+
+===================================================================================================================
+SUPERVISED RESULTS PRESENTATION COMPLETE
+  Configuration: hybrid_top512
+  Results saved → results\binary_supervised_classification/
+===================================================================================================================

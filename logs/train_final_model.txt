@@ -1,47 +1,61 @@
-2026-05-22 01:06:06 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
-2026-05-22 01:06:06 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
-2026-05-22 01:06:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-22 01:06:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-22 01:06:06 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-26 23:44:42 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
+2026-05-26 23:44:42 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
+2026-05-26 23:44:42 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-26 23:44:42 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-26 23:44:42 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-26 23:44:42 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-26 23:44:42 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-26 23:44:42 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-26 23:44:42 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-26 23:46:31 [INFO] Building hybrid feature matrix with CLEWS Top-512.
 ======================================================================
-TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION MODEL)
+TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION ARTIFACT)
 ======================================================================
+Selected configuration: hybrid_top512
 
-[1/5] Loading feature table...
-  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+[1/4] Loading feature table...
+  Loaded 350,654 pairs
+  Positives: 113,690
+  Negatives: 236,964
 
-[2/5] Assembling Feature Set D (Engineered No Vocals + CLEWS XAI Top-512)...
+[2/4] Building selected feature matrix...
+
+  Computing training reference statistics for inference consistency...
+  Computing CLEWS reference statistics...
   Loaded 73582 embeddings from clews_embeddings.parquet
-  Feature matrix: (350654, 542)  (30 engineered + 512 XAI)
+    [CLEWS] q75=1.224900, n_stable=100, n_volatile=100 (from 113690 positive pairs)
+  Computing WEALY reference statistics...
+  Loaded 73581 embeddings from wealy_embeddings.parquet
+    [WEALY] q75=0.900863, n_stable=100, n_volatile=100 (from 113689 positive pairs)
+2026-05-26 23:46:31 [INFO] Building hybrid feature matrix with CLEWS Top-512.
+2026-05-26 23:46:31 [INFO] Building hybrid feature matrix with CLEWS Top-512.
+2026-05-26 23:46:31 [INFO] Building hybrid feature matrix with CLEWS Top-512.
+  Loaded 73582 embeddings from clews_embeddings.parquet
 
-[3/5] Calibrating threshold on 10% hold-out...
-  Optimal F0.5 threshold (calibration set): 0.6496
+  Final feature matrix: (350654, 542)
+  Uses vocals: False
+  Uses CLEWS Top-K: True
+  CLEWS Top-K: 512
+  CLEWS ref q75: 1.224900
+  WEALY ref q75: 0.900863
 
-[4/5] Retraining on 100% of data and saving artifact...
+[3/4] Calibrating threshold on 10% hold-out...
+  Optimal F0.5 threshold (calibration set): 0.6656
+
+[4/4] Retraining on 100% of data and saving artifact...
   Artifact saved → models\final_plagiarism_detector.pkl
-
-──────────────────────────────────────────────────────────────────────
-INFERENCE DEMO  (held-out calibration samples)
-──────────────────────────────────────────────────────────────────────
-  Pair: 50  |  Type: mgeldm_drums_tempo110 
-    Truth: PLAGIARISM        Pred: NOT PLAGIARISM   ✗
-    Score: 56.2%  (threshold 65.0%)
-
-  Pair: 58  |  Type: mgeldm_other_tempo110 
-    Truth: PLAGIARISM        Pred: NOT PLAGIARISM   ✗
-    Score: 38.9%  (threshold 65.0%)
-
-  Pair: 61  |  Type: Negative_mgeldm_other_pitchU4_tempo110
-    Truth: NOT PLAGIARISM    Pred: NOT PLAGIARISM   ✓
-    Score: 25.7%  (threshold 65.0%)
-
-  Pair: 70  |  Type: Negative_audioldm2_pitchD4_tempo090
-    Truth: NOT PLAGIARISM    Pred: NOT PLAGIARISM   ✓
-    Score: 60.6%  (threshold 65.0%)
 
 ======================================================================
 Production artifact is ready.
-  Model   → models\final_plagiarism_detector.pkl
-  Features: 542  (30 eng + 512 XAI)
-  Threshold (F0.5): 0.6496
+  Model        → models\final_plagiarism_detector.pkl
+  Config       → hybrid_top512
+  Features     → 542
+  Threshold    → 0.6656
+  CLEWS ref q75 → 1.224900
+  WEALY ref q75 → 0.900863
+  CLEWS stable  → 100 dims
+  CLEWS volatile→ 100 dims
+  WEALY stable  → 100 dims
+  WEALY volatile→ 100 dims
+  CLEWS Top-K   → 512 dims
 ======================================================================

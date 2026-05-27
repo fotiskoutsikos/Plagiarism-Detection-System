@@ -1,0 +1,154 @@
+2026-05-26 20:53:20 [INFO] Logging initialized for selected_model_evaluation, file: logs\selected_model_evaluation.txt
+2026-05-26 20:53:20 [INFO] Logging initialized for selected_model_evaluation, file: logs\selected_model_evaluation.txt
+2026-05-26 20:53:20 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-26 20:53:20 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-26 20:53:20 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-26 20:53:20 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-26 20:53:20 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-26 20:53:20 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-26 20:53:20 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+======================================================================
+SELECTED MODEL EVALUATION — DEEP DIAGNOSTIC ANALYSIS
+======================================================================
+
+Configurations to evaluate: engineered_no_vocals, engineered_with_vocals, hybrid_top512
+
+Loading feature table from data\classifier_features.parquet...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+
+======================================================================
+EVALUATING CONFIGURATION: ENGINEERED_NO_VOCALS
+======================================================================
+
+[1/4] Building features for: engineered_no_vocals...
+  Feature matrix: (350654, 30)  (30 features)
+
+[2/4] Running cross-validation with XGBoost...
+
+  ► Overall Performance: F0.5=0.6573  Prec=0.7278  Rec=0.4739  F1=0.5740
+
+[3/4] Running triple-tier error analysis...
+
+===================================================================================================================
+  TRIPLE-TIER ANALYSIS — ENGINEERED_NO_VOCALS (Supervised / OOF)
+===================================================================================================================
+  Category                       | Precision |   Recall |      F1 |     F0.5 |    TP |    FP |    FN |     TN
+  --------------------------------------------------------------------------------------------------------------
+    1a. Human Plagiarism (Base)  |     9.3% |   55.1% |  15.9% |   11.2% |  2069 | 20156 |  1688 | 216808
+    1b. Human Plagiarism + DSP   |    49.8% |   53.3% |  51.5% |   50.5% | 20028 | 20156 | 17542 | 216808
+    2. Original + DSP            |    37.3% |   98.6% |  54.2% |   42.6% | 12014 | 20156 |   176 | 216808
+    3. AI Generation (Base)      |    10.1% |   41.5% |  16.3% |   11.9% |  2271 | 20156 |  3201 | 216808
+    4. AI + DSP                  |    46.5% |   32.0% |  37.9% |   42.6% | 17496 | 20156 | 37205 | 216808
+  ► OVERALL                      |    72.8% |   47.4% |  57.4% |   65.7% | 53878 | 20156 | 59812 | 216808
+  ==============================================================================================================
+
+  Broad metrics saved → results\classification\engineered_no_vocals_broad_metrics.csv
+  Detailed metrics saved → results\classification\engineered_no_vocals_detailed_metrics.csv
+  FP tier breakdown saved → results\classification\engineered_no_vocals_fp_tier_breakdown.csv
+
+[4/4] Computing permutation feature importance...
+
+  Computing permutation importance: engineered_no_vocals
+    CSV → results\classification\engineered_no_vocals_feature_importance.csv
+    Family CSV → results\classification\engineered_no_vocals_feature_importance_family.csv
+    Plot → plots\classification\engineered_no_vocals_feature_importance.pdf
+    Plot → plots\classification\engineered_no_vocals_feature_importance_family.pdf
+
+======================================================================
+Evaluation complete for: engineered_no_vocals
+======================================================================
+
+
+======================================================================
+EVALUATING CONFIGURATION: ENGINEERED_WITH_VOCALS
+======================================================================
+
+[1/4] Building features for: engineered_with_vocals...
+  Feature matrix: (350654, 35)  (35 features)
+
+[2/4] Running cross-validation with XGBoost...
+
+  ► Overall Performance: F0.5=0.8651  Prec=0.8900  Rec=0.7784  F1=0.8304
+
+[3/4] Running triple-tier error analysis...
+
+===================================================================================================================
+  TRIPLE-TIER ANALYSIS — ENGINEERED_WITH_VOCALS (Supervised / OOF)
+===================================================================================================================
+  Category                       | Precision |   Recall |      F1 |     F0.5 |    TP |    FP |    FN |     TN
+  --------------------------------------------------------------------------------------------------------------
+    1a. Human Plagiarism (Base)  |    16.7% |   58.2% |  25.9% |   19.5% |  2187 | 10919 |  1570 | 226045
+    1b. Human Plagiarism + DSP   |    65.5% |   55.2% |  59.9% |   63.2% | 20739 | 10919 | 16831 | 226045
+    2. Original + DSP            |    52.7% |   99.7% |  68.9% |   58.2% | 12155 | 10919 |    35 | 226045
+    3. AI Generation (Base)      |    31.4% |   91.5% |  46.8% |   36.2% |  5005 | 10919 |   467 | 226045
+    4. AI + DSP                  |    81.6% |   88.5% |  84.9% |   82.9% | 48402 | 10919 |  6299 | 226045
+  ► OVERALL                      |    89.0% |   77.8% |  83.0% |   86.5% | 88488 | 10919 | 25202 | 226045
+  ==============================================================================================================
+
+  Broad metrics saved → results\classification\engineered_with_vocals_broad_metrics.csv
+  Detailed metrics saved → results\classification\engineered_with_vocals_detailed_metrics.csv
+  FP tier breakdown saved → results\classification\engineered_with_vocals_fp_tier_breakdown.csv
+
+[4/4] Computing permutation feature importance...
+
+  Computing permutation importance: engineered_with_vocals
+    CSV → results\classification\engineered_with_vocals_feature_importance.csv
+    Family CSV → results\classification\engineered_with_vocals_feature_importance_family.csv
+    Plot → plots\classification\engineered_with_vocals_feature_importance.pdf
+    Plot → plots\classification\engineered_with_vocals_feature_importance_family.pdf
+
+======================================================================
+Evaluation complete for: engineered_with_vocals
+======================================================================
+
+
+======================================================================
+EVALUATING CONFIGURATION: HYBRID_TOP512
+======================================================================
+
+[1/4] Building features for: hybrid_top512...
+    Building CLEWS delta matrix for Top-512...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Feature matrix: (350654, 542)  (542 features)
+
+[2/4] Running cross-validation with XGBoost...
+
+  ► Overall Performance: F0.5=0.8202  Prec=0.8581  Rec=0.6979  F1=0.7695
+
+[3/4] Running triple-tier error analysis...
+
+===================================================================================================================
+  TRIPLE-TIER ANALYSIS — HYBRID_TOP512 (Supervised / OOF)
+===================================================================================================================
+  Category                       | Precision |   Recall |      F1 |     F0.5 |    TP |    FP |    FN |     TN
+  --------------------------------------------------------------------------------------------------------------
+    1a. Human Plagiarism (Base)  |    19.7% |   86.1% |  32.1% |   23.3% |  3236 | 13176 |   521 | 223788
+    1b. Human Plagiarism + DSP   |    70.4% |   83.4% |  76.3% |   72.6% | 31317 | 13176 |  6253 | 223788
+    2. Original + DSP            |    47.9% |   99.2% |  64.6% |   53.4% | 12097 | 13176 |    93 | 223788
+    3. AI Generation (Base)      |    19.8% |   59.3% |  29.7% |   22.8% |  3247 | 13176 |  2225 | 223788
+    4. AI + DSP                  |    69.1% |   53.9% |  60.5% |   65.4% | 29462 | 13176 | 25239 | 223788
+  ► OVERALL                      |    85.8% |   69.8% |  77.0% |   82.0% | 79359 | 13176 | 34331 | 223788
+  ==============================================================================================================
+
+  Broad metrics saved → results\classification\hybrid_top512_broad_metrics.csv
+  Detailed metrics saved → results\classification\hybrid_top512_detailed_metrics.csv
+  FP tier breakdown saved → results\classification\hybrid_top512_fp_tier_breakdown.csv
+
+[4/4] Computing permutation feature importance...
+
+  Computing permutation importance: hybrid_top512
+    CSV → results\classification\hybrid_top512_feature_importance.csv
+    Family CSV → results\classification\hybrid_top512_feature_importance_family.csv
+    Plot → plots\classification\hybrid_top512_feature_importance.pdf
+    Plot → plots\classification\hybrid_top512_feature_importance_family.pdf
+
+======================================================================
+Evaluation complete for: hybrid_top512
+======================================================================
+
+
+======================================================================
+ALL EVALUATIONS COMPLETE
+  Results → results\classification/
+  Plots   → plots\classification/
+======================================================================
