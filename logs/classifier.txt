@@ -1,8 +1,8 @@
-2026-05-26 19:12:52 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-26 19:12:52 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-26 19:38:42 [INFO] Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-05-31 15:26:29 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 15:26:29 [INFO] Logging initialized for classifier, file: logs\classifier.txt
 ======================================================================
 FEATURE ABLATION STUDY — BINARY PLAGIARISM CLASSIFICATION
+Statistical rigor: 10 seed(s) per experiment
 ======================================================================
 
 Loading feature table from data\classifier_features.parquet...
@@ -12,50 +12,59 @@ Loading feature table from data\classifier_features.parquet...
 PHASE 1 — ENGINEERED FEATURE EXPERIMENTS
 ──────────────────────────────────────────────────────────────────────
 
-  Running: 1. CLEWS Distances  (4 features)
+  Running: 1. CLEWS Distances  (4 features, 10 seed(s))
 
-  ► 1. CLEWS Distances                           | Features: 4    
-    F0.5: 0.6335  |  Prec: 0.7365  |  Rec: 0.4065  |  F1: 0.5237  |  Acc: 0.7603
+  ► 1. CLEWS Distances                           | Features: 4     | Seeds: 10
+    F0.5: 0.6330 [±0.0019]  |  Prec: 0.7330  |  Rec: 0.4107  |  F1: 0.5259  |  Acc: 0.7601
+    Train: 1.30s/fold  |  Infer: 0.0006ms/sample
 
-  Running: 2. WEALY Distances  (4 features)
+  Running: 2. WEALY Distances  (4 features, 10 seed(s))
 
-  ► 2. WEALY Distances                           | Features: 4    
-    F0.5: 0.4270  |  Prec: 0.4359  |  Rec: 0.3966  |  F1: 0.4147  |  Acc: 0.6376
+  ► 2. WEALY Distances                           | Features: 4     | Seeds: 10
+    F0.5: 0.4267 [±0.0015]  |  Prec: 0.4358  |  Rec: 0.3962  |  F1: 0.4143  |  Acc: 0.6374
+    Train: 1.18s/fold  |  Infer: 0.0005ms/sample
 
-  Running: 3. All Distances  (8 features)
+  Running: 3. All Distances  (8 features, 10 seed(s))
 
-  ► 3. All Distances                             | Features: 8    
-    F0.5: 0.6454  |  Prec: 0.7269  |  Rec: 0.4459  |  F1: 0.5526  |  Acc: 0.7661
+  ► 3. All Distances                             | Features: 8     | Seeds: 10
+    F0.5: 0.6478 [±0.0019]  |  Prec: 0.7323  |  Rec: 0.4438  |  F1: 0.5524  |  Acc: 0.7669
+    Train: 1.32s/fold  |  Infer: 0.0005ms/sample
 
-  Running: 4. CLEWS Delta Summaries  (11 features)
+  Running: 4. CLEWS Delta Summaries  (11 features, 10 seed(s))
 
-  ► 4. CLEWS Delta Summaries                     | Features: 11   
-    F0.5: 0.5841  |  Prec: 0.6804  |  Rec: 0.3732  |  F1: 0.4819  |  Acc: 0.7400
+  ► 4. CLEWS Delta Summaries                     | Features: 11    | Seeds: 10
+    F0.5: 0.5814 [±0.0031]  |  Prec: 0.6747  |  Rec: 0.3749  |  F1: 0.4818  |  Acc: 0.7385
+    Train: 1.40s/fold  |  Infer: 0.0005ms/sample
 
-  Running: 5. WEALY Delta Summaries  (11 features)
+  Running: 5. WEALY Delta Summaries  (11 features, 10 seed(s))
 
-  ► 5. WEALY Delta Summaries                     | Features: 11   
-    F0.5: 0.4007  |  Prec: 0.3940  |  Rec: 0.4308  |  F1: 0.4113  |  Acc: 0.6007
+  ► 5. WEALY Delta Summaries                     | Features: 11    | Seeds: 10
+    F0.5: 0.3983 [±0.0016]  |  Prec: 0.3920  |  Rec: 0.4268  |  F1: 0.4084  |  Acc: 0.5993
+    Train: 1.47s/fold  |  Infer: 0.0005ms/sample
 
-  Running: 6. All Delta Summaries  (22 features)
+  Running: 6. All Delta Summaries  (22 features, 10 seed(s))
 
-  ► 6. All Delta Summaries                       | Features: 22   
-    F0.5: 0.6080  |  Prec: 0.6960  |  Rec: 0.4040  |  F1: 0.5112  |  Acc: 0.7494
+  ► 6. All Delta Summaries                       | Features: 22    | Seeds: 10
+    F0.5: 0.6057 [±0.0022]  |  Prec: 0.6906  |  Rec: 0.4067  |  F1: 0.5116  |  Acc: 0.7483
+    Train: 1.95s/fold  |  Infer: 0.0005ms/sample
 
-  Running: 7. All Engineered (No Vocal)  (30 features)
+  Running: 7. All Engineered (No Vocal)  (30 features, 10 seed(s))
 
-  ► 7. All Engineered (No Vocal)                 | Features: 30   
-    F0.5: 0.6573  |  Prec: 0.7278  |  Rec: 0.4739  |  F1: 0.5740  |  Acc: 0.7720
+  ► 7. All Engineered (No Vocal)                 | Features: 30    | Seeds: 10
+    F0.5: 0.6584 [±0.0018]  |  Prec: 0.7288  |  Rec: 0.4756  |  F1: 0.5753  |  Acc: 0.7724
+    Train: 2.31s/fold  |  Infer: 0.0005ms/sample
 
-  Running: 8. All Engineered (Vocal)  (35 features)
+  Running: 8. All Engineered (Vocal)  (35 features, 10 seed(s))
 
-  ► 8. All Engineered (Vocal)                    | Features: 35   
-    F0.5: 0.8651  |  Prec: 0.8900  |  Rec: 0.7784  |  F1: 0.8304  |  Acc: 0.8970
+  ► 8. All Engineered (Vocal)                    | Features: 35    | Seeds: 10
+    F0.5: 0.8640 [±0.0013]  |  Prec: 0.8876  |  Rec: 0.7814  |  F1: 0.8310  |  Acc: 0.8970
+    Train: 2.58s/fold  |  Infer: 0.0005ms/sample
 
-  Running: 9. Vocal Only  (5 features)
+  Running: 9. Vocal Only  (5 features, 10 seed(s))
 
-  ► 9. Vocal Only                                | Features: 5    
-    F0.5: 0.8367  |  Prec: 0.8917  |  Rec: 0.6732  |  F1: 0.7664  |  Acc: 0.8671
+  ► 9. Vocal Only                                | Features: 5     | Seeds: 10
+    F0.5: 0.8360 [±0.0010]  |  Prec: 0.8959  |  Rec: 0.6620  |  F1: 0.7605  |  Acc: 0.8651
+    Train: 1.16s/fold  |  Infer: 0.0005ms/sample
 
 ──────────────────────────────────────────────────────────────────────
 PHASE 2 — RAW EMBEDDING DELTA EXPERIMENTS
@@ -65,19 +74,21 @@ PHASE 2 — RAW EMBEDDING DELTA EXPERIMENTS
   Computing CLEWS delta matrix...
   [CLEWS] Delta: 350654/350654 valid, 0 missing, dim=1024
 
-  Running: 10. CLEWS Full Δ (1024D)
+  Running: 10. CLEWS Full Δ (1024D)  (10 seed(s))
 
-  ► 10. CLEWS Full Δ (1024D)                     | Features: 1024 
-    F0.5: 0.8144  |  Prec: 0.8600  |  Rec: 0.6720  |  F1: 0.7544  |  Acc: 0.8582
+  ► 10. CLEWS Full Δ (1024D)                     | Features: 1024  | Seeds: 10
+    F0.5: 0.8115 [±0.0016]  |  Prec: 0.8561  |  Rec: 0.6719  |  F1: 0.7527  |  Acc: 0.8569
+    Train: 119.25s/fold  |  Infer: 0.0011ms/sample
   Loading WEALY embeddings...
   Loaded 73581 embeddings from wealy_embeddings.parquet
   Computing WEALY delta matrix...
   [WEALY] Delta: 350501/350654 valid, 153 missing, dim=512
 
-  Running: 11. WEALY Full Δ (512D)
+  Running: 11. WEALY Full Δ (512D)  (10 seed(s))
 
-  ► 11. WEALY Full Δ (512D)                      | Features: 512  
-    F0.5: 0.4885  |  Prec: 0.5191  |  Rec: 0.3957  |  F1: 0.4490  |  Acc: 0.6852
+  ► 11. WEALY Full Δ (512D)                      | Features: 512   | Seeds: 10
+    F0.5: 0.4918 [±0.0021]  |  Prec: 0.5262  |  Rec: 0.3905  |  F1: 0.4481  |  Acc: 0.6882
+    Train: 53.29s/fold  |  Infer: 0.0008ms/sample
 
 ──────────────────────────────────────────────────────────────────────
 PHASE 3 — TOP-K CLEWS DIMENSION CONVERGENCE CURVE
@@ -85,64 +96,137 @@ PHASE 3 — TOP-K CLEWS DIMENSION CONVERGENCE CURVE
   Full CLEWS delta matrix: (350654, 1024)
   Ranking dimensions by mean absolute shift on positive pairs...
 
-  Running: Top-10 CLEWS Dims
-  Top-10 CLEWS Dims         → F0.5: 0.4948
+  Running: Top-10 CLEWS Dims  (10 seed(s))
+  Top-10 CLEWS Dims         → F0.5: 0.5017 ±0.0018  | Train: 1.50s/fold  | Infer: 0.0005ms/sample
 
-  Running: Top-30 CLEWS Dims
-  Top-30 CLEWS Dims         → F0.5: 0.6104
+  Running: Top-30 CLEWS Dims  (10 seed(s))
+  Top-30 CLEWS Dims         → F0.5: 0.6124 ±0.0014  | Train: 2.65s/fold  | Infer: 0.0005ms/sample
 
-  Running: Top-50 CLEWS Dims
-  Top-50 CLEWS Dims         → F0.5: 0.6447
+  Running: Top-50 CLEWS Dims  (10 seed(s))
+  Top-50 CLEWS Dims         → F0.5: 0.6469 ±0.0015  | Train: 3.72s/fold  | Infer: 0.0005ms/sample
 
-  Running: Top-100 CLEWS Dims
-  Top-100 CLEWS Dims        → F0.5: 0.6876
+  Running: Top-100 CLEWS Dims  (10 seed(s))
+  Top-100 CLEWS Dims        → F0.5: 0.6867 ±0.0012  | Train: 6.69s/fold  | Infer: 0.0006ms/sample
 
-  Running: Top-256 CLEWS Dims
-  Top-256 CLEWS Dims        → F0.5: 0.7490
+  Running: Top-256 CLEWS Dims  (10 seed(s))
+  Top-256 CLEWS Dims        → F0.5: 0.7492 ±0.0025  | Train: 22.78s/fold  | Infer: 0.0007ms/sample
 
-  Running: Top-512 CLEWS Dims
-  Top-512 CLEWS Dims        → F0.5: 0.7856
+  Running: Top-512 CLEWS Dims  (10 seed(s))
+  Top-512 CLEWS Dims        → F0.5: 0.7922 ±0.0018  | Train: 54.81s/fold  | Infer: 0.0008ms/sample
 
-  Appended precomputed Full-1024D result → F0.5: 0.8144
+  Appended precomputed Full-1024D result → F0.5: 0.8115 ±0.0016
 
 
 Loading threshold baselines for comparison...
 
-====================================================================================================
-  Experiment                                 |  Feats |    F0.5 |    Prec |     Rec |      F1 |     Acc
-  ───────────────────────────────────────────────────────────────────────────────────────────────
-  CLEWS Threshold Baseline                   |      – |  0.6123 |  0.9276 |  0.2596 |  0.4056 |  0.7534
-  WEALY Threshold Baseline                   |      – |  0.4421 |  0.4637 |  0.3743 |  0.4137 |  0.6479
-  FUSION Threshold Baseline                  |      – |  0.6097 |  0.9040 |  0.2649 |  0.4097 |  0.7524
-  ───────────────────────────────────────────────────────────────────────────────────────────────
-  1. CLEWS Distances                         |      4 |  0.6335 |  0.7365 |  0.4065 |  0.5237 |  0.7603
-  2. WEALY Distances                         |      4 |  0.4270 |  0.4359 |  0.3966 |  0.4147 |  0.6376
-  3. All Distances                           |      8 |  0.6454 |  0.7269 |  0.4459 |  0.5526 |  0.7661
-  4. CLEWS Delta Summaries                   |     11 |  0.5841 |  0.6804 |  0.3732 |  0.4819 |  0.7400
-  5. WEALY Delta Summaries                   |     11 |  0.4007 |  0.3940 |  0.4308 |  0.4113 |  0.6007
-  6. All Delta Summaries                     |     22 |  0.6080 |  0.6960 |  0.4040 |  0.5112 |  0.7494
-  7. All Engineered (No Vocal)               |     30 |  0.6573 |  0.7278 |  0.4739 |  0.5740 |  0.7720
-  8. All Engineered (Vocal)                  |     35 |  0.8651 |  0.8900 |  0.7784 |  0.8304 |  0.8970
-  9. Vocal Only                              |      5 |  0.8367 |  0.8917 |  0.6732 |  0.7664 |  0.8671
-  10. CLEWS Full Δ (1024D)                   |   1024 |  0.8144 |  0.8600 |  0.6720 |  0.7544 |  0.8582
-  11. WEALY Full Δ (512D)                    |    512 |  0.4885 |  0.5191 |  0.3957 |  0.4490 |  0.6852
-====================================================================================================
+==============================================================================================================
+  Experiment                                 |  Feats |    F0.5 |    CI95 |    Prec |     Rec |      F1 |     Acc |  Train(s)
+  ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  CLEWS Threshold Baseline                   |      – |  0.6123 |       – |  0.9276 |  0.2596 |  0.4056 |  0.7534 |         –
+  WEALY Threshold Baseline                   |      – |  0.4421 |       – |  0.4637 |  0.3743 |  0.4137 |  0.6479 |         –
+  FUSION Threshold Baseline                  |      – |  0.6097 |       – |  0.9040 |  0.2649 |  0.4097 |  0.7524 |         –
+  ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  1. CLEWS Distances                         |      4 |  0.6330 | ±0.0019 |  0.7330 |  0.4107 |  0.5259 |  0.7601 |      1.30
+  2. WEALY Distances                         |      4 |  0.4267 | ±0.0015 |  0.4358 |  0.3962 |  0.4143 |  0.6374 |      1.18
+  3. All Distances                           |      8 |  0.6478 | ±0.0019 |  0.7323 |  0.4438 |  0.5524 |  0.7669 |      1.32
+  4. CLEWS Delta Summaries                   |     11 |  0.5814 | ±0.0031 |  0.6747 |  0.3749 |  0.4818 |  0.7385 |      1.41
+  5. WEALY Delta Summaries                   |     11 |  0.3983 | ±0.0016 |  0.3920 |  0.4268 |  0.4084 |  0.5993 |      1.47
+  6. All Delta Summaries                     |     22 |  0.6057 | ±0.0022 |  0.6906 |  0.4067 |  0.5116 |  0.7483 |      1.95
+  7. All Engineered (No Vocal)               |     30 |  0.6584 | ±0.0018 |  0.7288 |  0.4756 |  0.5753 |  0.7724 |      2.31
+  8. All Engineered (Vocal)                  |     35 |  0.8640 | ±0.0013 |  0.8876 |  0.7814 |  0.8310 |  0.8970 |      2.58
+  9. Vocal Only                              |      5 |  0.8360 | ±0.0010 |  0.8959 |  0.6620 |  0.7605 |  0.8651 |      1.16
+  10. CLEWS Full Δ (1024D)                   |   1024 |  0.8115 | ±0.0016 |  0.8561 |  0.6719 |  0.7527 |  0.8569 |    119.25
+  11. WEALY Full Δ (512D)                    |    512 |  0.4918 | ±0.0021 |  0.5262 |  0.3905 |  0.4481 |  0.6882 |     53.29
+==============================================================================================================
 
   Ablation results  → results\classification\ablation_results.csv
   Top-K curve       → results\classification\ablation_topk_curve.csv
+Traceback (most recent call last):
+  File "C:\Users\Fotis\AppData\Roaming\Python\Python313\site-packages\pandas\core\indexes\base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas\\_libs\\hashtable_class_helper.pxi", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas\\_libs\\hashtable_class_helper.pxi", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'F0._CI95'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\ablation.py", line 599, in <module>
+    main()
+    ~~~~^^
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\ablation.py", line 585, in main
+    _plot_ablation_comparison(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        df_results, df_baselines,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+        PLOTS_DIR / "ablation_f05_comparison.pdf",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\ablation.py", line 212, in _plot_ablation_comparison
+    for i, (val, ci) in enumerate(zip(df_plot[col], df_plot[f"{col[:3]}_CI95"] if col == "F0.5" else df_plot["Prec_CI95"] if col == "Precision" else df_plot["Rec_CI95"])):
+                                                    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Fotis\AppData\Roaming\Python\Python313\site-packages\pandas\core\frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "C:\Users\Fotis\AppData\Roaming\Python\Python313\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'F0._CI95'
+2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+======================================================================
+REBUILD ABLATION OUTPUTS FROM PRECOMPUTED CSVs
+======================================================================
+
+Loading saved ablation results from results\classification\ablation_results.csv...
+Loading saved top-k curve from results\classification\ablation_topk_curve.csv...
+  Loaded 11 ablation rows
+  Loaded 7 top-k rows
+
+Loading threshold baselines...
+  Loaded 3 baseline rows
+
+  Ablation results  → results\classification\ablation_results.csv
+  Top-K curve       → results\classification\ablation_topk_curve.csv
+
+Generating plots...
   Plot saved → plots\classification\ablation_f05_comparison.pdf
-2026-05-26 19:38:42 [INFO] Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
-2026-05-26 19:38:42 [INFO] Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
-2026-05-26 19:38:42 [INFO] Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
   Plot saved → plots\classification\ablation_topk_convergence_curve.pdf
 
   All outputs → results\classification/  and  plots\classification/
 
 Done.
-2026-05-26 20:31:19 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-26 20:31:19 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+======================================================================
+REBUILD ABLATION OUTPUTS FROM PRECOMPUTED CSVs
+======================================================================
+
+Loading saved ablation results from results\classification\ablation_results.csv...
+Loading saved top-k curve from results\classification\ablation_topk_curve.csv...
+  Loaded 11 ablation rows
+  Loaded 7 top-k rows
+
+Loading threshold baselines...
+  Loaded 3 baseline rows
+
+  Ablation results  → results\classification\ablation_results.csv
+  Top-K curve       → results\classification\ablation_topk_curve.csv
+
+Generating plots...
+  Plot saved → plots\classification\ablation_f05_comparison.pdf
+  Plot saved → plots\classification\ablation_topk_convergence_curve.pdf
+
+  All outputs → results\classification/  and  plots\classification/
+
+Done.
+2026-05-31 20:20:44 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:20:44 [INFO] Logging initialized for classifier, file: logs\classifier.txt
 ======================================================================
 HYBRID FEATURE EXPERIMENTS — ENGINEERED + TOP-K CLEWS
+Statistical rigor: 10 seed(s) per experiment
 ======================================================================
 
 Loading feature table from data\classifier_features.parquet...
@@ -156,42 +240,45 @@ Loading feature table from data\classifier_features.parquet...
   CLEWS delta matrix: (350654, 1024)
   Dimensions ranked by mean absolute shift on 113690 positive pairs
 
-[3/4] Running hybrid experiments...
+[3/4] Running hybrid experiments (10 seed(s) each)...
 ──────────────────────────────────────────────────────────────────────
 
   Running: Hybrid: Engineered (No Vocals) + Top-256 CLEWS
 
-  ► Hybrid: Engineered (No Vocals) + Top-256 CLEWS | Features: 286  
-    F0.5: 0.7935  |  Prec: 0.8336  |  Rec: 0.6657  |  F1: 0.7401  |  Acc: 0.8485
+  ► Hybrid: Engineered (No Vocals) + Top-256 CLEWS | Features: 286   | Seeds: 10
+    F0.5: 0.7951 [±0.0017]  |  Prec: 0.8359  |  Rec: 0.6658  |  F1: 0.7410  |  Acc: 0.8491
+    Train: 26.90s/fold  |  Infer: 0.0007ms/sample
 
   Running: Hybrid: Engineered (No Vocals) + Top-512 CLEWS
 
-  ► Hybrid: Engineered (No Vocals) + Top-512 CLEWS | Features: 542  
-    F0.5: 0.8202  |  Prec: 0.8581  |  Rec: 0.6979  |  F1: 0.7695  |  Acc: 0.8645
+  ► Hybrid: Engineered (No Vocals) + Top-512 CLEWS | Features: 542   | Seeds: 10
+    F0.5: 0.8209 [±0.0014]  |  Prec: 0.8583  |  Rec: 0.6995  |  F1: 0.7707  |  Acc: 0.8651
+    Train: 57.04s/fold  |  Infer: 0.0008ms/sample
 
   Running: Hybrid: Engineered (No Vocals) + Top-1024 CLEWS
 
-  ► Hybrid: Engineered (No Vocals) + Top-1024 CLEWS | Features: 1054 
-    F0.5: 0.8275  |  Prec: 0.8603  |  Rec: 0.7187  |  F1: 0.7829  |  Acc: 0.8709
+  ► Hybrid: Engineered (No Vocals) + Top-1024 CLEWS | Features: 1054  | Seeds: 10
+    F0.5: 0.8339 [±0.0019]  |  Prec: 0.8678  |  Rec: 0.7215  |  F1: 0.7878  |  Acc: 0.8740
+    Train: 116.06s/fold  |  Infer: 0.0011ms/sample
 
 [4/4] Loading ablation results for comparison...
   Loaded 11 ablation experiments
 
-====================================================================================================
-  Experiment                                         |  Feats |    F0.5 |    Prec |     Rec |      F1 |     Acc
-  ───────────────────────────────────────────────────────────────────────────────────────────────
-  CLEWS Threshold Baseline                           |      – |  0.6123 |  0.9276 |  0.2596 |  0.4056 |  0.7534
-  WEALY Threshold Baseline                           |      – |  0.4421 |  0.4637 |  0.3743 |  0.4137 |  0.6479
-  FUSION Threshold Baseline                          |      – |  0.6097 |  0.9040 |  0.2649 |  0.4097 |  0.7524
-  ───────────────────────────────────────────────────────────────────────────────────────────────
-  7. All Engineered (No Vocal)                       |     30 |  0.6573 |  0.7278 |  0.4739 |  0.5740 |  0.7720
-  8. All Engineered (Vocal)                          |     35 |  0.8651 |  0.8900 |  0.7784 |  0.8304 |  0.8970
-  10. CLEWS Full Δ (1024D)                           |   1024 |  0.8144 |  0.8600 |  0.6720 |  0.7544 |  0.8582
-  ───────────────────────────────────────────────────────────────────────────────────────────────
-  Hybrid: Engineered (No Vocals) + Top-256 CLEWS     |    286 |  0.7935 |  0.8336 |  0.6657 |  0.7401 |  0.8485
-  Hybrid: Engineered (No Vocals) + Top-512 CLEWS     |    542 |  0.8202 |  0.8581 |  0.6979 |  0.7695 |  0.8645
-  Hybrid: Engineered (No Vocals) + Top-1024 CLEWS    |   1054 |  0.8275 |  0.8603 |  0.7187 |  0.7829 |  0.8709
-====================================================================================================
+===================================================================================================================
+  Experiment                                         |  Feats |    F0.5 |    CI95 |    Prec |     Rec |      F1 |     Acc |  Train(s)
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  CLEWS Threshold Baseline                           |      – |  0.6123 |       – |  0.9276 |  0.2596 |  0.4056 |  0.7534 |         –
+  WEALY Threshold Baseline                           |      – |  0.4421 |       – |  0.4637 |  0.3743 |  0.4137 |  0.6479 |         –
+  FUSION Threshold Baseline                          |      – |  0.6097 |       – |  0.9040 |  0.2649 |  0.4097 |  0.7524 |         –
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  7. All Engineered (No Vocal)                       |     30 |  0.6584 | ±0.0018 |  0.7288 |  0.4756 |  0.5753 |  0.7724 |      2.31
+  8. All Engineered (Vocal)                          |     35 |  0.8640 | ±0.0013 |  0.8876 |  0.7814 |  0.8310 |  0.8970 |      2.58
+  10. CLEWS Full Δ (1024D)                           |   1024 |  0.8115 | ±0.0016 |  0.8561 |  0.6719 |  0.7527 |  0.8569 |    119.25
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Hybrid: Engineered (No Vocals) + Top-256 CLEWS     |    286 |  0.7951 | ±0.0017 |  0.8359 |  0.6658 |  0.7410 |  0.8491 |     26.90
+  Hybrid: Engineered (No Vocals) + Top-512 CLEWS     |    542 |  0.8209 | ±0.0014 |  0.8583 |  0.6995 |  0.7707 |  0.8651 |     57.04
+  Hybrid: Engineered (No Vocals) + Top-1024 CLEWS    |   1054 |  0.8339 | ±0.0019 |  0.8678 |  0.7215 |  0.7878 |  0.8740 |    116.06
+===================================================================================================================
 
   Hybrid results → results\classification\hybrid_results.csv
   Plot saved → plots\classification\hybrid_f05_comparison.pdf
@@ -199,300 +286,3 @@ Loading feature table from data\classifier_features.parquet...
   All outputs → results\classification/  and  plots\classification/
 
 Done.
-2026-05-26 20:52:24 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-26 20:52:24 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-======================================================================
-SELECTED MODEL EVALUATION — DEEP DIAGNOSTIC ANALYSIS
-======================================================================
-
-Configurations to evaluate: engineered_no_vocals, engineered_with_vocals, hybrid_top512
-
-Loading feature table from data\classifier_features.parquet...
-  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
-
-======================================================================
-EVALUATING CONFIGURATION: ENGINEERED_NO_VOCALS
-======================================================================
-
-[1/4] Building features for: engineered_no_vocals...
-  Feature matrix: (350654, 30)  (30 features)
-
-[2/4] Running cross-validation with XGBoost...
-
-  ► Overall Performance: F0.5=0.6573  Prec=0.7278  Rec=0.4739  F1=0.5740
-
-[3/4] Running triple-tier error analysis...
-
-===================================================================================================================
-  TRIPLE-TIER ANALYSIS — ENGINEERED_NO_VOCALS (Supervised / OOF)
-===================================================================================================================
-  Category                       | Precision |   Recall |      F1 |     F0.5 |    TP |    FP |    FN |     TN
-  --------------------------------------------------------------------------------------------------------------
-    1a. Human Plagiarism (Base)  |     9.3% |   55.1% |  15.9% |   11.2% |  2069 | 20156 |  1688 | 216808
-    1b. Human Plagiarism + DSP   |    49.8% |   53.3% |  51.5% |   50.5% | 20028 | 20156 | 17542 | 216808
-    2. Original + DSP            |    37.3% |   98.6% |  54.2% |   42.6% | 12014 | 20156 |   176 | 216808
-    3. AI Generation (Base)      |    10.1% |   41.5% |  16.3% |   11.9% |  2271 | 20156 |  3201 | 216808
-    4. AI + DSP                  |    46.5% |   32.0% |  37.9% |   42.6% | 17496 | 20156 | 37205 | 216808
-  ► OVERALL                      |    72.8% |   47.4% |  57.4% |   65.7% | 53878 | 20156 | 59812 | 216808
-  ==============================================================================================================
-
-  Broad metrics saved → results\classification\engineered_no_vocals_broad_metrics.csv
-  Detailed metrics saved → results\classification\engineered_no_vocals_detailed_metrics.csv
-  FP tier breakdown saved → results\classification\engineered_no_vocals_fp_tier_breakdown.csv
-
-[4/4] Computing permutation feature importance...
-
-  Computing permutation importance: engineered_no_vocals
-Traceback (most recent call last):
-  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\selected_model_evaluation.py", line 561, in <module>
-    main()
-    ~~~~^^
-  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\selected_model_evaluation.py", line 551, in main
-    evaluate_config(config_name, df, y, groups, df_meta)
-    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\selected_model_evaluation.py", line 500, in evaluate_config
-    compute_feature_importance(
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        X=X, y=y, groups=groups,
-        ^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<3 lines>...
-        plots_dir=PLOTS_DIR,
-        ^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\selected_model_evaluation.py", line 293, in compute_feature_importance
-    from classification import build_classifier
-ImportError: cannot import name 'build_classifier' from 'classification' (unknown location)
-2026-05-26 20:53:20 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-26 20:53:20 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-======================================================================
-SELECTED MODEL EVALUATION — DEEP DIAGNOSTIC ANALYSIS
-======================================================================
-
-Configurations to evaluate: engineered_no_vocals, engineered_with_vocals, hybrid_top512
-
-Loading feature table from data\classifier_features.parquet...
-  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
-
-======================================================================
-EVALUATING CONFIGURATION: ENGINEERED_NO_VOCALS
-======================================================================
-
-[1/4] Building features for: engineered_no_vocals...
-  Feature matrix: (350654, 30)  (30 features)
-
-[2/4] Running cross-validation with XGBoost...
-
-  ► Overall Performance: F0.5=0.6573  Prec=0.7278  Rec=0.4739  F1=0.5740
-
-[3/4] Running triple-tier error analysis...
-
-===================================================================================================================
-  TRIPLE-TIER ANALYSIS — ENGINEERED_NO_VOCALS (Supervised / OOF)
-===================================================================================================================
-  Category                       | Precision |   Recall |      F1 |     F0.5 |    TP |    FP |    FN |     TN
-  --------------------------------------------------------------------------------------------------------------
-    1a. Human Plagiarism (Base)  |     9.3% |   55.1% |  15.9% |   11.2% |  2069 | 20156 |  1688 | 216808
-    1b. Human Plagiarism + DSP   |    49.8% |   53.3% |  51.5% |   50.5% | 20028 | 20156 | 17542 | 216808
-    2. Original + DSP            |    37.3% |   98.6% |  54.2% |   42.6% | 12014 | 20156 |   176 | 216808
-    3. AI Generation (Base)      |    10.1% |   41.5% |  16.3% |   11.9% |  2271 | 20156 |  3201 | 216808
-    4. AI + DSP                  |    46.5% |   32.0% |  37.9% |   42.6% | 17496 | 20156 | 37205 | 216808
-  ► OVERALL                      |    72.8% |   47.4% |  57.4% |   65.7% | 53878 | 20156 | 59812 | 216808
-  ==============================================================================================================
-
-  Broad metrics saved → results\classification\engineered_no_vocals_broad_metrics.csv
-  Detailed metrics saved → results\classification\engineered_no_vocals_detailed_metrics.csv
-  FP tier breakdown saved → results\classification\engineered_no_vocals_fp_tier_breakdown.csv
-
-[4/4] Computing permutation feature importance...
-
-  Computing permutation importance: engineered_no_vocals
-    CSV → results\classification\engineered_no_vocals_feature_importance.csv
-    Family CSV → results\classification\engineered_no_vocals_feature_importance_family.csv
-    Plot → plots\classification\engineered_no_vocals_feature_importance.pdf
-    Plot → plots\classification\engineered_no_vocals_feature_importance_family.pdf
-
-======================================================================
-Evaluation complete for: engineered_no_vocals
-======================================================================
-
-
-======================================================================
-EVALUATING CONFIGURATION: ENGINEERED_WITH_VOCALS
-======================================================================
-
-[1/4] Building features for: engineered_with_vocals...
-  Feature matrix: (350654, 35)  (35 features)
-
-[2/4] Running cross-validation with XGBoost...
-
-  ► Overall Performance: F0.5=0.8651  Prec=0.8900  Rec=0.7784  F1=0.8304
-
-[3/4] Running triple-tier error analysis...
-
-===================================================================================================================
-  TRIPLE-TIER ANALYSIS — ENGINEERED_WITH_VOCALS (Supervised / OOF)
-===================================================================================================================
-  Category                       | Precision |   Recall |      F1 |     F0.5 |    TP |    FP |    FN |     TN
-  --------------------------------------------------------------------------------------------------------------
-    1a. Human Plagiarism (Base)  |    16.7% |   58.2% |  25.9% |   19.5% |  2187 | 10919 |  1570 | 226045
-    1b. Human Plagiarism + DSP   |    65.5% |   55.2% |  59.9% |   63.2% | 20739 | 10919 | 16831 | 226045
-    2. Original + DSP            |    52.7% |   99.7% |  68.9% |   58.2% | 12155 | 10919 |    35 | 226045
-    3. AI Generation (Base)      |    31.4% |   91.5% |  46.8% |   36.2% |  5005 | 10919 |   467 | 226045
-    4. AI + DSP                  |    81.6% |   88.5% |  84.9% |   82.9% | 48402 | 10919 |  6299 | 226045
-  ► OVERALL                      |    89.0% |   77.8% |  83.0% |   86.5% | 88488 | 10919 | 25202 | 226045
-  ==============================================================================================================
-
-  Broad metrics saved → results\classification\engineered_with_vocals_broad_metrics.csv
-  Detailed metrics saved → results\classification\engineered_with_vocals_detailed_metrics.csv
-  FP tier breakdown saved → results\classification\engineered_with_vocals_fp_tier_breakdown.csv
-
-[4/4] Computing permutation feature importance...
-
-  Computing permutation importance: engineered_with_vocals
-    CSV → results\classification\engineered_with_vocals_feature_importance.csv
-    Family CSV → results\classification\engineered_with_vocals_feature_importance_family.csv
-    Plot → plots\classification\engineered_with_vocals_feature_importance.pdf
-    Plot → plots\classification\engineered_with_vocals_feature_importance_family.pdf
-
-======================================================================
-Evaluation complete for: engineered_with_vocals
-======================================================================
-
-
-======================================================================
-EVALUATING CONFIGURATION: HYBRID_TOP512
-======================================================================
-
-[1/4] Building features for: hybrid_top512...
-    Building CLEWS delta matrix for Top-512...
-  Loaded 73582 embeddings from clews_embeddings.parquet
-  Feature matrix: (350654, 542)  (542 features)
-
-[2/4] Running cross-validation with XGBoost...
-
-  ► Overall Performance: F0.5=0.8202  Prec=0.8581  Rec=0.6979  F1=0.7695
-
-[3/4] Running triple-tier error analysis...
-
-===================================================================================================================
-  TRIPLE-TIER ANALYSIS — HYBRID_TOP512 (Supervised / OOF)
-===================================================================================================================
-  Category                       | Precision |   Recall |      F1 |     F0.5 |    TP |    FP |    FN |     TN
-  --------------------------------------------------------------------------------------------------------------
-    1a. Human Plagiarism (Base)  |    19.7% |   86.1% |  32.1% |   23.3% |  3236 | 13176 |   521 | 223788
-    1b. Human Plagiarism + DSP   |    70.4% |   83.4% |  76.3% |   72.6% | 31317 | 13176 |  6253 | 223788
-    2. Original + DSP            |    47.9% |   99.2% |  64.6% |   53.4% | 12097 | 13176 |    93 | 223788
-    3. AI Generation (Base)      |    19.8% |   59.3% |  29.7% |   22.8% |  3247 | 13176 |  2225 | 223788
-    4. AI + DSP                  |    69.1% |   53.9% |  60.5% |   65.4% | 29462 | 13176 | 25239 | 223788
-  ► OVERALL                      |    85.8% |   69.8% |  77.0% |   82.0% | 79359 | 13176 | 34331 | 223788
-  ==============================================================================================================
-
-  Broad metrics saved → results\classification\hybrid_top512_broad_metrics.csv
-  Detailed metrics saved → results\classification\hybrid_top512_detailed_metrics.csv
-  FP tier breakdown saved → results\classification\hybrid_top512_fp_tier_breakdown.csv
-
-[4/4] Computing permutation feature importance...
-
-  Computing permutation importance: hybrid_top512
-    CSV → results\classification\hybrid_top512_feature_importance.csv
-    Family CSV → results\classification\hybrid_top512_feature_importance_family.csv
-    Plot → plots\classification\hybrid_top512_feature_importance.pdf
-    Plot → plots\classification\hybrid_top512_feature_importance_family.pdf
-
-======================================================================
-Evaluation complete for: hybrid_top512
-======================================================================
-
-
-======================================================================
-ALL EVALUATIONS COMPLETE
-  Results → results\classification/
-  Plots   → plots\classification/
-======================================================================
-2026-05-26 23:05:04 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-26 23:05:04 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-26 23:05:04 [INFO] Building hybrid feature matrix with CLEWS Top-512.
-======================================================================
-TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION ARTIFACT)
-======================================================================
-Selected configuration: hybrid_top512
-
-[1/4] Loading feature table...
-  Loaded 350,654 pairs
-  Positives: 113,690
-  Negatives: 236,964
-
-[2/4] Building selected feature matrix...
-2026-05-26 23:05:04 [INFO] Building hybrid feature matrix with CLEWS Top-512.
-  Loaded 73582 embeddings from clews_embeddings.parquet
-  Final feature matrix: (350654, 542)
-  Uses vocals: False
-  Uses CLEWS Top-K: True
-  CLEWS Top-K: 512
-
-[3/4] Calibrating threshold on 10% hold-out...
-  Optimal F0.5 threshold (calibration set): 0.6656
-
-[4/4] Retraining on 100% of data and saving artifact...
-  Artifact saved → models\final_plagiarism_detector.pkl
-
-======================================================================
-Production artifact is ready.
-  Model      → models\final_plagiarism_detector.pkl
-  Config     → hybrid_top512
-  Features   → 542
-  Threshold  → 0.6656
-======================================================================
-2026-05-26 23:44:42 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-26 23:44:42 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-26 23:46:31 [INFO] Building hybrid feature matrix with CLEWS Top-512.
-======================================================================
-TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION ARTIFACT)
-======================================================================
-Selected configuration: hybrid_top512
-
-[1/4] Loading feature table...
-  Loaded 350,654 pairs
-  Positives: 113,690
-  Negatives: 236,964
-
-[2/4] Building selected feature matrix...
-
-  Computing training reference statistics for inference consistency...
-  Computing CLEWS reference statistics...
-  Loaded 73582 embeddings from clews_embeddings.parquet
-    [CLEWS] q75=1.224900, n_stable=100, n_volatile=100 (from 113690 positive pairs)
-  Computing WEALY reference statistics...
-  Loaded 73581 embeddings from wealy_embeddings.parquet
-    [WEALY] q75=0.900863, n_stable=100, n_volatile=100 (from 113689 positive pairs)
-2026-05-26 23:46:31 [INFO] Building hybrid feature matrix with CLEWS Top-512.
-  Loaded 73582 embeddings from clews_embeddings.parquet
-
-  Final feature matrix: (350654, 542)
-  Uses vocals: False
-  Uses CLEWS Top-K: True
-  CLEWS Top-K: 512
-  CLEWS ref q75: 1.224900
-  WEALY ref q75: 0.900863
-
-[3/4] Calibrating threshold on 10% hold-out...
-  Optimal F0.5 threshold (calibration set): 0.6656
-
-[4/4] Retraining on 100% of data and saving artifact...
-  Artifact saved → models\final_plagiarism_detector.pkl
-
-======================================================================
-Production artifact is ready.
-  Model        → models\final_plagiarism_detector.pkl
-  Config       → hybrid_top512
-  Features     → 542
-  Threshold    → 0.6656
-  CLEWS ref q75 → 1.224900
-  WEALY ref q75 → 0.900863
-  CLEWS stable  → 100 dims
-  CLEWS volatile→ 100 dims
-  WEALY stable  → 100 dims
-  WEALY volatile→ 100 dims
-  CLEWS Top-K   → 512 dims
-======================================================================

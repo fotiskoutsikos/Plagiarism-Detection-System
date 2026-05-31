@@ -19,6 +19,15 @@ may carry granular detail lost during summarization. This experiment
 tests whether their fusion yields performance gains beyond either
 approach alone.
 
+Statistical Rigor
+-----------------
+All experiments are repeated N_SEEDS times with independent random seeds
+to produce mean ± std and 95% confidence intervals, making comparisons
+between hybrid configurations statistically defensible.
+
+Set N_SEEDS = 1 for a quick exploratory run; use N_SEEDS = 10 for
+publication-grade results.
+
 Protocol
 --------
 1. Load CLEWS embeddings and build full delta matrix.
@@ -51,7 +60,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-# Resolve repository root & logging 
+# Resolve repository root & logging
 repo_root = Path(__file__).resolve()
 for _ in range(6):
     if (repo_root / "src").exists():
@@ -86,21 +95,27 @@ from classifier import (
 
 plt.rcParams.update(PLOT_STYLE_PARAMS)
 
-FEATURE_TABLE   = Path(CLASSIFIER_FEATURE_TABLE)
+FEATURE_TABLE    = Path(CLASSIFIER_FEATURE_TABLE)
 ABLATION_RESULTS = Path(CLASSIFICATION_RESULTS_DIR) / "ablation_results.csv"
-OUTPUT_DIR      = Path(CLASSIFICATION_RESULTS_DIR)
-PLOTS_DIR       = Path(CLASSIFICATION_PLOTS_DIR)
+OUTPUT_DIR       = Path(CLASSIFICATION_RESULTS_DIR)
+PLOTS_DIR        = Path(CLASSIFICATION_PLOTS_DIR)
 
 # K values to test in hybrid experiments
 HYBRID_K_VALUES = [256, 512, 1024]
 
+# Statistical rigor 
+# Number of independent random seeds for CI estimation.
+# Use N_SEEDS = 1 for a quick exploratory run.
+# Use N_SEEDS = 10 for publication-grade confidence intervals.
+N_SEEDS = 10
 
-# Helpers 
+
+# Helpers
 def _select_columns(df: pd.DataFrame, pattern: str) -> list[str]:
     return sorted([c for c in df.columns if pattern in c])
 
 
-# Plotting 
+# Plotting
 def _plot_hybrid_comparison(
     df_hybrid:    pd.DataFrame,
     df_baselines: pd.DataFrame,
@@ -108,17 +123,21 @@ def _plot_hybrid_comparison(
     output_path:  Path,
 ) -> None:
     """
-    Plot comparison: threshold baselines + best ablation configs + hybrid results.
+    Bar chart: threshold baselines + best ablation configs + hybrid results.
+    F0.5, Precision and Recall bars; F0.5 carries 95% CI error bars.
     """
     rows = []
 
-    # Threshold baselines
+    # Threshold baselines (no CI)
     for _, r in df_baselines.iterrows():
         rows.append({
             "Method":    r["experiment_name"],
             "F0.5":      r["f05"],
+            "F05_CI95":  0.0,
             "Precision": r["precision"],
+            "Prec_CI95": 0.0,
             "Recall":    r["recall"],
+            "Rec_CI95":  0.0,
         })
 
     # Selected ablation results for context
@@ -134,17 +153,23 @@ def _plot_hybrid_comparison(
             rows.append({
                 "Method":    name,
                 "F0.5":      r["f05"],
+                "F05_CI95":  r.get("f05_ci95", 0.0),
                 "Precision": r["precision"],
+                "Prec_CI95": r.get("precision_ci95", 0.0),
                 "Recall":    r["recall"],
+                "Rec_CI95":  r.get("recall_ci95", 0.0),
             })
 
-    # Hybrid results
+    # Hybrid results (with CI)
     for _, r in df_hybrid.iterrows():
         rows.append({
             "Method":    r["experiment_name"],
             "F0.5":      r["f05"],
+            "F05_CI95":  r.get("f05_ci95", 0.0),
             "Precision": r["precision"],
+            "Prec_CI95": r.get("precision_ci95", 0.0),
             "Recall":    r["recall"],
+            "Rec_CI95":  r.get("recall_ci95", 0.0),
         })
 
     df_plot = pd.DataFrame(rows)
@@ -152,19 +177,36 @@ def _plot_hybrid_comparison(
     x     = np.arange(len(df_plot))
     width = 0.25
 
-    bars = [
-        ax.bar(x - width, df_plot["F0.5"],      width, label="F0.5",      color="#2196F3", edgecolor="white"),
-        ax.bar(x,         df_plot["Precision"],  width, label="Precision",  color="#4CAF50", edgecolor="white"),
-        ax.bar(x + width, df_plot["Recall"],     width, label="Recall",     color="#FF9800", edgecolor="white"),
-    ]
+    ax.bar(
+        x - width, df_plot["F0.5"], width,
+        label="F0.5", color="#2196F3", edgecolor="white",
+        yerr=df_plot["F05_CI95"].values,
+        error_kw=dict(elinewidth=1.2, ecolor="#0d47a1", capsize=3, capthick=1.2),
+    )
+    ax.bar(
+        x,          df_plot["Precision"], width,
+        label="Precision", color="#4CAF50", edgecolor="white",
+        yerr=df_plot["Prec_CI95"].values,
+        error_kw=dict(elinewidth=1.2, ecolor="#1b5e20", capsize=3, capthick=1.2),
+    )
+    ax.bar(
+        x + width,  df_plot["Recall"], width,
+        label="Recall", color="#FF9800", edgecolor="white",
+        yerr=df_plot["Rec_CI95"].values,
+        error_kw=dict(elinewidth=1.2, ecolor="#e65100", capsize=3, capthick=1.2),
+    )
 
-    for bar_group in bars:
-        for bar in bar_group:
-            h = bar.get_height()
-            if h > 0.01:
+    # Value labels
+    for col, offset, ci_col in [
+        ("F0.5",      -width, "F05_CI95"),
+        ("Precision",  0,     "Prec_CI95"),
+        ("Recall",     width, "Rec_CI95"),
+    ]:
+        for i, (val, ci) in enumerate(zip(df_plot[col], df_plot[ci_col])):
+            if val > 0.01:
                 ax.text(
-                    bar.get_x() + bar.get_width() / 2, h + 0.008,
-                    f"{h:.3f}", ha="center", va="bottom",
+                    i + offset + width / 2, val + ci + 0.01,
+                    f"{val:.3f}", ha="center", va="bottom",
                     fontsize=6.5, fontweight="bold",
                 )
 
@@ -172,10 +214,11 @@ def _plot_hybrid_comparison(
     ax.set_xticklabels(df_plot["Method"], rotation=30, ha="right", fontsize=8)
     ax.set_ylabel("Score", fontsize=11)
     ax.set_title(
-        "Hybrid Experiments: Engineered Features + Top-K CLEWS Dimensions",
+        f"Hybrid Experiments: Engineered + Top-K CLEWS Dimensions "
+        f"({N_SEEDS} seeds, ±95% CI)",
         fontsize=13, fontweight="bold",
     )
-    ax.set_ylim(0, 1.12)
+    ax.set_ylim(0, 1.15)
     ax.legend(loc="upper right", fontsize=9)
     ax.grid(axis="y", alpha=0.3)
     ax.set_axisbelow(True)
@@ -187,13 +230,14 @@ def _plot_hybrid_comparison(
     print(f"  Plot saved → {output_path}")
 
 
-# Main 
+# Main
 def main() -> None:
     print("=" * 70)
     print("HYBRID FEATURE EXPERIMENTS — ENGINEERED + TOP-K CLEWS")
+    print(f"Statistical rigor: {N_SEEDS} seed(s) per experiment")
     print("=" * 70)
 
-    # Load feature table 
+    # Load feature table
     if not FEATURE_TABLE.exists():
         print(f"[ERROR] Feature table not found: {FEATURE_TABLE}")
         print("Run classifier_features.py first.")
@@ -205,7 +249,7 @@ def main() -> None:
     groups = df["filename_ori"].values
     print(f"  Loaded {len(df):,} pairs  ({y.sum():,} pos / {(y == 0).sum():,} neg)")
 
-    # Define base engineered feature set 
+    # Define base engineered feature set
     print("\n[1/4] Defining base engineered feature set...")
 
     clews_dist_cols = [c for c in _select_columns(df, "clews_") if "distance" in c]
@@ -226,7 +270,7 @@ def main() -> None:
     )
     print(f"  Base: All Engineered (No Vocals) — {len(base_engineered)} features")
 
-    # Build CLEWS delta matrix and rank dimensions 
+    # Build CLEWS delta matrix and rank dimensions
     print("\n[2/4] Building CLEWS delta matrix and ranking dimensions...")
     emb_map = _build_embedding_map(EMBEDDING_PATHS["CLEWS"])
     delta_valid, valid_mask = _compute_delta_matrix_for_pairs(df, emb_map)
@@ -244,8 +288,8 @@ def main() -> None:
     print(f"  CLEWS delta matrix: {delta_matrix.shape}")
     print(f"  Dimensions ranked by mean absolute shift on {pos_mask.sum()} positive pairs")
 
-    # Run hybrid experiments 
-    print("\n[3/4] Running hybrid experiments...")
+    # Run hybrid experiments
+    print(f"\n[3/4] Running hybrid experiments ({N_SEEDS} seed(s) each)...")
     print("─" * 70)
 
     base_X = df[base_engineered].values.astype(np.float32)
@@ -257,31 +301,39 @@ def main() -> None:
         exp_name = f"Hybrid: Engineered (No Vocals) + Top-{k} CLEWS"
         print(f"\n  Running: {exp_name}")
 
-        # Combine base + top-K
         top_k_dims = delta_matrix[:, ranked_idx[:k]]
         X_hybrid   = np.hstack([base_X, top_k_dims]).astype(np.float32)
 
         res = run_classifier_experiment(
             X=X_hybrid, y=y, groups=groups,
             experiment_name=exp_name,
+            n_seeds=N_SEEDS,
         )
         print_experiment_summary(res)
 
         hybrid_results.append({
-            "experiment_name": exp_name,
-            "classifier":      res["classifier"],
-            "n_features":      res["n_features"],
-            "f05":             round(res["f05"],            4),
-            "f1":              round(res["f1"],             4),
-            "precision":       round(res["precision"],      4),
-            "recall":          round(res["recall"],         4),
-            "accuracy":        round(res["accuracy"],       4),
-            "mean_threshold":  round(res["mean_threshold"], 4),
+            "experiment_name":      exp_name,
+            "classifier":           res["classifier"],
+            "n_features":           res["n_features"],
+            "n_seeds":              res.get("n_seeds", 1),
+            "f05":                  round(res["f05"],                          4),
+            "f05_std":              round(res.get("f05_std",       0.0),        4),
+            "f05_ci95":             round(res.get("f05_ci95",      0.0),        4),
+            "f1":                   round(res["f1"],                           4),
+            "f1_ci95":              round(res.get("f1_ci95",       0.0),        4),
+            "precision":            round(res["precision"],                    4),
+            "precision_ci95":       round(res.get("precision_ci95", 0.0),      4),
+            "recall":               round(res["recall"],                       4),
+            "recall_ci95":          round(res.get("recall_ci95",   0.0),        4),
+            "accuracy":             round(res["accuracy"],                     4),
+            "mean_threshold":       round(res["mean_threshold"],               4),
+            "mean_train_time_sec":  round(res.get("mean_train_time_sec", 0.0),  3),
+            "mean_infer_time_ms":   round(res.get("mean_infer_time_ms",  0.0),  4),
         })
 
     df_hybrid = pd.DataFrame(hybrid_results)
 
-    # Load ablation results for context 
+    # Load ablation results for context
     print("\n[4/4] Loading ablation results for comparison...")
     df_ablation = pd.DataFrame()
     if ABLATION_RESULTS.exists():
@@ -290,28 +342,28 @@ def main() -> None:
     else:
         logger.warning("Ablation results not found. Comparison plot will be incomplete.")
 
-    # Load threshold baselines 
+    # Load threshold baselines
     df_baselines = load_threshold_baselines()
 
-    # Print comparison table 
-    print(f"\n{'=' * 100}")
+    # Print comparison table
+    print(f"\n{'=' * 115}")
     print(
-        f"  {'Experiment':<50} | {'Feats':>6} | {'F0.5':>7} | "
-        f"{'Prec':>7} | {'Rec':>7} | {'F1':>7} | {'Acc':>7}"
+        f"  {'Experiment':<50} | {'Feats':>6} | {'F0.5':>7} | {'CI95':>7} | "
+        f"{'Prec':>7} | {'Rec':>7} | {'F1':>7} | {'Acc':>7} | {'Train(s)':>9}"
     )
-    print(f"  {'─' * 95}")
+    print(f"  {'─' * 110}")
 
-    # Print threshold baselines
+    # Threshold baselines
     if not df_baselines.empty:
         for _, r in df_baselines.iterrows():
             print(
-                f"  {r['experiment_name']:<50} | {'–':>6} | {r['f05']:>7.4f} | "
+                f"  {r['experiment_name']:<50} | {'–':>6} | {r['f05']:>7.4f} | {'–':>7} | "
                 f"{r['precision']:>7.4f} | {r['recall']:>7.4f} | "
-                f"{r['f1']:>7.4f} | {r['accuracy']:>7.4f}"
+                f"{r['f1']:>7.4f} | {r['accuracy']:>7.4f} | {'–':>9}"
             )
-        print(f"  {'─' * 95}")
+        print(f"  {'─' * 110}")
 
-    # Print selected ablation results for context
+    # Selected ablation reference experiments
     if not df_ablation.empty:
         ablation_selection = [
             "7. All Engineered (No Vocal)",
@@ -321,25 +373,29 @@ def main() -> None:
         for name in ablation_selection:
             match = df_ablation[df_ablation["experiment_name"] == name]
             if not match.empty:
-                r = match.iloc[0]
+                r      = match.iloc[0]
+                ci_str = f"±{r['f05_ci95']:.4f}" if r.get("f05_ci95", 0) > 0 else "–"
+                t_str  = f"{r['mean_train_time_sec']:.2f}" if r.get("mean_train_time_sec", 0) > 0 else "–"
                 print(
-                    f"  {name:<50} | {r['n_features']:>6} | {r['f05']:>7.4f} | "
+                    f"  {name:<50} | {r['n_features']:>6} | {r['f05']:>7.4f} | {ci_str:>7} | "
                     f"{r['precision']:>7.4f} | {r['recall']:>7.4f} | "
-                    f"{r['f1']:>7.4f} | {r['accuracy']:>7.4f}"
+                    f"{r['f1']:>7.4f} | {r['accuracy']:>7.4f} | {t_str:>9}"
                 )
-        print(f"  {'─' * 95}")
+        print(f"  {'─' * 110}")
 
-    # Print hybrid results
+    # Hybrid results
     for _, r in df_hybrid.iterrows():
+        ci_str = f"±{r['f05_ci95']:.4f}" if r.get("f05_ci95", 0) > 0 else "–"
+        t_str  = f"{r['mean_train_time_sec']:.2f}" if r.get("mean_train_time_sec", 0) > 0 else "–"
         print(
-            f"  {r['experiment_name']:<50} | {r['n_features']:>6} | {r['f05']:>7.4f} | "
+            f"  {r['experiment_name']:<50} | {r['n_features']:>6} | {r['f05']:>7.4f} | {ci_str:>7} | "
             f"{r['precision']:>7.4f} | {r['recall']:>7.4f} | "
-            f"{r['f1']:>7.4f} | {r['accuracy']:>7.4f}"
+            f"{r['f1']:>7.4f} | {r['accuracy']:>7.4f} | {t_str:>9}"
         )
 
-    print(f"{'=' * 100}")
+    print(f"{'=' * 115}")
 
-    # Save outputs 
+    # Save outputs
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 

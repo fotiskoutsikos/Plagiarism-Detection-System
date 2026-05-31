@@ -1,0 +1,88 @@
+broad_category,source_group,dsp_family,dsp_label,count
+1a. Human Plagiarism (Base),Cover,Base,base,3757
+1b. Human Plagiarism + DSP,Cover,Combined (Extreme),pitchD4_tempo090,3757
+1b. Human Plagiarism + DSP,Cover,Combined (Extreme),pitchU4_tempo110,3757
+1b. Human Plagiarism + DSP,Cover,Pitch Only,pitchD2,3757
+1b. Human Plagiarism + DSP,Cover,Pitch Only,pitchD4,3757
+1b. Human Plagiarism + DSP,Cover,Pitch Only,pitchU2,3757
+1b. Human Plagiarism + DSP,Cover,Pitch Only,pitchU4,3757
+1b. Human Plagiarism + DSP,Cover,Tempo Only,tempo090,3757
+1b. Human Plagiarism + DSP,Cover,Tempo Only,tempo095,3757
+1b. Human Plagiarism + DSP,Cover,Tempo Only,tempo105,3757
+1b. Human Plagiarism + DSP,Cover,Tempo Only,tempo110,3757
+2. Original + DSP,Original + DSP,Combined (Extreme),pitchD4_tempo090,1219
+2. Original + DSP,Original + DSP,Combined (Extreme),pitchU4_tempo110,1219
+2. Original + DSP,Original + DSP,Pitch Only,pitchD2,1219
+2. Original + DSP,Original + DSP,Pitch Only,pitchD4,1219
+2. Original + DSP,Original + DSP,Pitch Only,pitchU2,1219
+2. Original + DSP,Original + DSP,Pitch Only,pitchU4,1219
+2. Original + DSP,Original + DSP,Tempo Only,tempo090,1219
+2. Original + DSP,Original + DSP,Tempo Only,tempo095,1219
+2. Original + DSP,Original + DSP,Tempo Only,tempo105,1219
+2. Original + DSP,Original + DSP,Tempo Only,tempo110,1219
+3. AI Generation (Base),AudioLDM2,Base,base,1219
+3. AI Generation (Base),MGE-LDM,Base,base,2
+3. AI Generation (Base),MGE-LDM_bass,Base,base,1011
+3. AI Generation (Base),MGE-LDM_drums,Base,base,1011
+3. AI Generation (Base),MGE-LDM_other,Base,base,1010
+3. AI Generation (Base),MusicGen,Base,base,1219
+4. AI + DSP,AudioLDM2,Combined (Extreme),pitchD4_tempo090,1219
+4. AI + DSP,AudioLDM2,Combined (Extreme),pitchU4_tempo110,1219
+4. AI + DSP,AudioLDM2,Pitch Only,pitchD2,1219
+4. AI + DSP,AudioLDM2,Pitch Only,pitchD4,1219
+4. AI + DSP,AudioLDM2,Pitch Only,pitchU2,1219
+4. AI + DSP,AudioLDM2,Pitch Only,pitchU4,1219
+4. AI + DSP,AudioLDM2,Tempo Only,tempo090,1219
+4. AI + DSP,AudioLDM2,Tempo Only,tempo095,1219
+4. AI + DSP,AudioLDM2,Tempo Only,tempo105,1219
+4. AI + DSP,AudioLDM2,Tempo Only,tempo110,1219
+4. AI + DSP,MGE-LDM,Combined (Extreme),pitchD4_tempo090,1
+4. AI + DSP,MGE-LDM,Combined (Extreme),pitchU4_tempo110,1
+4. AI + DSP,MGE-LDM,Pitch Only,pitchD2,1
+4. AI + DSP,MGE-LDM,Pitch Only,pitchD4,1
+4. AI + DSP,MGE-LDM,Pitch Only,pitchU2,1
+4. AI + DSP,MGE-LDM,Pitch Only,pitchU4,1
+4. AI + DSP,MGE-LDM,Tempo Only,tempo090,1
+4. AI + DSP,MGE-LDM,Tempo Only,tempo095,1
+4. AI + DSP,MGE-LDM,Tempo Only,tempo105,1
+4. AI + DSP,MGE-LDM,Tempo Only,tempo110,1
+4. AI + DSP,MGE-LDM_bass,Pitch Only,pitchD4,1011
+4. AI + DSP,MGE-LDM_bass,Combined (Extreme),pitchD4_tempo090,1010
+4. AI + DSP,MGE-LDM_bass,Combined (Extreme),pitchU4_tempo110,1010
+4. AI + DSP,MGE-LDM_bass,Pitch Only,pitchD2,1010
+4. AI + DSP,MGE-LDM_bass,Pitch Only,pitchU2,1010
+4. AI + DSP,MGE-LDM_bass,Pitch Only,pitchU4,1010
+4. AI + DSP,MGE-LDM_bass,Tempo Only,tempo090,1010
+4. AI + DSP,MGE-LDM_bass,Tempo Only,tempo095,1010
+4. AI + DSP,MGE-LDM_bass,Tempo Only,tempo105,1010
+4. AI + DSP,MGE-LDM_bass,Tempo Only,tempo110,1010
+4. AI + DSP,MGE-LDM_drums,Combined (Extreme),pitchD4_tempo090,1011
+4. AI + DSP,MGE-LDM_drums,Combined (Extreme),pitchU4_tempo110,1011
+4. AI + DSP,MGE-LDM_drums,Pitch Only,pitchD2,1011
+4. AI + DSP,MGE-LDM_drums,Pitch Only,pitchD4,1011
+4. AI + DSP,MGE-LDM_drums,Pitch Only,pitchU2,1011
+4. AI + DSP,MGE-LDM_drums,Pitch Only,pitchU4,1011
+4. AI + DSP,MGE-LDM_drums,Tempo Only,tempo090,1011
+4. AI + DSP,MGE-LDM_drums,Tempo Only,tempo095,1011
+4. AI + DSP,MGE-LDM_drums,Tempo Only,tempo105,1011
+4. AI + DSP,MGE-LDM_drums,Tempo Only,tempo110,1011
+4. AI + DSP,MGE-LDM_other,Combined (Extreme),pitchD4_tempo090,1010
+4. AI + DSP,MGE-LDM_other,Combined (Extreme),pitchU4_tempo110,1010
+4. AI + DSP,MGE-LDM_other,Pitch Only,pitchD2,1010
+4. AI + DSP,MGE-LDM_other,Pitch Only,pitchD4,1010
+4. AI + DSP,MGE-LDM_other,Pitch Only,pitchU2,1010
+4. AI + DSP,MGE-LDM_other,Pitch Only,pitchU4,1010
+4. AI + DSP,MGE-LDM_other,Tempo Only,tempo090,1010
+4. AI + DSP,MGE-LDM_other,Tempo Only,tempo095,1010
+4. AI + DSP,MGE-LDM_other,Tempo Only,tempo105,1010
+4. AI + DSP,MGE-LDM_other,Tempo Only,tempo110,1010
+4. AI + DSP,MusicGen,Combined (Extreme),pitchD4_tempo090,1219
+4. AI + DSP,MusicGen,Combined (Extreme),pitchU4_tempo110,1219
+4. AI + DSP,MusicGen,Pitch Only,pitchD2,1219
+4. AI + DSP,MusicGen,Pitch Only,pitchD4,1219
+4. AI + DSP,MusicGen,Pitch Only,pitchU2,1219
+4. AI + DSP,MusicGen,Pitch Only,pitchU4,1219
+4. AI + DSP,MusicGen,Tempo Only,tempo090,1219
+4. AI + DSP,MusicGen,Tempo Only,tempo095,1219
+4. AI + DSP,MusicGen,Tempo Only,tempo105,1219
+4. AI + DSP,MusicGen,Tempo Only,tempo110,1219

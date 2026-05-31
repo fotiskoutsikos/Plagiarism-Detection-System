@@ -1,0 +1,20 @@
+metric,value
+total_pairs,350654
+positive_pairs,113690
+negative_pairs,236964
+unique_pair_ids,57
+unique_filename_ori,1219
+unique_filename_mod,72979
+prevalence_pct,32.42
+source_Cover,41327
+source_AudioLDM2,13409
+source_MusicGen,13409
+source_Original + DSP,12190
+source_MGE-LDM_drums,11121
+source_MGE-LDM_bass,11112
+source_MGE-LDM_other,11110
+broad_4. AI + DSP,54701
+broad_1b. Human Plagiarism + DSP,37570
+broad_2. Original + DSP,12190
+broad_3. AI Generation (Base),5472
+broad_1a. Human Plagiarism (Base),3757

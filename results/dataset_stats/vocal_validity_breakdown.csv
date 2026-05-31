@@ -1,0 +1,8 @@
+source_group,total,vocal_valid,vocal_invalid,valid_pct
+AudioLDM2,13409,12837,572,95.7
+Cover,41327,38126,3201,92.3
+MGE-LDM_bass,11112,10584,528,95.2
+MGE-LDM_drums,11121,10593,528,95.3
+MGE-LDM_other,11110,10582,528,95.2
+MusicGen,13409,12837,572,95.7
+Original + DSP,12190,11670,520,95.7

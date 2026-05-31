@@ -1,0 +1,79 @@
+2026-05-30 02:41:48 [INFO] Logging initialized for dataset_analysis, file: logs\dataset_analysis.txt
+2026-05-30 02:41:48 [INFO] Logging initialized for dataset_analysis, file: logs\dataset_analysis.txt
+======================================================================
+DATASET STATISTICS & VISUALIZATION
+======================================================================
+Loaded 350,654 rows from clews_distances.csv
+
+[1/5] Computing segment inventory...
+
+======================================================================
+ DATASET SUMMARY
+======================================================================
+
+  Total evaluation pairs : 350,654
+  Positive pairs         : 113,690
+  Negative pairs         : 236,964
+  Prevalence             : 32.42%
+  Unique pair IDs        : 57
+  Unique originals       : 1219
+  Unique modified        : 72979
+
+  Segments by Source (Positives only):
+    AudioLDM2                : 13,409
+    Cover                    : 41,327
+    MGE-LDM_bass             : 11,112
+    MGE-LDM_drums            : 11,121
+    MGE-LDM_other            : 11,110
+    MusicGen                 : 13,409
+    Original + DSP           : 12,190
+
+  Segments by Broad Category (Positives only):
+    1a. Human Plagiarism (Base)        :  3,757
+    1b. Human Plagiarism + DSP         : 37,570
+    2. Original + DSP                  : 12,190
+    3. AI Generation (Base)            :  5,472
+    4. AI + DSP                        : 54,701
+======================================================================
+
+  Summary saved → results\dataset_stats\dataset_summary.csv
+
+[2/5] Computing modification breakdown...
+  Breakdown saved → results\dataset_stats\modification_breakdown.csv
+  Unique modification types: 11
+
+[3/5] Computing negative tier distribution...
+         negative_tier  count  percentage
+        global_nearest  78996       33.34
+intra_category_nearest  78984       33.33
+                random  78984       33.33
+
+[4/5] Computing vocal validity...
+Loaded vocal metadata: 1219 sources, 1167 valid, 52 invalid
+Vocal metadata attached: 350654 pairs total, 322821 pair_vocal_valid=True (92.1%), 27833 pair_vocal_valid=False (7.9%)
+  source_group  total  vocal_valid  vocal_invalid  valid_pct
+     AudioLDM2  13409        12837            572       95.7
+         Cover  41327        38126           3201       92.3
+  MGE-LDM_bass  11112        10584            528       95.2
+ MGE-LDM_drums  11121        10593            528       95.3
+ MGE-LDM_other  11110        10582            528       95.2
+      MusicGen  13409        12837            572       95.7
+Original + DSP  12190        11670            520       95.7
+
+[5/5] Generating plots...
+  Plot saved → segments_by_source.pdf
+  Plot saved → modification_type_breakdown.pdf
+  Plot saved → dsp_family_distribution.pdf
+  Plot saved → negative_tier_distribution.pdf
+  Plot saved → positive_negative_split.pdf
+  Plot saved → vocal_validity_by_source.pdf
+  Plot saved → smp_relation_breakdown.pdf
+  Plot saved → base_vs_dsp_by_source.pdf
+  Plot saved → mgeldm_stem_breakdown.pdf
+  Plot saved → broad_category_pie.pdf
+
+======================================================================
+DATASET STATISTICS COMPLETE
+  Results → results\dataset_stats/
+  Plots   → plots\dataset_stats/
+======================================================================

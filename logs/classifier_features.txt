@@ -821,3 +821,289 @@ Production artifact is ready.
   WEALY volatile→ 100 dims
   CLEWS Top-K   → 512 dims
 ======================================================================
+2026-05-31 15:26:24 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-31 15:26:24 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-31 15:26:29 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 15:26:29 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 15:26:29 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+======================================================================
+FEATURE ABLATION STUDY — BINARY PLAGIARISM CLASSIFICATION
+Statistical rigor: 10 seed(s) per experiment
+======================================================================
+
+Loading feature table from data\classifier_features.parquet...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+
+──────────────────────────────────────────────────────────────────────
+PHASE 1 — ENGINEERED FEATURE EXPERIMENTS
+──────────────────────────────────────────────────────────────────────
+
+  Running: 1. CLEWS Distances  (4 features, 10 seed(s))
+
+  ► 1. CLEWS Distances                           | Features: 4     | Seeds: 10
+    F0.5: 0.6330 [±0.0019]  |  Prec: 0.7330  |  Rec: 0.4107  |  F1: 0.5259  |  Acc: 0.7601
+    Train: 1.30s/fold  |  Infer: 0.0006ms/sample
+
+  Running: 2. WEALY Distances  (4 features, 10 seed(s))
+
+  ► 2. WEALY Distances                           | Features: 4     | Seeds: 10
+    F0.5: 0.4267 [±0.0015]  |  Prec: 0.4358  |  Rec: 0.3962  |  F1: 0.4143  |  Acc: 0.6374
+    Train: 1.18s/fold  |  Infer: 0.0005ms/sample
+
+  Running: 3. All Distances  (8 features, 10 seed(s))
+
+  ► 3. All Distances                             | Features: 8     | Seeds: 10
+    F0.5: 0.6478 [±0.0019]  |  Prec: 0.7323  |  Rec: 0.4438  |  F1: 0.5524  |  Acc: 0.7669
+    Train: 1.32s/fold  |  Infer: 0.0005ms/sample
+
+  Running: 4. CLEWS Delta Summaries  (11 features, 10 seed(s))
+
+  ► 4. CLEWS Delta Summaries                     | Features: 11    | Seeds: 10
+    F0.5: 0.5814 [±0.0031]  |  Prec: 0.6747  |  Rec: 0.3749  |  F1: 0.4818  |  Acc: 0.7385
+    Train: 1.40s/fold  |  Infer: 0.0005ms/sample
+
+  Running: 5. WEALY Delta Summaries  (11 features, 10 seed(s))
+
+  ► 5. WEALY Delta Summaries                     | Features: 11    | Seeds: 10
+    F0.5: 0.3983 [±0.0016]  |  Prec: 0.3920  |  Rec: 0.4268  |  F1: 0.4084  |  Acc: 0.5993
+    Train: 1.47s/fold  |  Infer: 0.0005ms/sample
+
+  Running: 6. All Delta Summaries  (22 features, 10 seed(s))
+
+  ► 6. All Delta Summaries                       | Features: 22    | Seeds: 10
+    F0.5: 0.6057 [±0.0022]  |  Prec: 0.6906  |  Rec: 0.4067  |  F1: 0.5116  |  Acc: 0.7483
+    Train: 1.95s/fold  |  Infer: 0.0005ms/sample
+
+  Running: 7. All Engineered (No Vocal)  (30 features, 10 seed(s))
+
+  ► 7. All Engineered (No Vocal)                 | Features: 30    | Seeds: 10
+    F0.5: 0.6584 [±0.0018]  |  Prec: 0.7288  |  Rec: 0.4756  |  F1: 0.5753  |  Acc: 0.7724
+    Train: 2.31s/fold  |  Infer: 0.0005ms/sample
+
+  Running: 8. All Engineered (Vocal)  (35 features, 10 seed(s))
+
+  ► 8. All Engineered (Vocal)                    | Features: 35    | Seeds: 10
+    F0.5: 0.8640 [±0.0013]  |  Prec: 0.8876  |  Rec: 0.7814  |  F1: 0.8310  |  Acc: 0.8970
+    Train: 2.58s/fold  |  Infer: 0.0005ms/sample
+
+  Running: 9. Vocal Only  (5 features, 10 seed(s))
+
+  ► 9. Vocal Only                                | Features: 5     | Seeds: 10
+    F0.5: 0.8360 [±0.0010]  |  Prec: 0.8959  |  Rec: 0.6620  |  F1: 0.7605  |  Acc: 0.8651
+    Train: 1.16s/fold  |  Infer: 0.0005ms/sample
+
+──────────────────────────────────────────────────────────────────────
+PHASE 2 — RAW EMBEDDING DELTA EXPERIMENTS
+──────────────────────────────────────────────────────────────────────
+  Loading CLEWS embeddings...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Computing CLEWS delta matrix...
+  [CLEWS] Delta: 350654/350654 valid, 0 missing, dim=1024
+
+  Running: 10. CLEWS Full Δ (1024D)  (10 seed(s))
+
+  ► 10. CLEWS Full Δ (1024D)                     | Features: 1024  | Seeds: 10
+    F0.5: 0.8115 [±0.0016]  |  Prec: 0.8561  |  Rec: 0.6719  |  F1: 0.7527  |  Acc: 0.8569
+    Train: 119.25s/fold  |  Infer: 0.0011ms/sample
+  Loading WEALY embeddings...
+  Loaded 73581 embeddings from wealy_embeddings.parquet
+  Computing WEALY delta matrix...
+  [WEALY] Delta: 350501/350654 valid, 153 missing, dim=512
+
+  Running: 11. WEALY Full Δ (512D)  (10 seed(s))
+
+  ► 11. WEALY Full Δ (512D)                      | Features: 512   | Seeds: 10
+    F0.5: 0.4918 [±0.0021]  |  Prec: 0.5262  |  Rec: 0.3905  |  F1: 0.4481  |  Acc: 0.6882
+    Train: 53.29s/fold  |  Infer: 0.0008ms/sample
+
+──────────────────────────────────────────────────────────────────────
+PHASE 3 — TOP-K CLEWS DIMENSION CONVERGENCE CURVE
+──────────────────────────────────────────────────────────────────────
+  Full CLEWS delta matrix: (350654, 1024)
+  Ranking dimensions by mean absolute shift on positive pairs...
+
+  Running: Top-10 CLEWS Dims  (10 seed(s))
+  Top-10 CLEWS Dims         → F0.5: 0.5017 ±0.0018  | Train: 1.50s/fold  | Infer: 0.0005ms/sample
+
+  Running: Top-30 CLEWS Dims  (10 seed(s))
+  Top-30 CLEWS Dims         → F0.5: 0.6124 ±0.0014  | Train: 2.65s/fold  | Infer: 0.0005ms/sample
+
+  Running: Top-50 CLEWS Dims  (10 seed(s))
+  Top-50 CLEWS Dims         → F0.5: 0.6469 ±0.0015  | Train: 3.72s/fold  | Infer: 0.0005ms/sample
+
+  Running: Top-100 CLEWS Dims  (10 seed(s))
+  Top-100 CLEWS Dims        → F0.5: 0.6867 ±0.0012  | Train: 6.69s/fold  | Infer: 0.0006ms/sample
+
+  Running: Top-256 CLEWS Dims  (10 seed(s))
+  Top-256 CLEWS Dims        → F0.5: 0.7492 ±0.0025  | Train: 22.78s/fold  | Infer: 0.0007ms/sample
+
+  Running: Top-512 CLEWS Dims  (10 seed(s))
+  Top-512 CLEWS Dims        → F0.5: 0.7922 ±0.0018  | Train: 54.81s/fold  | Infer: 0.0008ms/sample
+
+  Appended precomputed Full-1024D result → F0.5: 0.8115 ±0.0016
+
+
+Loading threshold baselines for comparison...
+
+==============================================================================================================
+  Experiment                                 |  Feats |    F0.5 |    CI95 |    Prec |     Rec |      F1 |     Acc |  Train(s)
+  ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  CLEWS Threshold Baseline                   |      – |  0.6123 |       – |  0.9276 |  0.2596 |  0.4056 |  0.7534 |         –
+  WEALY Threshold Baseline                   |      – |  0.4421 |       – |  0.4637 |  0.3743 |  0.4137 |  0.6479 |         –
+  FUSION Threshold Baseline                  |      – |  0.6097 |       – |  0.9040 |  0.2649 |  0.4097 |  0.7524 |         –
+  ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  1. CLEWS Distances                         |      4 |  0.6330 | ±0.0019 |  0.7330 |  0.4107 |  0.5259 |  0.7601 |      1.30
+  2. WEALY Distances                         |      4 |  0.4267 | ±0.0015 |  0.4358 |  0.3962 |  0.4143 |  0.6374 |      1.18
+  3. All Distances                           |      8 |  0.6478 | ±0.0019 |  0.7323 |  0.4438 |  0.5524 |  0.7669 |      1.32
+  4. CLEWS Delta Summaries                   |     11 |  0.5814 | ±0.0031 |  0.6747 |  0.3749 |  0.4818 |  0.7385 |      1.41
+  5. WEALY Delta Summaries                   |     11 |  0.3983 | ±0.0016 |  0.3920 |  0.4268 |  0.4084 |  0.5993 |      1.47
+  6. All Delta Summaries                     |     22 |  0.6057 | ±0.0022 |  0.6906 |  0.4067 |  0.5116 |  0.7483 |      1.95
+  7. All Engineered (No Vocal)               |     30 |  0.6584 | ±0.0018 |  0.7288 |  0.4756 |  0.5753 |  0.7724 |      2.31
+  8. All Engineered (Vocal)                  |     35 |  0.8640 | ±0.0013 |  0.8876 |  0.7814 |  0.8310 |  0.8970 |      2.58
+  9. Vocal Only                              |      5 |  0.8360 | ±0.0010 |  0.8959 |  0.6620 |  0.7605 |  0.8651 |      1.16
+  10. CLEWS Full Δ (1024D)                   |   1024 |  0.8115 | ±0.0016 |  0.8561 |  0.6719 |  0.7527 |  0.8569 |    119.25
+  11. WEALY Full Δ (512D)                    |    512 |  0.4918 | ±0.0021 |  0.5262 |  0.3905 |  0.4481 |  0.6882 |     53.29
+==============================================================================================================
+
+  Ablation results  → results\classification\ablation_results.csv
+  Top-K curve       → results\classification\ablation_topk_curve.csv
+Traceback (most recent call last):
+  File "C:\Users\Fotis\AppData\Roaming\Python\Python313\site-packages\pandas\core\indexes\base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas\\_libs\\hashtable_class_helper.pxi", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas\\_libs\\hashtable_class_helper.pxi", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'F0._CI95'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\ablation.py", line 599, in <module>
+    main()
+    ~~~~^^
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\ablation.py", line 585, in main
+    _plot_ablation_comparison(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        df_results, df_baselines,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+        PLOTS_DIR / "ablation_f05_comparison.pdf",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\ablation.py", line 212, in _plot_ablation_comparison
+    for i, (val, ci) in enumerate(zip(df_plot[col], df_plot[f"{col[:3]}_CI95"] if col == "F0.5" else df_plot["Prec_CI95"] if col == "Precision" else df_plot["Rec_CI95"])):
+                                                    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Fotis\AppData\Roaming\Python\Python313\site-packages\pandas\core\frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "C:\Users\Fotis\AppData\Roaming\Python\Python313\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'F0._CI95'
+2026-05-31 20:16:27 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-31 20:16:27 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+Traceback (most recent call last):
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\test.py", line 51, in <module>
+    from classification.ablation import (
+  File "C:\Users\Fotis\Plagiarism-Detection-System\src\classification\ablation.py", line 92, in <module>
+    from classifier import (
+  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\classifier.py", line 40, in <module>
+    from xgboost import XGBClassifier
+ModuleNotFoundError: No module named 'xgboost'
+2026-05-31 20:17:30 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-31 20:17:30 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+======================================================================
+REBUILD ABLATION OUTPUTS FROM PRECOMPUTED CSVs
+======================================================================
+
+Loading saved ablation results from results\classification\ablation_results.csv...
+Loading saved top-k curve from results\classification\ablation_topk_curve.csv...
+  Loaded 11 ablation rows
+  Loaded 7 top-k rows
+
+Loading threshold baselines...
+  Loaded 3 baseline rows
+
+  Ablation results  → results\classification\ablation_results.csv
+  Top-K curve       → results\classification\ablation_topk_curve.csv
+
+Generating plots...
+  Plot saved → plots\classification\ablation_f05_comparison.pdf
+  Plot saved → plots\classification\ablation_topk_convergence_curve.pdf
+
+  All outputs → results\classification/  and  plots\classification/
+
+Done.
+2026-05-31 20:20:43 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-31 20:20:43 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-05-31 20:20:44 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:20:44 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-05-31 20:20:44 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+======================================================================
+HYBRID FEATURE EXPERIMENTS — ENGINEERED + TOP-K CLEWS
+Statistical rigor: 10 seed(s) per experiment
+======================================================================
+
+Loading feature table from data\classifier_features.parquet...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+
+[1/4] Defining base engineered feature set...
+  Base: All Engineered (No Vocals) — 30 features
+
+[2/4] Building CLEWS delta matrix and ranking dimensions...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  CLEWS delta matrix: (350654, 1024)
+  Dimensions ranked by mean absolute shift on 113690 positive pairs
+
+[3/4] Running hybrid experiments (10 seed(s) each)...
+──────────────────────────────────────────────────────────────────────
+
+  Running: Hybrid: Engineered (No Vocals) + Top-256 CLEWS
+
+  ► Hybrid: Engineered (No Vocals) + Top-256 CLEWS | Features: 286   | Seeds: 10
+    F0.5: 0.7951 [±0.0017]  |  Prec: 0.8359  |  Rec: 0.6658  |  F1: 0.7410  |  Acc: 0.8491
+    Train: 26.90s/fold  |  Infer: 0.0007ms/sample
+
+  Running: Hybrid: Engineered (No Vocals) + Top-512 CLEWS
+
+  ► Hybrid: Engineered (No Vocals) + Top-512 CLEWS | Features: 542   | Seeds: 10
+    F0.5: 0.8209 [±0.0014]  |  Prec: 0.8583  |  Rec: 0.6995  |  F1: 0.7707  |  Acc: 0.8651
+    Train: 57.04s/fold  |  Infer: 0.0008ms/sample
+
+  Running: Hybrid: Engineered (No Vocals) + Top-1024 CLEWS
+
+  ► Hybrid: Engineered (No Vocals) + Top-1024 CLEWS | Features: 1054  | Seeds: 10
+    F0.5: 0.8339 [±0.0019]  |  Prec: 0.8678  |  Rec: 0.7215  |  F1: 0.7878  |  Acc: 0.8740
+    Train: 116.06s/fold  |  Infer: 0.0011ms/sample
+
+[4/4] Loading ablation results for comparison...
+  Loaded 11 ablation experiments
+
+===================================================================================================================
+  Experiment                                         |  Feats |    F0.5 |    CI95 |    Prec |     Rec |      F1 |     Acc |  Train(s)
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  CLEWS Threshold Baseline                           |      – |  0.6123 |       – |  0.9276 |  0.2596 |  0.4056 |  0.7534 |         –
+  WEALY Threshold Baseline                           |      – |  0.4421 |       – |  0.4637 |  0.3743 |  0.4137 |  0.6479 |         –
+  FUSION Threshold Baseline                          |      – |  0.6097 |       – |  0.9040 |  0.2649 |  0.4097 |  0.7524 |         –
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  7. All Engineered (No Vocal)                       |     30 |  0.6584 | ±0.0018 |  0.7288 |  0.4756 |  0.5753 |  0.7724 |      2.31
+  8. All Engineered (Vocal)                          |     35 |  0.8640 | ±0.0013 |  0.8876 |  0.7814 |  0.8310 |  0.8970 |      2.58
+  10. CLEWS Full Δ (1024D)                           |   1024 |  0.8115 | ±0.0016 |  0.8561 |  0.6719 |  0.7527 |  0.8569 |    119.25
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Hybrid: Engineered (No Vocals) + Top-256 CLEWS     |    286 |  0.7951 | ±0.0017 |  0.8359 |  0.6658 |  0.7410 |  0.8491 |     26.90
+  Hybrid: Engineered (No Vocals) + Top-512 CLEWS     |    542 |  0.8209 | ±0.0014 |  0.8583 |  0.6995 |  0.7707 |  0.8651 |     57.04
+  Hybrid: Engineered (No Vocals) + Top-1024 CLEWS    |   1054 |  0.8339 | ±0.0019 |  0.8678 |  0.7215 |  0.7878 |  0.8740 |    116.06
+===================================================================================================================
+
+  Hybrid results → results\classification\hybrid_results.csv
+  Plot saved → plots\classification\hybrid_f05_comparison.pdf
+
+  All outputs → results\classification/  and  plots\classification/
+
+Done.
