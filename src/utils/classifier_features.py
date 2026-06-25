@@ -3,22 +3,23 @@ Classifier Feature Builder Utility.
 
 Assembles a unified feature matrix for all evaluation pairs (positives + negatives)
 by merging:
-    - CLEWS distance metrics                          (4 features)
-    - WEALY distance metrics                          (4 features)
+    - CLEWS winning distance metric (1 feature, from threshold_analysis_summary.csv)
+    - WEALY winning distance metric (1 feature, from threshold_analysis_summary.csv)
     - CLEWS embedding delta summary features          (11 features)
     - WEALY embedding delta summary features          (11 features)
     - Vocal metadata                                  (3–5 features)
 
+The winning distance metric per model is loaded from the pre-computed
+threshold_analysis_summary.csv, ensuring consistency between the threshold-based
+pipeline and the supervised classifier.
+
+They are computed on-the-fly in dedicated experiments (e.g. hybrid_experiments.py)
+using _build_embedding_map and _compute_delta_matrix_for_pairs, which are
+exported from this module for that purpose.
+
 The delta summary features are computed using the same mathematical logic
 as explainability.py, with the stable/volatile dimension reference frame
 derived exclusively from positive pairs (no leakage from negatives).
-
-Note on top-K raw dimension features:
-    Per-pair raw CLEWS delta values at top-K ranked dimensions are NOT
-    included here. They are computed on-the-fly by ablation.py (Phase 3)
-    and final_classifier.py using _build_embedding_map and
-    _compute_delta_matrix_for_pairs, which are exported from this module
-    for that purpose.
 
 This module does NOT perform any training or evaluation.
 It produces a single parquet file consumed by ablation.py / final_classifier.py.
@@ -59,13 +60,14 @@ sys.path.insert(0, str(repo_root / "src"))
 from utils.constants import (
     MERGE_KEYS, MODEL_PATHS, EMBEDDING_PATHS,
     DISTANCE_METRICS, VOCAL_RATIOS_CSV, OUTPUT_DIRS,
+    CLASSIFIER_FEATURE_TABLE,
 )
 from utils.dataset_builder import clean_embedding
 from utils.vocal_metadata import attach_vocal_metadata
 
-# Output path 
-OUTPUT_DIR  = Path("results/classification")
-OUTPUT_FILE = OUTPUT_DIR / "classifier_features.parquet"
+# Output path
+OUTPUT_FILE = Path(CLASSIFIER_FEATURE_TABLE)
+OUTPUT_DIR  = OUTPUT_FILE.parent
 
 
 # CSV Loading 
@@ -86,6 +88,37 @@ def _load_csv_for_merge(path: str) -> pd.DataFrame:
             df[col] = df[col].astype(str)
 
     return df
+
+def _load_winning_metrics() -> dict[str, str]:
+    """
+    Load the winning distance metric per model from threshold_analysis_summary.csv.
+
+    Returns:
+        dict: {'CLEWS': 'manhattan_distance', 'WEALY': 'cosine_distance', ...}
+
+    Falls back to all DISTANCE_METRICS if file not found.
+    """
+    from utils.constants import SUMMARY_FILES
+    thresh_path = Path(SUMMARY_FILES["threshold_analysis"])
+
+    if not thresh_path.exists():
+        logger.warning(
+            "threshold_analysis_summary.csv not found at %s. "
+            "Falling back to all distance metrics.", thresh_path
+        )
+        return {}
+
+    df = pd.read_csv(thresh_path)
+    winning = {}
+    for _, row in df.iterrows():
+        model  = str(row["model"]).upper()
+        metric = str(row["metric"])
+        # Only accept plain distance metrics, not fused (e.g. 'manhattan_distance+cosine_distance')
+        if "+" not in metric and metric.endswith("_distance"):
+            winning[model] = metric
+            print(f"  Winning metric for {model}: {metric}")
+
+    return winning
 
 
 # Delta Summary Features 
@@ -355,11 +388,11 @@ def build_classifier_feature_table(
 
     Steps:
         1. Load evaluation_master_pairs.csv (pair definitions + labels)
-        2. Merge CLEWS distances         (4 features)
-        3. Merge WEALY distances         (4 features)
-        4. CLEWS delta summary features  (11 features)
-        5. WEALY delta summary features  (11 features)
-        6. Vocal metadata                (3–5 features)
+        2. Merge CLEWS winning distance metric    (1 feature)
+        3. Merge WEALY winning distance metric    (1 feature)
+        4. CLEWS delta summary features           (11 features)
+        5. WEALY delta summary features           (11 features)
+        6. Vocal metadata                         (3–5 features)
         7. Save unified parquet
 
     Returns:
@@ -374,27 +407,52 @@ def build_classifier_feature_table(
     df = _load_csv_for_merge(pair_list_csv)
     print(f"  Pairs: {len(df):,}  ({df['is_plagiarised'].astype(int).sum():,} positives)")
 
-    # 2. CLEWS distances
-    print("\n[2/7] Merging CLEWS distances...")
-    df_clews_dist = _load_csv_for_merge(clews_dist_csv)
-    clews_dist_cols = {
-        m: f"clews_{m}" for m in DISTANCE_METRICS if m in df_clews_dist.columns
-    }
-    df_clews_dist = df_clews_dist[MERGE_KEYS + list(clews_dist_cols.keys())].copy()
-    df_clews_dist = df_clews_dist.rename(columns=clews_dist_cols)
-    df = df.merge(df_clews_dist, on=MERGE_KEYS, how="left")
-    print(f"  Added {len(clews_dist_cols)} CLEWS distance features")
+    # Load winning metrics
+    print("\n[Loading winning distance metrics from threshold analysis...]")
+    winning_metrics = _load_winning_metrics()
 
-    # 3. WEALY distances
-    print("\n[3/7] Merging WEALY distances...")
+    # 2. CLEWS distance — winning metric only
+    print("\n[2/7] Merging CLEWS distance (winning metric only)...")
+    df_clews_dist = _load_csv_for_merge(clews_dist_csv)
+    clews_winner  = winning_metrics.get("CLEWS")
+
+    if clews_winner and clews_winner in df_clews_dist.columns:
+        clews_col_map = {clews_winner: f"clews_{clews_winner}"}
+        df_clews_dist = df_clews_dist[MERGE_KEYS + [clews_winner]].copy()
+        df_clews_dist = df_clews_dist.rename(columns=clews_col_map)
+        print(f"  Using winning CLEWS metric: {clews_winner}")
+    else:
+        # Fallback: use all CLEWS distances
+        logger.warning("No valid CLEWS winning metric found. Using all distances.")
+        clews_dist_cols = {
+            m: f"clews_{m}" for m in DISTANCE_METRICS if m in df_clews_dist.columns
+        }
+        df_clews_dist = df_clews_dist[MERGE_KEYS + list(clews_dist_cols.keys())].copy()
+        df_clews_dist = df_clews_dist.rename(columns=clews_dist_cols)
+        print(f"  Fallback: Using all {len(clews_dist_cols)} CLEWS distance features")
+
+    df = df.merge(df_clews_dist, on=MERGE_KEYS, how="left")
+
+    # 3. WEALY distance — winning metric only
+    print("\n[3/7] Merging WEALY distance (winning metric only)...")
     df_wealy_dist = _load_csv_for_merge(wealy_dist_csv)
-    wealy_dist_cols = {
-        m: f"wealy_{m}" for m in DISTANCE_METRICS if m in df_wealy_dist.columns
-    }
-    df_wealy_dist = df_wealy_dist[MERGE_KEYS + list(wealy_dist_cols.keys())].copy()
-    df_wealy_dist = df_wealy_dist.rename(columns=wealy_dist_cols)
+    wealy_winner  = winning_metrics.get("WEALY")
+
+    if wealy_winner and wealy_winner in df_wealy_dist.columns:
+        wealy_col_map = {wealy_winner: f"wealy_{wealy_winner}"}
+        df_wealy_dist = df_wealy_dist[MERGE_KEYS + [wealy_winner]].copy()
+        df_wealy_dist = df_wealy_dist.rename(columns=wealy_col_map)
+        print(f"  Using winning WEALY metric: {wealy_winner}")
+    else:
+        logger.warning("No valid WEALY winning metric found. Using all distances.")
+        wealy_dist_cols = {
+            m: f"wealy_{m}" for m in DISTANCE_METRICS if m in df_wealy_dist.columns
+        }
+        df_wealy_dist = df_wealy_dist[MERGE_KEYS + list(wealy_dist_cols.keys())].copy()
+        df_wealy_dist = df_wealy_dist.rename(columns=wealy_dist_cols)
+        print(f"  Fallback: Using all {len(wealy_dist_cols)} WEALY distance features")
+
     df = df.merge(df_wealy_dist, on=MERGE_KEYS, how="left")
-    print(f"  Added {len(wealy_dist_cols)} WEALY distance features")
 
     # 4. CLEWS delta summary
     print("\n[4/7] Computing CLEWS delta summary features...")
@@ -431,19 +489,23 @@ def build_classifier_feature_table(
     ]
     vocal_cols = [c for c in df.columns if "vocal" in c.lower()]
 
+    dist_cols_final  = [c for c in feature_cols if "distance" in c]
+    delta_cols_final = [c for c in feature_cols if any(
+        x in c for x in ["delta", "stable", "volatile", "active"]
+    )]
+
     print(f"\n{'=' * 60}")
     print("FEATURE TABLE SUMMARY")
     print(f"{'=' * 60}")
     print(f"  Total rows:        {len(df):,}")
     print(f"  Positives:         {df['is_plagiarised'].astype(int).sum():,}")
     print(f"  Negatives:         {(~df['is_plagiarised'].astype(bool)).sum():,}")
-    print(f"  Distance features: {sum(1 for c in feature_cols if 'distance' in c)}")
-    print(
-        f"  Delta features:    "
-        f"{sum(1 for c in feature_cols if any(x in c for x in ['delta', 'stable', 'volatile', 'active']))}"
-    )
+    print(f"  Distance features: {len(dist_cols_final)}")
+    for c in dist_cols_final:
+        print(f"    - {c}")
+    print(f"  Delta features:    {len(delta_cols_final)}")
     print(f"  Vocal features:    {len(vocal_cols)}")
-    print(f"  Total features:    {len(feature_cols) + len(vocal_cols)}")
+    print(f"  Total features:    {len(dist_cols_final) + len(delta_cols_final) + len(vocal_cols)}")
     print(f"{'=' * 60}")
 
     return df

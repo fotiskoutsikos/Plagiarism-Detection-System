@@ -1,12 +1,12 @@
-2026-05-31 15:26:24 [INFO] Logging initialized for ablation, file: logs\ablation.txt
-2026-05-31 15:26:24 [INFO] Logging initialized for ablation, file: logs\ablation.txt
-2026-05-31 15:26:24 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 15:26:24 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 15:26:24 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 15:26:29 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 15:26:29 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 15:26:29 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 15:26:29 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-24 20:08:01 [INFO] Logging initialized for ablation, file: logs\ablation.txt
+2026-06-24 20:08:01 [INFO] Logging initialized for ablation, file: logs\ablation.txt
+2026-06-24 20:08:01 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-06-24 20:08:01 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-06-24 20:08:01 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-06-24 20:08:05 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-24 20:08:05 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-24 20:08:05 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-24 20:08:05 [INFO] Logging initialized for classifier, file: logs\classifier.txt
 ======================================================================
 FEATURE ABLATION STUDY — BINARY PLAGIARISM CLASSIFICATION
 Statistical rigor: 10 seed(s) per experiment
@@ -19,59 +19,59 @@ Loading feature table from data\classifier_features.parquet...
 PHASE 1 — ENGINEERED FEATURE EXPERIMENTS
 ──────────────────────────────────────────────────────────────────────
 
-  Running: 1. CLEWS Distances  (4 features, 10 seed(s))
+  Running: 1. CLEWS Distance (Winning)  (1 features, 10 seed(s))
 
-  ► 1. CLEWS Distances                           | Features: 4     | Seeds: 10
-    F0.5: 0.6330 [±0.0019]  |  Prec: 0.7330  |  Rec: 0.4107  |  F1: 0.5259  |  Acc: 0.7601
-    Train: 1.30s/fold  |  Infer: 0.0006ms/sample
+  ► 1. CLEWS Distance (Winning)                  | Features: 1     | Seeds: 10
+    F0.5: 0.6072 [±0.0015]  |  Prec: 0.9084  |  Rec: 0.2615  |  F1: 0.4059  |  Acc: 0.7519
+    Train: 1.21s/fold  |  Infer: 0.0006ms/sample
 
-  Running: 2. WEALY Distances  (4 features, 10 seed(s))
+  Running: 2. WEALY Distance (Winning)  (1 features, 10 seed(s))
 
-  ► 2. WEALY Distances                           | Features: 4     | Seeds: 10
-    F0.5: 0.4267 [±0.0015]  |  Prec: 0.4358  |  Rec: 0.3962  |  F1: 0.4143  |  Acc: 0.6374
-    Train: 1.18s/fold  |  Infer: 0.0005ms/sample
+  ► 2. WEALY Distance (Winning)                  | Features: 1     | Seeds: 10
+    F0.5: 0.4282 [±0.0014]  |  Prec: 0.4455  |  Rec: 0.3715  |  F1: 0.4049  |  Acc: 0.6461
+    Train: 1.25s/fold  |  Infer: 0.0006ms/sample
 
-  Running: 3. All Distances  (8 features, 10 seed(s))
+  Running: 3. Both Distances (Winning)  (2 features, 10 seed(s))
 
-  ► 3. All Distances                             | Features: 8     | Seeds: 10
-    F0.5: 0.6478 [±0.0019]  |  Prec: 0.7323  |  Rec: 0.4438  |  F1: 0.5524  |  Acc: 0.7669
-    Train: 1.32s/fold  |  Infer: 0.0005ms/sample
+  ► 3. Both Distances (Winning)                  | Features: 2     | Seeds: 10
+    F0.5: 0.6194 [±0.0024]  |  Prec: 0.8423  |  Rec: 0.3028  |  F1: 0.4445  |  Acc: 0.7551
+    Train: 1.24s/fold  |  Infer: 0.0006ms/sample
 
   Running: 4. CLEWS Delta Summaries  (11 features, 10 seed(s))
 
   ► 4. CLEWS Delta Summaries                     | Features: 11    | Seeds: 10
     F0.5: 0.5814 [±0.0031]  |  Prec: 0.6747  |  Rec: 0.3749  |  F1: 0.4818  |  Acc: 0.7385
-    Train: 1.40s/fold  |  Infer: 0.0005ms/sample
+    Train: 1.48s/fold  |  Infer: 0.0005ms/sample
 
   Running: 5. WEALY Delta Summaries  (11 features, 10 seed(s))
 
   ► 5. WEALY Delta Summaries                     | Features: 11    | Seeds: 10
     F0.5: 0.3983 [±0.0016]  |  Prec: 0.3920  |  Rec: 0.4268  |  F1: 0.4084  |  Acc: 0.5993
-    Train: 1.47s/fold  |  Infer: 0.0005ms/sample
+    Train: 1.52s/fold  |  Infer: 0.0006ms/sample
 
   Running: 6. All Delta Summaries  (22 features, 10 seed(s))
 
   ► 6. All Delta Summaries                       | Features: 22    | Seeds: 10
     F0.5: 0.6057 [±0.0022]  |  Prec: 0.6906  |  Rec: 0.4067  |  F1: 0.5116  |  Acc: 0.7483
-    Train: 1.95s/fold  |  Infer: 0.0005ms/sample
+    Train: 2.01s/fold  |  Infer: 0.0006ms/sample
 
-  Running: 7. All Engineered (No Vocal)  (30 features, 10 seed(s))
+  Running: 7. All Engineered (No Vocal)  (24 features, 10 seed(s))
 
-  ► 7. All Engineered (No Vocal)                 | Features: 30    | Seeds: 10
-    F0.5: 0.6584 [±0.0018]  |  Prec: 0.7288  |  Rec: 0.4756  |  F1: 0.5753  |  Acc: 0.7724
-    Train: 2.31s/fold  |  Infer: 0.0005ms/sample
+  ► 7. All Engineered (No Vocal)                 | Features: 24    | Seeds: 10
+    F0.5: 0.6166 [±0.0024]  |  Prec: 0.6955  |  Rec: 0.4247  |  F1: 0.5271  |  Acc: 0.7530
+    Train: 2.03s/fold  |  Infer: 0.0005ms/sample
 
-  Running: 8. All Engineered (Vocal)  (35 features, 10 seed(s))
+  Running: 8. All Engineered (Vocal)  (29 features, 10 seed(s))
 
-  ► 8. All Engineered (Vocal)                    | Features: 35    | Seeds: 10
-    F0.5: 0.8640 [±0.0013]  |  Prec: 0.8876  |  Rec: 0.7814  |  F1: 0.8310  |  Acc: 0.8970
-    Train: 2.58s/fold  |  Infer: 0.0005ms/sample
+  ► 8. All Engineered (Vocal)                    | Features: 29    | Seeds: 10
+    F0.5: 0.8526 [±0.0017]  |  Prec: 0.8762  |  Rec: 0.7704  |  F1: 0.8197  |  Acc: 0.8902
+    Train: 2.28s/fold  |  Infer: 0.0005ms/sample
 
   Running: 9. Vocal Only  (5 features, 10 seed(s))
 
   ► 9. Vocal Only                                | Features: 5     | Seeds: 10
     F0.5: 0.8360 [±0.0010]  |  Prec: 0.8959  |  Rec: 0.6620  |  F1: 0.7605  |  Acc: 0.8651
-    Train: 1.16s/fold  |  Infer: 0.0005ms/sample
+    Train: 1.13s/fold  |  Infer: 0.0005ms/sample
 
 ──────────────────────────────────────────────────────────────────────
 PHASE 2 — RAW EMBEDDING DELTA EXPERIMENTS
@@ -85,7 +85,7 @@ PHASE 2 — RAW EMBEDDING DELTA EXPERIMENTS
 
   ► 10. CLEWS Full Δ (1024D)                     | Features: 1024  | Seeds: 10
     F0.5: 0.8115 [±0.0016]  |  Prec: 0.8561  |  Rec: 0.6719  |  F1: 0.7527  |  Acc: 0.8569
-    Train: 119.25s/fold  |  Infer: 0.0011ms/sample
+    Train: 118.93s/fold  |  Infer: 0.0011ms/sample
   Loading WEALY embeddings...
   Loaded 73581 embeddings from wealy_embeddings.parquet
   Computing WEALY delta matrix...
@@ -95,7 +95,7 @@ PHASE 2 — RAW EMBEDDING DELTA EXPERIMENTS
 
   ► 11. WEALY Full Δ (512D)                      | Features: 512   | Seeds: 10
     F0.5: 0.4918 [±0.0021]  |  Prec: 0.5262  |  Rec: 0.3905  |  F1: 0.4481  |  Acc: 0.6882
-    Train: 53.29s/fold  |  Infer: 0.0008ms/sample
+    Train: 53.03s/fold  |  Infer: 0.0008ms/sample
 
 ──────────────────────────────────────────────────────────────────────
 PHASE 3 — TOP-K CLEWS DIMENSION CONVERGENCE CURVE
@@ -104,22 +104,22 @@ PHASE 3 — TOP-K CLEWS DIMENSION CONVERGENCE CURVE
   Ranking dimensions by mean absolute shift on positive pairs...
 
   Running: Top-10 CLEWS Dims  (10 seed(s))
-  Top-10 CLEWS Dims         → F0.5: 0.5017 ±0.0018  | Train: 1.50s/fold  | Infer: 0.0005ms/sample
+  Top-10 CLEWS Dims         → F0.5: 0.5017 ±0.0018  | Train: 1.48s/fold  | Infer: 0.0005ms/sample
 
   Running: Top-30 CLEWS Dims  (10 seed(s))
-  Top-30 CLEWS Dims         → F0.5: 0.6124 ±0.0014  | Train: 2.65s/fold  | Infer: 0.0005ms/sample
+  Top-30 CLEWS Dims         → F0.5: 0.6124 ±0.0014  | Train: 3.02s/fold  | Infer: 0.0007ms/sample
 
   Running: Top-50 CLEWS Dims  (10 seed(s))
-  Top-50 CLEWS Dims         → F0.5: 0.6469 ±0.0015  | Train: 3.72s/fold  | Infer: 0.0005ms/sample
+  Top-50 CLEWS Dims         → F0.5: 0.6469 ±0.0015  | Train: 3.99s/fold  | Infer: 0.0006ms/sample
 
   Running: Top-100 CLEWS Dims  (10 seed(s))
-  Top-100 CLEWS Dims        → F0.5: 0.6867 ±0.0012  | Train: 6.69s/fold  | Infer: 0.0006ms/sample
+  Top-100 CLEWS Dims        → F0.5: 0.6867 ±0.0012  | Train: 6.64s/fold  | Infer: 0.0006ms/sample
 
   Running: Top-256 CLEWS Dims  (10 seed(s))
-  Top-256 CLEWS Dims        → F0.5: 0.7492 ±0.0025  | Train: 22.78s/fold  | Infer: 0.0007ms/sample
+  Top-256 CLEWS Dims        → F0.5: 0.7492 ±0.0025  | Train: 22.63s/fold  | Infer: 0.0007ms/sample
 
   Running: Top-512 CLEWS Dims  (10 seed(s))
-  Top-512 CLEWS Dims        → F0.5: 0.7922 ±0.0018  | Train: 54.81s/fold  | Infer: 0.0008ms/sample
+  Top-512 CLEWS Dims        → F0.5: 0.7922 ±0.0018  | Train: 54.37s/fold  | Infer: 0.0008ms/sample
 
   Appended precomputed Full-1024D result → F0.5: 0.8115 ±0.0016
 
@@ -133,62 +133,21 @@ Loading threshold baselines for comparison...
   WEALY Threshold Baseline                   |      – |  0.4421 |       – |  0.4637 |  0.3743 |  0.4137 |  0.6479 |         –
   FUSION Threshold Baseline                  |      – |  0.6097 |       – |  0.9040 |  0.2649 |  0.4097 |  0.7524 |         –
   ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-  1. CLEWS Distances                         |      4 |  0.6330 | ±0.0019 |  0.7330 |  0.4107 |  0.5259 |  0.7601 |      1.30
-  2. WEALY Distances                         |      4 |  0.4267 | ±0.0015 |  0.4358 |  0.3962 |  0.4143 |  0.6374 |      1.18
-  3. All Distances                           |      8 |  0.6478 | ±0.0019 |  0.7323 |  0.4438 |  0.5524 |  0.7669 |      1.32
-  4. CLEWS Delta Summaries                   |     11 |  0.5814 | ±0.0031 |  0.6747 |  0.3749 |  0.4818 |  0.7385 |      1.41
-  5. WEALY Delta Summaries                   |     11 |  0.3983 | ±0.0016 |  0.3920 |  0.4268 |  0.4084 |  0.5993 |      1.47
-  6. All Delta Summaries                     |     22 |  0.6057 | ±0.0022 |  0.6906 |  0.4067 |  0.5116 |  0.7483 |      1.95
-  7. All Engineered (No Vocal)               |     30 |  0.6584 | ±0.0018 |  0.7288 |  0.4756 |  0.5753 |  0.7724 |      2.31
-  8. All Engineered (Vocal)                  |     35 |  0.8640 | ±0.0013 |  0.8876 |  0.7814 |  0.8310 |  0.8970 |      2.58
-  9. Vocal Only                              |      5 |  0.8360 | ±0.0010 |  0.8959 |  0.6620 |  0.7605 |  0.8651 |      1.16
-  10. CLEWS Full Δ (1024D)                   |   1024 |  0.8115 | ±0.0016 |  0.8561 |  0.6719 |  0.7527 |  0.8569 |    119.25
-  11. WEALY Full Δ (512D)                    |    512 |  0.4918 | ±0.0021 |  0.5262 |  0.3905 |  0.4481 |  0.6882 |     53.29
+  1. CLEWS Distance (Winning)                |      1 |  0.6072 | ±0.0015 |  0.9084 |  0.2615 |  0.4059 |  0.7519 |      1.21
+  2. WEALY Distance (Winning)                |      1 |  0.4282 | ±0.0014 |  0.4455 |  0.3715 |  0.4049 |  0.6461 |      1.25
+  3. Both Distances (Winning)                |      2 |  0.6194 | ±0.0024 |  0.8423 |  0.3028 |  0.4445 |  0.7551 |      1.24
+  4. CLEWS Delta Summaries                   |     11 |  0.5814 | ±0.0031 |  0.6747 |  0.3749 |  0.4818 |  0.7385 |      1.48
+  5. WEALY Delta Summaries                   |     11 |  0.3983 | ±0.0016 |  0.3920 |  0.4268 |  0.4084 |  0.5993 |      1.52
+  6. All Delta Summaries                     |     22 |  0.6057 | ±0.0022 |  0.6906 |  0.4067 |  0.5116 |  0.7483 |      2.01
+  7. All Engineered (No Vocal)               |     24 |  0.6166 | ±0.0024 |  0.6955 |  0.4247 |  0.5271 |  0.7530 |      2.03
+  8. All Engineered (Vocal)                  |     29 |  0.8526 | ±0.0017 |  0.8762 |  0.7704 |  0.8197 |  0.8902 |      2.28
+  9. Vocal Only                              |      5 |  0.8360 | ±0.0010 |  0.8959 |  0.6620 |  0.7605 |  0.8651 |      1.13
+  10. CLEWS Full Δ (1024D)                   |   1024 |  0.8115 | ±0.0016 |  0.8561 |  0.6719 |  0.7527 |  0.8569 |    118.93
+  11. WEALY Full Δ (512D)                    |    512 |  0.4918 | ±0.0021 |  0.5262 |  0.3905 |  0.4481 |  0.6882 |     53.03
 ==============================================================================================================
 
   Ablation results  → results\classification\ablation_results.csv
-  Top-K curve       → results\classification\ablation_topk_curve.csv2026-05-31 20:16:27 [INFO] Logging initialized for ablation, file: logs\ablation.txt
-2026-05-31 20:16:27 [INFO] Logging initialized for ablation, file: logs\ablation.txt
-2026-05-31 20:16:27 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 20:16:27 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 20:16:27 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-Traceback (most recent call last):
-  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\test.py", line 51, in <module>
-    from classification.ablation import (
-  File "C:\Users\Fotis\Plagiarism-Detection-System\src\classification\ablation.py", line 92, in <module>
-    from classifier import (
-  File "c:\Users\Fotis\Plagiarism-Detection-System\src\classification\classifier.py", line 40, in <module>
-    from xgboost import XGBClassifier
-ModuleNotFoundError: No module named 'xgboost'
-2026-05-31 20:17:30 [INFO] Logging initialized for ablation, file: logs\ablation.txt
-2026-05-31 20:17:30 [INFO] Logging initialized for ablation, file: logs\ablation.txt
-2026-05-31 20:17:30 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 20:17:30 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 20:17:30 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 20:17:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-======================================================================
-REBUILD ABLATION OUTPUTS FROM PRECOMPUTED CSVs
-======================================================================
-
-Loading saved ablation results from results\classification\ablation_results.csv...
-Loading saved top-k curve from results\classification\ablation_topk_curve.csv...
-  Loaded 11 ablation rows
-  Loaded 7 top-k rows
-
-Loading threshold baselines...
-  Loaded 3 baseline rows
-
-  Ablation results  → results\classification\ablation_results.csv
   Top-K curve       → results\classification\ablation_topk_curve.csv
-
-Generating plots...
   Plot saved → plots\classification\ablation_f05_comparison.pdf
   Plot saved → plots\classification\ablation_topk_convergence_curve.pdf
 

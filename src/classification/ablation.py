@@ -382,15 +382,15 @@ def main() -> None:
     print("─" * 70)
 
     phase1_experiments = [
-        ("1. CLEWS Distances",           clews_dist_cols),
-        ("2. WEALY Distances",           wealy_dist_cols),
-        ("3. All Distances",             all_dist_cols),
-        ("4. CLEWS Delta Summaries",     clews_delta_cols),
-        ("5. WEALY Delta Summaries",     wealy_delta_cols),
-        ("6. All Delta Summaries",       all_delta_cols),
-        ("7. All Engineered (No Vocal)", all_engineered_no_vocal),
-        ("8. All Engineered (Vocal)",    all_engineered),
-        ("9. Vocal Only",                vocal_cols),
+        ("1. CLEWS Distance (Winning)",    clews_dist_cols),
+        ("2. WEALY Distance (Winning)",    wealy_dist_cols),
+        ("3. Both Distances (Winning)",    all_dist_cols),
+        ("4. CLEWS Delta Summaries",       clews_delta_cols),
+        ("5. WEALY Delta Summaries",       wealy_delta_cols),
+        ("6. All Delta Summaries",         all_delta_cols),
+        ("7. All Engineered (No Vocal)",   all_engineered_no_vocal),
+        ("8. All Engineered (Vocal)",      all_engineered),
+        ("9. Vocal Only",                  vocal_cols),
     ]
 
     all_summaries: list[dict] = []

@@ -1,4 +1,4 @@
 experiment_name,classifier,n_features,n_seeds,f05,f05_std,f05_ci95,f1,f1_ci95,precision,precision_ci95,recall,recall_ci95,accuracy,mean_threshold,mean_train_time_sec,mean_infer_time_ms
-Hybrid: Engineered (No Vocals) + Top-256 CLEWS,XGBoost,286,10,0.7951,0.0028,0.0017,0.741,0.0011,0.8359,0.0024,0.6658,0.001,0.8491,0.6527,26.903,0.0007
-Hybrid: Engineered (No Vocals) + Top-512 CLEWS,XGBoost,542,10,0.8209,0.0023,0.0014,0.7707,0.0013,0.8583,0.0018,0.6995,0.0015,0.8651,0.6422,57.041,0.0008
-Hybrid: Engineered (No Vocals) + Top-1024 CLEWS,XGBoost,1054,10,0.8339,0.0031,0.0019,0.7878,0.0014,0.8678,0.0025,0.7215,0.0017,0.874,0.6318,116.057,0.0011
+Hybrid: Engineered (No Vocals) + Top-256 CLEWS,XGBoost,280,10,0.779,0.0029,0.0018,0.7204,0.0011,0.8237,0.0027,0.6404,0.0016,0.8389,0.6396,25.736,0.0007
+Hybrid: Engineered (No Vocals) + Top-512 CLEWS,XGBoost,536,10,0.8052,0.0022,0.0014,0.7523,0.0013,0.8448,0.002,0.6783,0.0021,0.8552,0.6303,54.687,0.0008
+Hybrid: Engineered (No Vocals) + Top-1024 CLEWS,XGBoost,1048,10,0.8194,0.003,0.0018,0.7692,0.0012,0.8567,0.0028,0.6982,0.002,0.8642,0.6226,112.323,0.0011

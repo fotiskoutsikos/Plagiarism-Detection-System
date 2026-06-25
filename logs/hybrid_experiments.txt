@@ -1,12 +1,12 @@
-2026-05-31 20:20:43 [INFO] Logging initialized for hybrid_experiments, file: logs\hybrid_experiments.txt
-2026-05-31 20:20:43 [INFO] Logging initialized for hybrid_experiments, file: logs\hybrid_experiments.txt
-2026-05-31 20:20:43 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 20:20:43 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 20:20:43 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-05-31 20:20:44 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 20:20:44 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 20:20:44 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-05-31 20:20:44 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-25 00:33:52 [INFO] Logging initialized for hybrid_experiments, file: logs\hybrid_experiments.txt
+2026-06-25 00:33:52 [INFO] Logging initialized for hybrid_experiments, file: logs\hybrid_experiments.txt
+2026-06-25 00:33:52 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-06-25 00:33:52 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-06-25 00:33:52 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-06-25 00:33:53 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-25 00:33:53 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-25 00:33:53 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-25 00:33:53 [INFO] Logging initialized for classifier, file: logs\classifier.txt
 ======================================================================
 HYBRID FEATURE EXPERIMENTS — ENGINEERED + TOP-K CLEWS
 Statistical rigor: 10 seed(s) per experiment
@@ -16,7 +16,7 @@ Loading feature table from data\classifier_features.parquet...
   Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
 
 [1/4] Defining base engineered feature set...
-  Base: All Engineered (No Vocals) — 30 features
+  Base: All Engineered (No Vocals) — 24 features
 
 [2/4] Building CLEWS delta matrix and ranking dimensions...
   Loaded 73582 embeddings from clews_embeddings.parquet
@@ -28,21 +28,21 @@ Loading feature table from data\classifier_features.parquet...
 
   Running: Hybrid: Engineered (No Vocals) + Top-256 CLEWS
 
-  ► Hybrid: Engineered (No Vocals) + Top-256 CLEWS | Features: 286   | Seeds: 10
-    F0.5: 0.7951 [±0.0017]  |  Prec: 0.8359  |  Rec: 0.6658  |  F1: 0.7410  |  Acc: 0.8491
-    Train: 26.90s/fold  |  Infer: 0.0007ms/sample
+  ► Hybrid: Engineered (No Vocals) + Top-256 CLEWS | Features: 280   | Seeds: 10
+    F0.5: 0.7790 [±0.0018]  |  Prec: 0.8237  |  Rec: 0.6404  |  F1: 0.7204  |  Acc: 0.8389
+    Train: 25.74s/fold  |  Infer: 0.0007ms/sample
 
   Running: Hybrid: Engineered (No Vocals) + Top-512 CLEWS
 
-  ► Hybrid: Engineered (No Vocals) + Top-512 CLEWS | Features: 542   | Seeds: 10
-    F0.5: 0.8209 [±0.0014]  |  Prec: 0.8583  |  Rec: 0.6995  |  F1: 0.7707  |  Acc: 0.8651
-    Train: 57.04s/fold  |  Infer: 0.0008ms/sample
+  ► Hybrid: Engineered (No Vocals) + Top-512 CLEWS | Features: 536   | Seeds: 10
+    F0.5: 0.8052 [±0.0014]  |  Prec: 0.8448  |  Rec: 0.6783  |  F1: 0.7523  |  Acc: 0.8552
+    Train: 54.69s/fold  |  Infer: 0.0008ms/sample
 
   Running: Hybrid: Engineered (No Vocals) + Top-1024 CLEWS
 
-  ► Hybrid: Engineered (No Vocals) + Top-1024 CLEWS | Features: 1054  | Seeds: 10
-    F0.5: 0.8339 [±0.0019]  |  Prec: 0.8678  |  Rec: 0.7215  |  F1: 0.7878  |  Acc: 0.8740
-    Train: 116.06s/fold  |  Infer: 0.0011ms/sample
+  ► Hybrid: Engineered (No Vocals) + Top-1024 CLEWS | Features: 1048  | Seeds: 10
+    F0.5: 0.8194 [±0.0018]  |  Prec: 0.8567  |  Rec: 0.6982  |  F1: 0.7692  |  Acc: 0.8642
+    Train: 112.32s/fold  |  Infer: 0.0011ms/sample
 
 [4/4] Loading ablation results for comparison...
   Loaded 11 ablation experiments
@@ -54,13 +54,13 @@ Loading feature table from data\classifier_features.parquet...
   WEALY Threshold Baseline                           |      – |  0.4421 |       – |  0.4637 |  0.3743 |  0.4137 |  0.6479 |         –
   FUSION Threshold Baseline                          |      – |  0.6097 |       – |  0.9040 |  0.2649 |  0.4097 |  0.7524 |         –
   ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  7. All Engineered (No Vocal)                       |     30 |  0.6584 | ±0.0018 |  0.7288 |  0.4756 |  0.5753 |  0.7724 |      2.31
-  8. All Engineered (Vocal)                          |     35 |  0.8640 | ±0.0013 |  0.8876 |  0.7814 |  0.8310 |  0.8970 |      2.58
-  10. CLEWS Full Δ (1024D)                           |   1024 |  0.8115 | ±0.0016 |  0.8561 |  0.6719 |  0.7527 |  0.8569 |    119.25
+  7. All Engineered (No Vocal)                       |     24 |  0.6166 | ±0.0024 |  0.6955 |  0.4247 |  0.5271 |  0.7530 |      2.03
+  8. All Engineered (Vocal)                          |     29 |  0.8526 | ±0.0017 |  0.8762 |  0.7704 |  0.8197 |  0.8902 |      2.28
+  10. CLEWS Full Δ (1024D)                           |   1024 |  0.8115 | ±0.0016 |  0.8561 |  0.6719 |  0.7527 |  0.8569 |    118.93
   ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  Hybrid: Engineered (No Vocals) + Top-256 CLEWS     |    286 |  0.7951 | ±0.0017 |  0.8359 |  0.6658 |  0.7410 |  0.8491 |     26.90
-  Hybrid: Engineered (No Vocals) + Top-512 CLEWS     |    542 |  0.8209 | ±0.0014 |  0.8583 |  0.6995 |  0.7707 |  0.8651 |     57.04
-  Hybrid: Engineered (No Vocals) + Top-1024 CLEWS    |   1054 |  0.8339 | ±0.0019 |  0.8678 |  0.7215 |  0.7878 |  0.8740 |    116.06
+  Hybrid: Engineered (No Vocals) + Top-256 CLEWS     |    280 |  0.7790 | ±0.0018 |  0.8237 |  0.6404 |  0.7204 |  0.8389 |     25.74
+  Hybrid: Engineered (No Vocals) + Top-512 CLEWS     |    536 |  0.8052 | ±0.0014 |  0.8448 |  0.6783 |  0.7523 |  0.8552 |     54.69
+  Hybrid: Engineered (No Vocals) + Top-1024 CLEWS    |   1048 |  0.8194 | ±0.0018 |  0.8567 |  0.6982 |  0.7692 |  0.8642 |    112.32
 ===================================================================================================================
 
   Hybrid results → results\classification\hybrid_results.csv

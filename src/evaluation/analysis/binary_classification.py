@@ -92,7 +92,7 @@ def run_binary_classification_evaluation(
     # Binary prediction: lower distance = more similar → predict positive
     df_eval['y_pred'] = (df_eval[target_metric] <= fixed_threshold).astype(int)
 
-    # Per-category metrics (each positive category vs all negatives) ────────
+    # Per-category metrics (each positive category vs all negatives)
     metrics_list = []
     positive_categories = sorted(df_eval[df_eval['y_true'] == 1]['category_grouped'].unique())
 

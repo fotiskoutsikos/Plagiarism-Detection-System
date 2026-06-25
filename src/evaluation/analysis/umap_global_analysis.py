@@ -407,7 +407,7 @@ def plot_by_broad_group(df_2d: pd.DataFrame, output_path: str, model_name: str) 
         if sub.empty:
             continue
 
-        color = _BROAD_COLORS.get(cat, (0.7, 0.7, 0.7))
+        color = _BROAD_COLORS.get(cat, (0.8, 0.8, 0.8))
         marker = "x" if cat == "Original Track" else ("D" if cat == "Human Plagiarism (SMP)" else "o")
 
         _scatter_subset(ax, sub, color, marker)
@@ -431,7 +431,7 @@ def plot_by_broad_group(df_2d: pd.DataFrame, output_path: str, model_name: str) 
                 label=f"{cat} ({len(sub):,})"
             ))
 
-    _apply_axis_style(ax, f"{model_name} — Global Latent Space (Consistent Broad View)")
+    _apply_axis_style(ax, f"{model_name} — Global Latent Space")
     fig.suptitle("Global UMAP Projection of the Positive Plagiarism Ecosystem",
                  fontsize=16, fontweight="bold", y=0.97)
 
