@@ -54,7 +54,7 @@ import torchaudio
 import whisper
 from omegaconf import OmegaConf
 
-# Resolve repository root 
+# Resolve repository root
 repo_root = Path(__file__).resolve()
 for _ in range(6):
     if (repo_root / "src").exists():
@@ -67,9 +67,10 @@ from utils.wealy_lib import Model as WEALYModel
 
 # Canonical feature computation utilities
 from utils.classifier_features import compute_delta_summary_features
+from utils.dataset_builder import clean_embedding
 
 
-# Default paths 
+# Default paths
 DEFAULT_CLEWS_CHECKPOINT = "models/clews/checkpoint.pt"
 DEFAULT_CLEWS_CONFIG     = "configs/extraction/clews.yaml"
 DEFAULT_WEALY_CHECKPOINT = "models/wealy/checkpoint.pt"
@@ -77,7 +78,7 @@ DEFAULT_WEALY_CONFIG     = "configs/extraction/wealy.yaml"
 DEFAULT_ARTIFACT_PATH    = "models/final_plagiarism_detector.pkl"
 
 
-# AUDIO LOADING  (identical to extract_clews.py / extract_wealy.py)
+# AUDIO LOADING
 def load_audio_mono(file_path: str, target_sr: int = 16000) -> torch.Tensor:
     """
     Load audio, convert to mono, resample to target_sr.
@@ -100,7 +101,7 @@ def load_audio_mono(file_path: str, target_sr: int = 16000) -> torch.Tensor:
     return waveform.squeeze(0)   # (T,)
 
 
-# CLEWS  (identical loading + forward pass to extract_clews.py)
+# CLEWS
 def load_clews_model(
     config_path:     str = DEFAULT_CLEWS_CONFIG,
     checkpoint_path: str = DEFAULT_CLEWS_CHECKPOINT,
@@ -137,22 +138,22 @@ def extract_clews_embedding(
 ) -> np.ndarray:
     """
     Single-file CLEWS embedding. Identical forward-pass logic to
-    extract_clews.py::extract_embeddings (inner loop body).
-    Returns 1-D float32 numpy array.
+    extract_clews.py::extract_embeddings, then canonicalized to a flat 1-D vector
+    using the same clean_embedding() utility used throughout the training pipeline.
     """
     target_sr   = int(conf.data.samplerate)
     waveform    = load_audio_mono(audio_path, target_sr=target_sr)
-    waveform    = waveform.unsqueeze(0).to(device)          # (1, T)
+    waveform    = waveform.unsqueeze(0).to(device)
     shingle_hop = float(conf.model.shingling.hop)
     shingle_len = float(conf.model.shingling.len)
 
     with torch.no_grad():
         z = model(waveform, shingle_hop=shingle_hop, shingle_len=shingle_len)
 
-    return z.squeeze(0).cpu().numpy().astype(np.float32)
+    return clean_embedding(z.cpu().numpy())
 
 
-# WEALY  (identical loading + forward pass to extract_wealy.py)
+# WEALY
 _decoder_hidden_states: list[torch.Tensor] = []
 
 
@@ -213,8 +214,8 @@ def extract_wealy_embedding(
 ) -> np.ndarray:
     """
     Single-file WEALY embedding. Identical forward-pass logic to
-    extract_wealy.py::extract_wealy_embeddings (inner loop body).
-    Returns 1-D float32 numpy array.
+    extract_wealy.py::extract_wealy_embeddings, then canonicalized to a flat 1-D vector
+    using the same clean_embedding() utility used throughout the training pipeline.
     """
     waveform     = load_audio_mono(audio_path, target_sr=16000).to(device)
     audio_padded = whisper.pad_or_trim(waveform.flatten())
@@ -241,10 +242,10 @@ def extract_wealy_embedding(
     with torch.no_grad():
         embedding = wealy_model(decoder_latents)
 
-    return embedding.squeeze(0).cpu().numpy().astype(np.float32)
+    return clean_embedding(embedding.cpu().numpy())
 
 
-# Distance computation — copied verbatim from metrics.py
+# Distance computation
 def _compute_all_distances(
     emb_ori: torch.Tensor,
     emb_mod: torch.Tensor,
@@ -281,15 +282,14 @@ def _compute_all_distances(
         "pearson_distance":   pearson_dist,
     }
 
-# FEATURE CONSTRUCTION  (fully centralized — no local reimplementation)
+
+# FEATURE CONSTRUCTION
 def _distances_from_numpy(
     emb_ori: np.ndarray,
     emb_mod: np.ndarray,
 ) -> dict[str, float]:
     """
-    Wrap metrics.py::_compute_all_distances for numpy input.
-
-    _compute_all_distances operates on torch tensors, so we convert here.
+    Wrap _compute_all_distances for numpy input.
     The canonical formulas remain in metrics.py — nothing is reimplemented.
     """
     t_ori = torch.tensor(emb_ori, dtype=torch.float32)
@@ -298,30 +298,29 @@ def _distances_from_numpy(
 
 
 def _delta_summaries_from_artifact(
-    delta:     np.ndarray,
-    ref:       dict,
+    delta: np.ndarray,
+    ref:   dict,
 ) -> dict[str, float]:
     """
     Compute delta summary features using the canonical function from
     classifier_features.py and the training-derived reference statistics
     stored in the artifact.
 
-    This guarantees that the 11 summary features produced here are
-    mathematically identical to those computed during training.
+    Guarantees that the 11 summary features are mathematically identical
+    to those computed during training.
 
-    Args:
-        delta : 1-D absolute delta vector for this pair.
-        ref   : artifact["clews_reference"] or artifact["wealy_reference"],
-                containing global_q75, stable_dims, volatile_dims.
-
-    Returns:
-        Dict with 11 feature values (same keys as classifier_features.py).
+    Note: stable_dims / volatile_dims indices were derived at training time
+    from the FULL-length positive-pair embeddings (classifier_features.py::
+    _compute_reference_from_positives). If an inference embedding is ever
+    shorter than the training embedding dimensionality, indexing
+    delta[stable_dims] / delta[volatile_dims] could raise an IndexError.
+    This assumes CLEWS/WEALY always emit fixed-length embeddings, matching
+    the training pipeline.
     """
-    stable_dims   = np.array(ref["stable_dims"],   dtype=np.int64)
-    volatile_dims = np.array(ref["volatile_dims"],  dtype=np.int64)
+    stable_dims   = np.array(ref["stable_dims"],  dtype=np.int64)
+    volatile_dims = np.array(ref["volatile_dims"], dtype=np.int64)
     global_q75    = float(ref["global_q75"])
 
-    # Reshape to (1, D) as expected by compute_delta_summary_features
     delta_2d = delta.reshape(1, -1).astype(np.float32)
 
     df_feat = compute_delta_summary_features(
@@ -331,7 +330,6 @@ def _delta_summaries_from_artifact(
         global_q75    = global_q75,
     )
 
-    # Return as plain dict (single row)
     return df_feat.iloc[0].to_dict()
 
 
@@ -345,36 +343,40 @@ def build_feature_vector(
     """
     Assemble the full hybrid feature vector for a single pair.
 
-    All computation delegates to canonical utilities:
-        - Distances     → metrics.py::_compute_all_distances (via wrapper)
-        - Summaries     → classifier_features.py::compute_delta_summary_features
-        - Reference     → artifact["clews_reference"] / artifact["wealy_reference"]
-        - Top-K indices → artifact["clews_top_k_indices"]
-        - Column order  → artifact["engineered_feature_columns"]
-
-    Returns:
-        1-D float32 array of shape (n_features,) matching the training schema.
+    Defensive canonicalization is applied first to guarantee that
+    all embeddings are flat 1-D float32 arrays, regardless of the
+    shape returned by the extraction models — ensuring exact
+    train/inference consistency.
     """
+    # Defensive canonicalization — guarantees flat 1-D arrays
+    # regardless of what shape the extraction models return.
+    # This matches the clean_embedding() pass applied to embeddings
+    # during the training pipeline in dataset_builder.py.
+    clews_ori = clean_embedding(clews_ori)
+    clews_mod = clean_embedding(clews_mod)
+    wealy_ori = clean_embedding(wealy_ori)
+    wealy_mod = clean_embedding(wealy_mod)
+
     engineered_cols     = artifact["engineered_feature_columns"]
     clews_top_k_indices = artifact.get("clews_top_k_indices", [])
     clews_ref           = artifact["clews_reference"]
     wealy_ref           = artifact["wealy_reference"]
 
-    # Pairwise deltas 
-    min_clews = min(len(clews_ori), len(clews_mod))
-    min_wealy = min(len(wealy_ori), len(wealy_mod))
+    # Pairwise deltas
+    min_clews   = min(len(clews_ori), len(clews_mod))
+    min_wealy   = min(len(wealy_ori), len(wealy_mod))
     clews_delta = np.abs(clews_mod[:min_clews] - clews_ori[:min_clews])
     wealy_delta = np.abs(wealy_mod[:min_wealy] - wealy_ori[:min_wealy])
 
-    # Distances (canonical: metrics.py) 
+    # Distances (canonical: metrics.py)
     clews_dists = _distances_from_numpy(clews_ori, clews_mod)
     wealy_dists = _distances_from_numpy(wealy_ori, wealy_mod)
 
-    # Delta summaries (canonical: classifier_features.py) 
+    # Delta summaries (canonical: classifier_features.py)
     clews_sums = _delta_summaries_from_artifact(clews_delta, clews_ref)
     wealy_sums = _delta_summaries_from_artifact(wealy_delta, wealy_ref)
 
-    # Build prefixed feature dict 
+    # Build prefixed feature dict
     feature_dict: dict[str, float] = {}
     for k, v in clews_dists.items():
         feature_dict[f"clews_{k}"] = v
@@ -385,22 +387,46 @@ def build_feature_vector(
     for k, v in wealy_sums.items():
         feature_dict[f"wealy_{k}"] = v
 
-    # Assemble in the EXACT stored column order 
-    engineered_vector = np.array(
-        [feature_dict.get(col, 0.0) for col in engineered_cols],
-        dtype=np.float32,
-    )
+    # Assemble in the EXACT stored column order.
+    #
+    # Defensive scalar coercion: every engineered feature is expected to be
+    # a single number. If a column ever resolves to something non-scalar
+    # (e.g. a stray array-valued entry in engineered_feature_columns), that
+    # would make np.array(...) build a 2-D array instead of 1-D and break
+    # the concatenation below with the top-K vector. Rather than crash, we
+    # coerce to scalar and report exactly which column(s) misbehaved so the
+    # artifact/feature schema can be inspected.
+    engineered_values = []
+    non_scalar_cols   = []
 
-    # Append top-K CLEWS raw delta dimensions 
+    for col in engineered_cols:
+        val = feature_dict.get(col, 0.0)
+        arr = np.asarray(val)
+        if arr.ndim != 0:
+            non_scalar_cols.append((col, arr.shape))
+            val = float(arr.reshape(-1)[0]) if arr.size > 0 else 0.0
+        engineered_values.append(val)
+
+    if non_scalar_cols:
+        print(
+            f"  [WARNING] {len(non_scalar_cols)} engineered feature(s) "
+            f"returned non-scalar values (using first element of each): "
+            f"{non_scalar_cols}"
+        )
+
+    engineered_vector = np.array(engineered_values, dtype=np.float32).reshape(-1)
+
+    # Append top-K CLEWS raw delta dimensions
     if clews_top_k_indices:
-        valid_idx  = [i for i in clews_top_k_indices if i < len(clews_delta)]
-        topk_vals  = clews_delta[valid_idx].astype(np.float32)
+        valid_idx = [i for i in clews_top_k_indices if i < len(clews_delta)]
+        topk_vals = np.asarray(clews_delta[valid_idx], dtype=np.float32).reshape(-1)
 
         # Zero-pad if some stored indices exceed embedding dimensionality
-        if len(topk_vals) < len(clews_top_k_indices):
+        n_missing = len(clews_top_k_indices) - len(topk_vals)
+        if n_missing > 0:
             topk_vals = np.concatenate([
                 topk_vals,
-                np.zeros(len(clews_top_k_indices) - len(topk_vals), dtype=np.float32),
+                np.zeros(n_missing, dtype=np.float32),
             ])
 
         feature_vector = np.concatenate([engineered_vector, topk_vals])
@@ -435,7 +461,7 @@ def predict_pair(
 
     device = "cuda" if (device == "cuda" and torch.cuda.is_available()) else "cpu"
 
-    # Load artifact 
+    # Load artifact
     print("Loading trained classifier artifact...")
     artifact    = joblib.load(artifact_path)
     clf         = artifact["classifier"]
@@ -449,7 +475,7 @@ def predict_pair(
     print(f"  CLEWS q75  : {artifact['clews_reference']['global_q75']:.6f}")
     print(f"  WEALY q75  : {artifact['wealy_reference']['global_q75']:.6f}")
 
-    # Load embedding models 
+    # Load embedding models
     print("\nLoading CLEWS model...")
     clews_model, clews_conf, _ = load_clews_model(device=device)
     print("  Done.")
@@ -458,7 +484,7 @@ def predict_pair(
     wealy_model, whisper_model, hook, _, _ = load_wealy_model(device=device)
     print("  Done.")
 
-    # Extract embeddings 
+    # Extract embeddings
     print(f"\nExtracting embeddings for pair:")
     print(f"  Original : {Path(ori_path).name}")
     print(f"  Modified : {Path(mod_path).name}")
@@ -478,7 +504,7 @@ def predict_pair(
     finally:
         hook.remove()
 
-    # Build feature vector ─
+    # Build feature vector
     print("\nBuilding feature vector...")
     feature_vector = build_feature_vector(
         clews_ori, clews_mod,
@@ -493,7 +519,7 @@ def predict_pair(
             f"{feature_vector.shape[0]}. Prediction may be unreliable."
         )
 
-    # Predict 
+    # Predict
     prob          = float(clf.predict_proba(feature_vector.reshape(1, -1))[0, 1])
     is_plagiarism = prob >= threshold
 
@@ -508,20 +534,19 @@ def predict_pair(
 
 
 def print_result(result: dict) -> None:
-    """Print a formatted prediction result."""
-    indicator = "🔴" if result["decision"] == "PLAGIARISM" else "🟢"
-    print(f"\n{'═' * 60}")
+    """Print a formatted prediction result (no emojis)."""
+    print(f"\n{'=' * 60}")
     print(f"  PLAGIARISM DETECTION RESULT")
-    print(f"{'═' * 60}")
+    print(f"{'=' * 60}")
     print(f"  Original  : {result['original']}")
     print(f"  Modified  : {result['modified']}")
-    print(f"{'─' * 60}")
+    print(f"{'-' * 60}")
     print(f"  Score     : {result['probability'] * 100:.1f}%")
     print(f"  Threshold : {result['threshold'] * 100:.1f}%")
-    print(f"  Decision  : {indicator}  {result['decision']}")
-    print(f"{'─' * 60}")
+    print(f"  Decision  : {result['decision']}")
+    print(f"{'-' * 60}")
     print(f"  Config    : {result['config']}")
-    print(f"{'═' * 60}")
+    print(f"{'=' * 60}")
 
 
 # CLI
