@@ -1,4 +1,4 @@
-category_grouped,negative_tier,FP_Count
-Negative Pairs,global_nearest,6702
-Negative Pairs,intra_category_nearest,3612
-Negative Pairs,random,2862
+negative_tier,FP_mean,FP_std,FP_ci95
+global_nearest,7682.4,549.2,392.9
+intra_category_nearest,4640.3,80.0,57.2
+random,2089.9,56.1,40.1

@@ -1,0 +1,61 @@
+2026-07-01 22:22:38 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
+2026-07-01 22:22:38 [INFO] Logging initialized for train_final_model, file: logs\train_final_model.txt
+2026-07-01 22:22:38 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-07-01 22:22:38 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-07-01 22:22:38 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-07-01 22:22:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-07-01 22:22:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-07-01 22:22:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-07-01 22:22:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-07-01 22:24:22 [INFO] Building hybrid feature matrix with CLEWS Top-512.
+======================================================================
+TRAINING FINAL PLAGIARISM DETECTOR (PRODUCTION ARTIFACT)
+======================================================================
+Selected configuration: hybrid_top512
+
+[1/4] Loading feature table...
+  Loaded 350,654 pairs
+  Positives: 113,690
+  Negatives: 236,964
+
+[2/4] Building selected feature matrix...
+
+  Computing training reference statistics for inference consistency...
+  Computing CLEWS reference statistics...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+    [CLEWS] q75=1.224900, n_stable=100, n_volatile=100 (from 113690 positive pairs)
+  Computing WEALY reference statistics...
+  Loaded 73581 embeddings from wealy_embeddings.parquet
+    [WEALY] q75=0.900863, n_stable=100, n_volatile=100 (from 113689 positive pairs)
+2026-07-01 22:24:22 [INFO] Building hybrid feature matrix with CLEWS Top-512.
+2026-07-01 22:24:22 [INFO] Building hybrid feature matrix with CLEWS Top-512.
+2026-07-01 22:24:22 [INFO] Building hybrid feature matrix with CLEWS Top-512.
+  Loaded 73582 embeddings from clews_embeddings.parquet
+
+  Final feature matrix: (350654, 536)
+  Uses vocals: False
+  Uses CLEWS Top-K: True
+  CLEWS Top-K: 512
+  CLEWS ref q75: 1.224900
+  WEALY ref q75: 0.900863
+
+[3/4] Calibrating threshold on 10% hold-out...
+  Optimal F0.5 threshold (calibration set): 0.6472
+
+[4/4] Retraining on 100% of data and saving artifact...
+  Artifact saved → models\final_plagiarism_detector.pkl
+
+======================================================================
+Production artifact is ready.
+  Model        → models\final_plagiarism_detector.pkl
+  Config       → hybrid_top512
+  Features     → 536
+  Threshold    → 0.6472
+  CLEWS ref q75 → 1.224900
+  WEALY ref q75 → 0.900863
+  CLEWS stable  → 100 dims
+  CLEWS volatile→ 100 dims
+  WEALY stable  → 100 dims
+  WEALY volatile→ 100 dims
+  CLEWS Top-K   → 512 dims
+======================================================================

@@ -1,38 +1,60 @@
-2026-06-25 03:53:46 [INFO] Logging initialized for binary_supervised_classification, file: logs\binary_supervised_classification.txt
-2026-06-25 03:53:46 [INFO] Logging initialized for binary_supervised_classification, file: logs\binary_supervised_classification.txt
+2026-06-26 14:50:32 [INFO] Logging initialized for binary_supervised_classification, file: logs\binary_supervised_classification.txt
+2026-06-26 14:50:32 [INFO] Logging initialized for binary_supervised_classification, file: logs\binary_supervised_classification.txt
+2026-06-26 14:50:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-06-26 14:50:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-06-26 14:50:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-06-26 14:50:33 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-26 14:50:33 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-26 14:50:33 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-06-26 14:50:33 [INFO] Logging initialized for classifier, file: logs\classifier.txt
 ================================================================================
-SUPERVISED CLASSIFICATION RESULTS — PRESENTATION
+SUPERVISED CLASSIFICATION — PER-SEED CATEGORY ANALYSIS
+Configuration: hybrid_top512 | Seeds: 10
 ================================================================================
 
-Selected configuration: hybrid_top512
-(Edit SELECTED_CONFIG at the top of the script to change)
+Loading feature table from data\classifier_features.parquet...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
 
-===================================================================================================================
- SUPERVISED CLASSIFICATION PERFORMANCE: HYBRID_TOP512
- Model: XGBoost | Out-of-Fold Predictions (5-Fold StratifiedGroupKFold)
-===================================================================================================================
-Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
--------------------------------------------------------------------------------------------------------------------
-  1a. Human Plagiarism (Base)  |    19.7% |   86.1% |   32.1% |    23.3% |  3236 | 13176 |   521 | 223788
-  1b. Human Plagiarism + DSP   |    70.4% |   83.4% |   76.3% |    72.6% | 31317 | 13176 |  6253 | 223788
-  2. Original + DSP            |    47.9% |   99.2% |   64.6% |    53.4% | 12097 | 13176 |    93 | 223788
-  3. AI Generation (Base)      |    19.8% |   59.3% |   29.7% |    22.8% |  3247 | 13176 |  2225 | 223788
-  4. AI + DSP                  |    69.1% |   53.9% |   60.5% |    65.4% | 29462 | 13176 | 25239 | 223788
-► OVERALL                      |    85.8% |   69.8% |   77.0% |    82.0% | 79359 | 13176 | 34331 | 223788
-===================================================================================================================
+Building features for: hybrid_top512...
+    Building CLEWS delta matrix for Top-512...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Feature matrix: (350654, 536)  (536 features)
 
-  Broad metrics saved → results\binary_supervised_classification\supervised_broad_metrics.csv
-  Detailed metrics saved → results\binary_supervised_classification\supervised_detailed_metrics.csv
+Running 10-seed per-seed category analysis...
+  Seed 1/10: Overall F0.5=0.7984  Prec=0.8358  Rec=0.6771  FP=15123
+  Seed 2/10: Overall F0.5=0.8038  Prec=0.8438  Rec=0.6756  FP=14219
+  Seed 3/10: Overall F0.5=0.8033  Prec=0.8445  Rec=0.6724  FP=14080
+  Seed 4/10: Overall F0.5=0.8090  Prec=0.8483  Rec=0.6825  FP=13880
+  Seed 5/10: Overall F0.5=0.8053  Prec=0.8441  Rec=0.6801  FP=14279
+  Seed 6/10: Overall F0.5=0.7962  Prec=0.8317  Rec=0.6801  FP=15645
+  Seed 7/10: Overall F0.5=0.8006  Prec=0.8407  Rec=0.6722  FP=14481
+  Seed 8/10: Overall F0.5=0.8050  Prec=0.8430  Rec=0.6820  FP=14437
+  Seed 9/10: Overall F0.5=0.8059  Prec=0.8454  Rec=0.6790  FP=14118
+  Seed 10/10: Overall F0.5=0.8054  Prec=0.8468  Rec=0.6738  FP=13864
+
+========================================================================================================================
+ SUPERVISED CLASSIFICATION: HYBRID_TOP512
+ Model: XGBoost | 10 seeds × 5-Fold | mean ± 95% CI
+========================================================================================================================
+  Category                         |        Precision |           Recall |             F0.5 |               F1 |         TP |         FP
+  --------------------------------------------------------------------------------------------------------------------
+    1a. Human Plagiarism (Base)    |  18.4%±0.4% |  86.5%±0.5% |  21.9%±0.5% |  30.4%±0.6% |    3252±  18 |   14413± 404
+    1b. Human Plagiarism + DSP     |  68.4%±0.6% |  83.1%±0.4% |  70.9%±0.5% |  75.0%±0.4% |   31209± 161 |   14413± 404
+    2. Original + DSP              |  45.7%±0.7% |  99.3%±0.0% |  51.2%±0.7% |  62.5%±0.6% |   12102±   4 |   14413± 404
+    3. AI Generation (Base)        |  17.7%±0.4% |  56.5%±0.3% |  20.5%±0.4% |  26.9%±0.4% |    3094±  15 |   14413± 404
+    4. AI + DSP                    |  65.5%±0.6% |  50.0%±0.3% |  61.7%±0.4% |  56.7%±0.3% |   27366± 141 |   14413± 404
+  ► OVERALL                        |  84.2%±0.4% |  67.7%±0.3% |  80.3%±0.3% |  75.1%±0.2% |   77023± 311 |   14413± 404
+  ====================================================================================================================
+
+  False Positive Tier Breakdown (mean ± 95% CI across seeds):
+    global_nearest                :   7682.4 ±  392.9  (53.3%)
+    intra_category_nearest        :   4640.3 ±   57.2  (32.2%)
+    random                        :   2089.9 ±   40.1  (14.5%)
+    total                         :  14412.6 ±  403.7
+
+  Results with CI saved → results\binary_supervised_classification\supervised_broad_metrics_ci.csv
   FP tier breakdown saved → results\binary_supervised_classification\supervised_fp_tier_breakdown.csv
 
-  False Positive Breakdown:
-category_grouped          negative_tier  FP_Count
-  Negative Pairs         global_nearest      6702
-  Negative Pairs intra_category_nearest      3612
-  Negative Pairs                 random      2862
-
-===================================================================================================================
-SUPERVISED RESULTS PRESENTATION COMPLETE
-  Configuration: hybrid_top512
-  Results saved → results\binary_supervised_classification/
-===================================================================================================================
+================================================================================
+COMPLETE — Results saved → results\binary_supervised_classification/
+================================================================================

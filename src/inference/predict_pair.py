@@ -68,9 +68,6 @@ from utils.wealy_lib import Model as WEALYModel
 # Canonical feature computation utilities
 from utils.classifier_features import compute_delta_summary_features
 
-# Canonical distance computation
-# _compute_all_distances works on torch tensors; we wrap it for numpy input
-from evaluation.analysis.metrics import _compute_all_distances
 
 # Default paths 
 DEFAULT_CLEWS_CHECKPOINT = "models/clews/checkpoint.pt"
@@ -246,6 +243,43 @@ def extract_wealy_embedding(
 
     return embedding.squeeze(0).cpu().numpy().astype(np.float32)
 
+
+# Distance computation — copied verbatim from metrics.py
+def _compute_all_distances(
+    emb_ori: torch.Tensor,
+    emb_mod: torch.Tensor,
+) -> dict:
+    """Return the four distance scalars. Identical to metrics.py::_compute_all_distances."""
+    eps = 1e-6
+
+    if emb_ori.ndim == 1:
+        emb_ori = emb_ori.unsqueeze(0)
+    if emb_mod.ndim == 1:
+        emb_mod = emb_mod.unsqueeze(0)
+
+    min_t   = min(emb_ori.shape[0], emb_mod.shape[0])
+    emb_ori = emb_ori[:min_t]
+    emb_mod = emb_mod[:min_t]
+
+    ori_norm    = emb_ori / (torch.norm(emb_ori, dim=-1, keepdim=True) + eps)
+    mod_norm    = emb_mod / (torch.norm(emb_mod, dim=-1, keepdim=True) + eps)
+    cosine_dist = (1.0 - torch.matmul(ori_norm, mod_norm.T)).mean().item()
+
+    euclidean_dist = torch.dist(emb_ori, emb_mod).item()
+    manhattan_dist = torch.dist(emb_ori, emb_mod, p=1).item()
+
+    ori_c      = emb_ori - emb_ori.mean(dim=-1, keepdim=True)
+    mod_c      = emb_mod - emb_mod.mean(dim=-1, keepdim=True)
+    ori_c_norm = ori_c / (torch.norm(ori_c, dim=-1, keepdim=True) + eps)
+    mod_c_norm = mod_c / (torch.norm(mod_c, dim=-1, keepdim=True) + eps)
+    pearson_dist = (1.0 - torch.matmul(ori_c_norm, mod_c_norm.T)).mean().item()
+
+    return {
+        "euclidean_distance": euclidean_dist,
+        "cosine_distance":    cosine_dist,
+        "manhattan_distance": manhattan_dist,
+        "pearson_distance":   pearson_dist,
+    }
 
 # FEATURE CONSTRUCTION  (fully centralized — no local reimplementation)
 def _distances_from_numpy(
