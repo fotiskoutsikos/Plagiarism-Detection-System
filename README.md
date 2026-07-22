@@ -264,7 +264,13 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 To reproduce all results and generated artifacts from scratch:
 
 1. **Environment Setup**:
-   Ensure PyTorch, XGBoost, WeasyPrint, OpenPyXL, and Audio Processing packages (nnAudio, librosa, whisper) are installed.
+   Clone the repository and install all required dependencies using the provided `requirements.txt` file:
+
+   ```bash
+   git clone [https://github.com/fotiskoutsikos/Plagiarism-Detection-System.git](https://github.com/fotiskoutsikos/Plagiarism-Detection-System.git)
+   cd Plagiarism-Detection-System
+   pip install -r requirements.txt
+   ```
 
 2. **Sequential Pipeline Execution**:
    Run the pipeline scripts in the exact sequence specified in the [Execution Order & Pipeline Workflow](#-execution-order--pipeline-workflow) section:
