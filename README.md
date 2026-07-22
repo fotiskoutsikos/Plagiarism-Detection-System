@@ -18,7 +18,7 @@ An end-to-end, scientifically rigorous research framework and deployment pipelin
 
 ---
 
-## [System Architecture & Overview](#-system-architecture--overview)
+## System Architecture & Overview
 
 The framework evaluates music plagiarism through a multi-tiered approach:
 1. **Multimodal Embedding Extraction**:
@@ -31,7 +31,7 @@ The framework evaluates music plagiarism through a multi-tiered approach:
 
 ---
 
-## [Directory & File Structure](#-directory--file-structure)
+## Directory & File Structure
 
 ```text
 Plagiarism-Detection-System/
@@ -109,7 +109,7 @@ Plagiarism-Detection-System/
 
 ---
 
-## [Execution Order & Pipeline Workflow](#-execution-order--pipeline-workflow)
+## Execution Order & Pipeline Workflow
 
 To guarantee full **reproducibility** of the results, scripts must be executed in the exact sequential order defined below. Each stage generates input dependencies for the subsequent stages.
 
@@ -162,7 +162,7 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 
 ---
 
-## [File Breakdown & Responsibilities](#-file-breakdown--responsibilities)
+## File Breakdown & Responsibilities
 ### Stage 0: Preprocessing & Feature Extraction
 * `src/inference/vocal_detection.py`
   - **Function**: Performs VAD and energy-band heuristic checks on Demucs-separated vocal stems.
@@ -259,7 +259,7 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 
 ---
 
-## [Reproducibility Guide](#-reproducibility-guide)
+## Reproducibility Guide
 
 To reproduce all results and generated artifacts from scratch:
 
