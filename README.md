@@ -164,7 +164,7 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 
 ## File Breakdown & Responsibilities
 
-### 🔹 Stage 0: Preprocessing & Feature Extraction
+### Stage 0: Preprocessing & Feature Extraction
 * `src/inference/vocal_detection.py`
   - **Function**: Performs VAD and energy-band heuristic checks on Demucs-separated vocal stems.
   - **Output**: `results/vocal_detection/vocal_ratios_source.csv`
@@ -177,7 +177,7 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 
 ---
 
-### 🔹 Stage 1: Dataset Construction & Descriptive Statistics
+### Stage 1: Dataset Construction & Descriptive Statistics
 * `src/evaluation/build_pairs.py`
   - **Function**: Constructs the master evaluation set (`evaluation_master_pairs.csv`) containing ground-truth positive pairs and mined negative pairs across three difficulty tiers (*Random*, *Intra-Category Nearest*, *Global Hard Nearest*).
   - **Inputs**: `clews_embeddings.parquet`, SMP metadata.
@@ -188,7 +188,7 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 
 ---
 
-### 🔹 Stage 2: Distance Computation, Threshold Calibration & Fusion Baselines
+### Stage 2: Distance Computation, Threshold Calibration & Fusion Baselines
 * `src/evaluation/analysis/metrics.py`
   - **Function**: Computes 4 distance metrics (Cosine, Euclidean, Manhattan, Pearson) on the unified pair benchmark.
   - **Outputs**: `results/distances/{clews,wealy}_distances.csv`
