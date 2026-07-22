@@ -18,7 +18,7 @@ An end-to-end, scientifically rigorous research framework and deployment pipelin
 
 ---
 
-## System Architecture & Overview
+## System Architecture & Overview (#-system-architecture--overview)
 
 The framework evaluates music plagiarism through a multi-tiered approach:
 1. **Multimodal Embedding Extraction**:
