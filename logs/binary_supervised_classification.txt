@@ -1,12 +1,12 @@
-2026-06-26 14:50:32 [INFO] Logging initialized for binary_supervised_classification, file: logs\binary_supervised_classification.txt
-2026-06-26 14:50:32 [INFO] Logging initialized for binary_supervised_classification, file: logs\binary_supervised_classification.txt
-2026-06-26 14:50:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-06-26 14:50:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-06-26 14:50:32 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
-2026-06-26 14:50:33 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-06-26 14:50:33 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-06-26 14:50:33 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-06-26 14:50:33 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-09-01 19:07:22 [INFO] Logging initialized for binary_supervised_classification, file: logs\binary_supervised_classification.txt
+2026-09-01 19:07:22 [INFO] Logging initialized for binary_supervised_classification, file: logs\binary_supervised_classification.txt
+2026-09-01 19:07:22 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-09-01 19:07:22 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-09-01 19:07:22 [INFO] Logging initialized for classifier_features, file: logs\classifier_features.txt
+2026-09-01 19:07:23 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-09-01 19:07:23 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-09-01 19:07:23 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-09-01 19:07:23 [INFO] Logging initialized for classifier, file: logs\classifier.txt
 ================================================================================
 SUPERVISED CLASSIFICATION — PER-SEED CATEGORY ANALYSIS
 Configuration: hybrid_top512 | Seeds: 10
@@ -38,11 +38,11 @@ Running 10-seed per-seed category analysis...
 ========================================================================================================================
   Category                         |        Precision |           Recall |             F0.5 |               F1 |         TP |         FP
   --------------------------------------------------------------------------------------------------------------------
-    1a. Human Plagiarism (Base)    |  18.4%±0.4% |  86.5%±0.5% |  21.9%±0.5% |  30.4%±0.6% |    3252±  18 |   14413± 404
-    1b. Human Plagiarism + DSP     |  68.4%±0.6% |  83.1%±0.4% |  70.9%±0.5% |  75.0%±0.4% |   31209± 161 |   14413± 404
-    2. Original + DSP              |  45.7%±0.7% |  99.3%±0.0% |  51.2%±0.7% |  62.5%±0.6% |   12102±   4 |   14413± 404
-    3. AI Generation (Base)        |  17.7%±0.4% |  56.5%±0.3% |  20.5%±0.4% |  26.9%±0.4% |    3094±  15 |   14413± 404
-    4. AI + DSP                    |  65.5%±0.6% |  50.0%±0.3% |  61.7%±0.4% |  56.7%±0.3% |   27366± 141 |   14413± 404
+    1a. Human Plagiarism (Base)    |  97.3%±0.1% |  86.5%±0.5% |  94.9%±0.2% |  91.6%±0.3% |    3252±  18 |      91±   4
+    1b. Human Plagiarism + DSP     |  97.2%±0.1% |  83.1%±0.4% |  94.0%±0.2% |  89.6%±0.3% |   31209± 161 |     889±  27
+    2. Original + DSP              |  87.2%±0.4% |  99.3%±0.0% |  89.4%±0.3% |  92.8%±0.2% |   12102±   4 |    1781±  64
+    3. AI Generation (Base)        |  75.1%±0.4% |  56.5%±0.3% |  70.5%±0.3% |  64.5%±0.2% |    3094±  15 |    1025±  25
+    4. AI + DSP                    |  72.0%±0.5% |  50.0%±0.3% |  66.2%±0.4% |  59.0%±0.2% |   27366± 141 |   10626± 302
   ► OVERALL                        |  84.2%±0.4% |  67.7%±0.3% |  80.3%±0.3% |  75.1%±0.2% |   77023± 311 |   14413± 404
   ====================================================================================================================
 

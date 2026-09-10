@@ -211,206 +211,6 @@ Loading feature table from data\classifier_features.parquet...
   All outputs → results\classification/  and  plots\classification/
 
 Done.
-2026-06-25 03:53:54 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-06-25 03:53:54 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-======================================================================
-SELECTED MODEL EVALUATION — DEEP DIAGNOSTIC ANALYSIS
-======================================================================
-
-Configurations to evaluate: engineered_no_vocals, engineered_with_vocals, hybrid_top512
-
-Loading feature table from data\classifier_features.parquet...
-  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
-
-======================================================================
-EVALUATING CONFIGURATION: ENGINEERED_NO_VOCALS
-======================================================================
-
-[1/4] Building features for: engineered_no_vocals...
-  Feature matrix: (350654, 24)  (24 features)
-
-[2/4] Running cross-validation with XGBoost...
-
-  ► Overall Performance: F0.5=0.6153  Prec=0.6927  Rec=0.4253  F1=0.5270
-
-[3/4] Running triple-tier error analysis...
-
-===================================================================================================================
-  TRIPLE-TIER ANALYSIS — ENGINEERED_NO_VOCALS (Supervised / OOF)
-===================================================================================================================
-  Category                       | Precision |   Recall |      F1 |     F0.5 |    TP |    FP |    FN |     TN
-  --------------------------------------------------------------------------------------------------------------
-    1a. Human Plagiarism (Base)  |     8.4% |   52.6% |  14.5% |   10.1% |  1975 | 21460 |  1782 | 215504
-    1b. Human Plagiarism + DSP   |    45.5% |   47.8% |  46.6% |   46.0% | 17943 | 21460 | 19627 | 215504
-    2. Original + DSP            |    35.9% |   98.6% |  52.6% |   41.1% | 12017 | 21460 |   173 | 215504
-    3. AI Generation (Base)      |     8.6% |   37.0% |  14.0% |   10.2% |  2026 | 21460 |  3446 | 215504
-    4. AI + DSP                  |    40.2% |   26.3% |  31.8% |   36.3% | 14398 | 21460 | 40303 | 215504
-  ► OVERALL                      |    69.3% |   42.5% |  52.7% |   61.5% | 48359 | 21460 | 65331 | 215504
-  ==============================================================================================================
-
-  Broad metrics saved → results\classification\engineered_no_vocals_broad_metrics.csv
-  Detailed metrics saved → results\classification\engineered_no_vocals_detailed_metrics.csv
-  FP tier breakdown saved → results\classification\engineered_no_vocals_fp_tier_breakdown.csv
-
-[4/4] Computing permutation feature importance...
-
-  Computing permutation importance: engineered_no_vocals
-    CSV → results\classification\engineered_no_vocals_feature_importance.csv
-    Family CSV → results\classification\engineered_no_vocals_feature_importance_family.csv
-    Plot → plots\classification\engineered_no_vocals_feature_importance.pdf
-    Plot → plots\classification\engineered_no_vocals_feature_importance_family.pdf
-
-======================================================================
-Evaluation complete for: engineered_no_vocals
-======================================================================
-
-
-======================================================================
-EVALUATING CONFIGURATION: ENGINEERED_WITH_VOCALS
-======================================================================
-
-[1/4] Building features for: engineered_with_vocals...
-  Feature matrix: (350654, 29)  (29 features)
-
-[2/4] Running cross-validation with XGBoost...
-
-  ► Overall Performance: F0.5=0.8507  Prec=0.8760  Rec=0.7634  F1=0.8156
-
-[3/4] Running triple-tier error analysis...
-
-===================================================================================================================
-  TRIPLE-TIER ANALYSIS — ENGINEERED_WITH_VOCALS (Supervised / OOF)
-===================================================================================================================
-  Category                       | Precision |   Recall |      F1 |     F0.5 |    TP |    FP |    FN |     TN
-  --------------------------------------------------------------------------------------------------------------
-    1a. Human Plagiarism (Base)  |    14.6% |   56.1% |  23.2% |   17.2% |  2107 | 12294 |  1650 | 224670
-    1b. Human Plagiarism + DSP   |    61.2% |   51.6% |  56.0% |   59.0% | 19394 | 12294 | 18176 | 224670
-    2. Original + DSP            |    49.7% |   99.8% |  66.4% |   55.3% | 12167 | 12294 |    23 | 224670
-    3. AI Generation (Base)      |    28.8% |   90.9% |  43.8% |   33.4% |  4976 | 12294 |   496 | 224670
-    4. AI + DSP                  |    79.7% |   88.0% |  83.6% |   81.2% | 48134 | 12294 |  6567 | 224670
-  ► OVERALL                      |    87.6% |   76.3% |  81.6% |   85.1% | 86778 | 12294 | 26912 | 224670
-  ==============================================================================================================
-
-  Broad metrics saved → results\classification\engineered_with_vocals_broad_metrics.csv
-  Detailed metrics saved → results\classification\engineered_with_vocals_detailed_metrics.csv
-  FP tier breakdown saved → results\classification\engineered_with_vocals_fp_tier_breakdown.csv
-
-[4/4] Computing permutation feature importance...
-
-  Computing permutation importance: engineered_with_vocals
-    CSV → results\classification\engineered_with_vocals_feature_importance.csv
-    Family CSV → results\classification\engineered_with_vocals_feature_importance_family.csv
-    Plot → plots\classification\engineered_with_vocals_feature_importance.pdf
-    Plot → plots\classification\engineered_with_vocals_feature_importance_family.pdf
-
-======================================================================
-Evaluation complete for: engineered_with_vocals
-======================================================================
-
-
-======================================================================
-EVALUATING CONFIGURATION: HYBRID_TOP512
-======================================================================
-
-[1/4] Building features for: hybrid_top512...
-    Building CLEWS delta matrix for Top-512...
-  Loaded 73582 embeddings from clews_embeddings.parquet
-  Feature matrix: (350654, 536)  (536 features)
-
-[2/4] Running cross-validation with XGBoost...
-
-  ► Overall Performance: F0.5=0.8014  Prec=0.8400  Rec=0.6771  F1=0.7497
-
-[3/4] Running triple-tier error analysis...
-
-===================================================================================================================
-  TRIPLE-TIER ANALYSIS — HYBRID_TOP512 (Supervised / OOF)
-===================================================================================================================
-  Category                       | Precision |   Recall |      F1 |     F0.5 |    TP |    FP |    FN |     TN
-  --------------------------------------------------------------------------------------------------------------
-    1a. Human Plagiarism (Base)  |    18.1% |   86.0% |  29.8% |   21.4% |  3232 | 14672 |   525 | 222292
-    1b. Human Plagiarism + DSP   |    68.0% |   82.9% |  74.7% |   70.5% | 31148 | 14672 |  6422 | 222292
-    2. Original + DSP            |    45.2% |   99.3% |  62.1% |   50.7% | 12107 | 14672 |    83 | 222292
-    3. AI Generation (Base)      |    17.4% |   56.6% |  26.7% |   20.2% |  3097 | 14672 |  2375 | 222292
-    4. AI + DSP                  |    65.1% |   50.1% |  56.6% |   61.4% | 27400 | 14672 | 27301 | 222292
-  ► OVERALL                      |    84.0% |   67.7% |  75.0% |   80.1% | 76984 | 14672 | 36706 | 222292
-  ==============================================================================================================
-
-  Broad metrics saved → results\classification\hybrid_top512_broad_metrics.csv
-  Detailed metrics saved → results\classification\hybrid_top512_detailed_metrics.csv
-  FP tier breakdown saved → results\classification\hybrid_top512_fp_tier_breakdown.csv
-
-[4/4] Computing permutation feature importance...
-
-  Computing permutation importance: hybrid_top512
-    CSV → results\classification\hybrid_top512_feature_importance.csv
-    Family CSV → results\classification\hybrid_top512_feature_importance_family.csv
-    Plot → plots\classification\hybrid_top512_feature_importance.pdf
-    Plot → plots\classification\hybrid_top512_feature_importance_family.pdf
-
-======================================================================
-Evaluation complete for: hybrid_top512
-======================================================================
-
-
-======================================================================
-ALL EVALUATIONS COMPLETE
-  Results → results\classification/
-  Plots   → plots\classification/
-======================================================================
-2026-06-26 14:50:33 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-2026-06-26 14:50:33 [INFO] Logging initialized for classifier, file: logs\classifier.txt
-================================================================================
-SUPERVISED CLASSIFICATION — PER-SEED CATEGORY ANALYSIS
-Configuration: hybrid_top512 | Seeds: 10
-================================================================================
-
-Loading feature table from data\classifier_features.parquet...
-  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
-
-Building features for: hybrid_top512...
-    Building CLEWS delta matrix for Top-512...
-  Loaded 73582 embeddings from clews_embeddings.parquet
-  Feature matrix: (350654, 536)  (536 features)
-
-Running 10-seed per-seed category analysis...
-  Seed 1/10: Overall F0.5=0.7984  Prec=0.8358  Rec=0.6771  FP=15123
-  Seed 2/10: Overall F0.5=0.8038  Prec=0.8438  Rec=0.6756  FP=14219
-  Seed 3/10: Overall F0.5=0.8033  Prec=0.8445  Rec=0.6724  FP=14080
-  Seed 4/10: Overall F0.5=0.8090  Prec=0.8483  Rec=0.6825  FP=13880
-  Seed 5/10: Overall F0.5=0.8053  Prec=0.8441  Rec=0.6801  FP=14279
-  Seed 6/10: Overall F0.5=0.7962  Prec=0.8317  Rec=0.6801  FP=15645
-  Seed 7/10: Overall F0.5=0.8006  Prec=0.8407  Rec=0.6722  FP=14481
-  Seed 8/10: Overall F0.5=0.8050  Prec=0.8430  Rec=0.6820  FP=14437
-  Seed 9/10: Overall F0.5=0.8059  Prec=0.8454  Rec=0.6790  FP=14118
-  Seed 10/10: Overall F0.5=0.8054  Prec=0.8468  Rec=0.6738  FP=13864
-
-========================================================================================================================
- SUPERVISED CLASSIFICATION: HYBRID_TOP512
- Model: XGBoost | 10 seeds × 5-Fold | mean ± 95% CI
-========================================================================================================================
-  Category                         |        Precision |           Recall |             F0.5 |               F1 |         TP |         FP
-  --------------------------------------------------------------------------------------------------------------------
-    1a. Human Plagiarism (Base)    |  18.4%±0.4% |  86.5%±0.5% |  21.9%±0.5% |  30.4%±0.6% |    3252±  18 |   14413± 404
-    1b. Human Plagiarism + DSP     |  68.4%±0.6% |  83.1%±0.4% |  70.9%±0.5% |  75.0%±0.4% |   31209± 161 |   14413± 404
-    2. Original + DSP              |  45.7%±0.7% |  99.3%±0.0% |  51.2%±0.7% |  62.5%±0.6% |   12102±   4 |   14413± 404
-    3. AI Generation (Base)        |  17.7%±0.4% |  56.5%±0.3% |  20.5%±0.4% |  26.9%±0.4% |    3094±  15 |   14413± 404
-    4. AI + DSP                    |  65.5%±0.6% |  50.0%±0.3% |  61.7%±0.4% |  56.7%±0.3% |   27366± 141 |   14413± 404
-  ► OVERALL                        |  84.2%±0.4% |  67.7%±0.3% |  80.3%±0.3% |  75.1%±0.2% |   77023± 311 |   14413± 404
-  ====================================================================================================================
-
-  False Positive Tier Breakdown (mean ± 95% CI across seeds):
-    global_nearest                :   7682.4 ±  392.9  (53.3%)
-    intra_category_nearest        :   4640.3 ±   57.2  (32.2%)
-    random                        :   2089.9 ±   40.1  (14.5%)
-    total                         :  14412.6 ±  403.7
-
-  Results with CI saved → results\binary_supervised_classification\supervised_broad_metrics_ci.csv
-  FP tier breakdown saved → results\binary_supervised_classification\supervised_fp_tier_breakdown.csv
-
-================================================================================
-COMPLETE — Results saved → results\binary_supervised_classification/
-================================================================================
 2026-07-01 22:22:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
 2026-07-01 22:22:38 [INFO] Logging initialized for classifier, file: logs\classifier.txt
 2026-07-01 22:24:22 [INFO] Building hybrid feature matrix with CLEWS Top-512.
@@ -463,3 +263,56 @@ Production artifact is ready.
   WEALY volatile→ 100 dims
   CLEWS Top-K   → 512 dims
 ======================================================================
+2026-09-01 19:07:23 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+2026-09-01 19:07:23 [INFO] Logging initialized for classifier, file: logs\classifier.txt
+================================================================================
+SUPERVISED CLASSIFICATION — PER-SEED CATEGORY ANALYSIS
+Configuration: hybrid_top512 | Seeds: 10
+================================================================================
+
+Loading feature table from data\classifier_features.parquet...
+  Loaded 350,654 pairs  (113,690 pos / 236,964 neg)
+
+Building features for: hybrid_top512...
+    Building CLEWS delta matrix for Top-512...
+  Loaded 73582 embeddings from clews_embeddings.parquet
+  Feature matrix: (350654, 536)  (536 features)
+
+Running 10-seed per-seed category analysis...
+  Seed 1/10: Overall F0.5=0.7984  Prec=0.8358  Rec=0.6771  FP=15123
+  Seed 2/10: Overall F0.5=0.8038  Prec=0.8438  Rec=0.6756  FP=14219
+  Seed 3/10: Overall F0.5=0.8033  Prec=0.8445  Rec=0.6724  FP=14080
+  Seed 4/10: Overall F0.5=0.8090  Prec=0.8483  Rec=0.6825  FP=13880
+  Seed 5/10: Overall F0.5=0.8053  Prec=0.8441  Rec=0.6801  FP=14279
+  Seed 6/10: Overall F0.5=0.7962  Prec=0.8317  Rec=0.6801  FP=15645
+  Seed 7/10: Overall F0.5=0.8006  Prec=0.8407  Rec=0.6722  FP=14481
+  Seed 8/10: Overall F0.5=0.8050  Prec=0.8430  Rec=0.6820  FP=14437
+  Seed 9/10: Overall F0.5=0.8059  Prec=0.8454  Rec=0.6790  FP=14118
+  Seed 10/10: Overall F0.5=0.8054  Prec=0.8468  Rec=0.6738  FP=13864
+
+========================================================================================================================
+ SUPERVISED CLASSIFICATION: HYBRID_TOP512
+ Model: XGBoost | 10 seeds × 5-Fold | mean ± 95% CI
+========================================================================================================================
+  Category                         |        Precision |           Recall |             F0.5 |               F1 |         TP |         FP
+  --------------------------------------------------------------------------------------------------------------------
+    1a. Human Plagiarism (Base)    |  97.3%±0.1% |  86.5%±0.5% |  94.9%±0.2% |  91.6%±0.3% |    3252±  18 |      91±   4
+    1b. Human Plagiarism + DSP     |  97.2%±0.1% |  83.1%±0.4% |  94.0%±0.2% |  89.6%±0.3% |   31209± 161 |     889±  27
+    2. Original + DSP              |  87.2%±0.4% |  99.3%±0.0% |  89.4%±0.3% |  92.8%±0.2% |   12102±   4 |    1781±  64
+    3. AI Generation (Base)        |  75.1%±0.4% |  56.5%±0.3% |  70.5%±0.3% |  64.5%±0.2% |    3094±  15 |    1025±  25
+    4. AI + DSP                    |  72.0%±0.5% |  50.0%±0.3% |  66.2%±0.4% |  59.0%±0.2% |   27366± 141 |   10626± 302
+  ► OVERALL                        |  84.2%±0.4% |  67.7%±0.3% |  80.3%±0.3% |  75.1%±0.2% |   77023± 311 |   14413± 404
+  ====================================================================================================================
+
+  False Positive Tier Breakdown (mean ± 95% CI across seeds):
+    global_nearest                :   7682.4 ±  392.9  (53.3%)
+    intra_category_nearest        :   4640.3 ±   57.2  (32.2%)
+    random                        :   2089.9 ±   40.1  (14.5%)
+    total                         :  14412.6 ±  403.7
+
+  Results with CI saved → results\binary_supervised_classification\supervised_broad_metrics_ci.csv
+  FP tier breakdown saved → results\binary_supervised_classification\supervised_fp_tier_breakdown.csv
+
+================================================================================
+COMPLETE — Results saved → results\binary_supervised_classification/
+================================================================================

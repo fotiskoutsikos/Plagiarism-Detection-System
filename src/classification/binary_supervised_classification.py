@@ -223,7 +223,8 @@ def compute_category_metrics(
 
     broad_metrics = {}
     for cat in unique_cats:
-        mask = (categories == cat) | (y_true == 0)
+        neg_cat = categories
+        mask = (categories == cat) 
         m = _compute_binary_metrics(y_true[mask], y_pred[mask])
         broad_metrics[cat] = m
 
@@ -268,7 +269,6 @@ def main() -> None:
     # Build metadata
     clean_mods = df["final_mod_type"].apply(clean_mod_type).values
     categories = np.array([categorize_modification(m) for m in clean_mods])
-    categories[y == 0] = "Negative Pairs"
     negative_tiers = df["negative_tier"].values if "negative_tier" in df.columns else None
 
     # Run per-seed evaluation

@@ -1,5 +1,5 @@
-2026-05-11 20:52:33 [INFO] Logging initialized for binary_classification, file: logs\binary_classification.txt
-2026-05-11 20:52:33 [INFO] Logging initialized for binary_classification, file: logs\binary_classification.txt
+2026-09-01 19:06:18 [INFO] Logging initialized for binary_classification, file: logs\binary_classification.txt
+2026-09-01 19:06:18 [INFO] Logging initialized for binary_classification, file: logs\binary_classification.txt
 ================================================================================
 STARTING BINARY CLASSIFICATION WITH OPTIMAL THRESHOLDS
 ================================================================================
@@ -7,7 +7,7 @@ Loaded 3 optimal configurations from results\threshold\threshold_analysis_summar
   → CLEWS: manhattan_distance (Threshold: 986.3672)
   → WEALY: cosine_distance (Threshold: 0.7493)
   → FUSION: pearson_distance+cosine_distance (Threshold: 0.2721)
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:239: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:237: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df_all        = pd.read_csv(csv_path_obj)
 
 ===================================================================================================================
@@ -16,16 +16,16 @@ c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classi
 ===================================================================================================================
 Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
 -------------------------------------------------------------------------------------------------------------------
-  1a. Human Plagiarism (Base)  |    33.3% |   30.6% |   31.9% |    32.7% |  1149 |  2303 |  2608 | 234661
-  1b. Human Plagiarism + DSP   |    81.7% |   27.4% |   41.0% |    58.5% | 10283 |  2303 | 27287 | 234661
-  2. Original + DSP            |    83.4% |   95.2% |   88.9% |    85.6% | 11605 |  2303 |   585 | 234661
-  3. AI Generation (Base)      |    26.2% |   15.0% |   19.1% |    22.8% |   819 |  2303 |  4653 | 234661
-  4. AI + DSP                  |    71.1% |   10.3% |   18.1% |    32.7% |  5656 |  2303 | 49045 | 234661
+  1a. Human Plagiarism (Base)  |    98.0% |   30.6% |   46.6% |    68.0% |  1149 |    23 |  2608 |   1786
+  1b. Human Plagiarism + DSP   |    97.7% |   27.4% |   42.8% |    64.5% | 10283 |   245 | 27287 |  17845
+  2. Original + DSP            |    96.9% |   95.2% |   96.0% |    96.5% | 11605 |   376 |   585 |  36194
+  3. AI Generation (Base)      |    84.3% |   15.0% |   25.4% |    43.8% |   819 |   153 |  4653 |  16259
+  4. AI + DSP                  |    79.0% |   10.3% |   18.3% |    33.9% |  5656 |  1506 | 49045 | 162577
 ► OVERALL                      |    92.8% |   26.0% |   40.6% |    61.2% | 29512 |  2303 | 84178 | 234661
 ===================================================================================================================
 
 False Positive Tier Breakdown saved → results\binary_classification\clews_manhattan_distance_fp_tier_breakdown.csv
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:239: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:237: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df_all        = pd.read_csv(csv_path_obj)
 
 ===================================================================================================================
@@ -34,16 +34,16 @@ c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classi
 ===================================================================================================================
 Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
 -------------------------------------------------------------------------------------------------------------------
-  1a. Human Plagiarism (Base)  |     1.9% |   25.9% |    3.6% |     2.4% |   972 | 49557 |  2785 | 187255
-  1b. Human Plagiarism + DSP   |    15.8% |   24.8% |   19.3% |    17.1% |  9315 | 49557 | 28255 | 187255
-  2. Original + DSP            |    16.5% |   80.1% |   27.3% |    19.6% |  9768 | 49557 |  2422 | 187255
-  3. AI Generation (Base)      |     5.4% |   51.5% |    9.7% |     6.6% |  2817 | 49557 |  2654 | 187255
-  4. AI + DSP                  |    27.4% |   34.3% |   30.5% |    28.6% | 18747 | 49557 | 35954 | 187255
+  1a. Human Plagiarism (Base)  |    74.2% |   25.9% |   38.4% |    54.0% |   972 |   338 |  2785 |   1469
+  1b. Human Plagiarism + DSP   |    72.3% |   24.8% |   36.9% |    52.3% |  9315 |  3572 | 28255 |  14498
+  2. Original + DSP            |    51.8% |   80.1% |   62.9% |    55.7% |  9768 |  9104 |  2422 |  27446
+  3. AI Generation (Base)      |    42.4% |   51.5% |   46.5% |    43.9% |  2817 |  3831 |  2654 |  12571
+  4. AI + DSP                  |    36.4% |   34.3% |   35.3% |    36.0% | 18747 | 32712 | 35954 | 131271
 ► OVERALL                      |    45.6% |   36.6% |   40.6% |    43.5% | 41619 | 49557 | 72070 | 187255
 ===================================================================================================================
 
 False Positive Tier Breakdown saved → results\binary_classification\wealy_cosine_distance_fp_tier_breakdown.csv
-c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:239: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
+c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classification.py:237: DtypeWarning: Columns (5) have mixed types. Specify dtype option on import or set low_memory=False.
   df_all        = pd.read_csv(csv_path_obj)
 
 ===================================================================================================================
@@ -52,11 +52,11 @@ c:\Users\Fotis\Plagiarism-Detection-System\src\evaluation\analysis\binary_classi
 ===================================================================================================================
 Modification Category          | Precision |   Recall | F1-Score | F0.5-Score |    TP |    FP |    FN |     TN
 -------------------------------------------------------------------------------------------------------------------
-  1a. Human Plagiarism (Base)  |    27.2% |   31.8% |   29.3% |    28.0% |  1196 |  3197 |  2561 | 233615
-  1b. Human Plagiarism + DSP   |    77.0% |   28.5% |   41.5% |    57.4% | 10690 |  3197 | 26880 | 233615
-  2. Original + DSP            |    78.1% |   93.6% |   85.1% |    80.8% | 11406 |  3197 |   784 | 233615
-  3. AI Generation (Base)      |    21.2% |   15.7% |   18.0% |    19.8% |   858 |  3197 |  4613 | 233615
-  4. AI + DSP                  |    65.1% |   10.9% |   18.7% |    32.6% |  5964 |  3197 | 48737 | 233615
+  1a. Human Plagiarism (Base)  |    97.7% |   31.8% |   48.0% |    69.1% |  1196 |    28 |  2561 |   1779
+  1b. Human Plagiarism + DSP   |    96.9% |   28.5% |   44.0% |    65.4% | 10690 |   342 | 26880 |  17728
+  2. Original + DSP            |    95.6% |   93.6% |   94.6% |    95.2% | 11406 |   525 |   784 |  36025
+  3. AI Generation (Base)      |    80.0% |   15.7% |   26.2% |    44.0% |   858 |   214 |  4613 |  16188
+  4. AI + DSP                  |    74.1% |   10.9% |   19.0% |    34.3% |  5964 |  2088 | 48737 | 161895
 ► OVERALL                      |    90.4% |   26.5% |   41.0% |    61.0% | 30114 |  3197 | 83575 | 233615
 ===================================================================================================================
 

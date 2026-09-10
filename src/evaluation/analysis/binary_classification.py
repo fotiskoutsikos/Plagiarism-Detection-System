@@ -80,8 +80,6 @@ def run_binary_classification_evaluation(
     df_eval['clean_mod_type']   = df_eval['final_mod_type'].apply(clean_mod_type)
     df_eval['category_grouped'] = df_eval['clean_mod_type'].apply(categorize_modification)
 
-    # Group all negatives under one label for display
-    df_eval.loc[df_eval['y_true'] == 0, 'category_grouped'] = 'Negative Pairs'
 
     # Validate target metric exists
     if target_metric not in df_eval.columns:
@@ -92,12 +90,12 @@ def run_binary_classification_evaluation(
     # Binary prediction: lower distance = more similar → predict positive
     df_eval['y_pred'] = (df_eval[target_metric] <= fixed_threshold).astype(int)
 
-    # Per-category metrics (each positive category vs all negatives)
+    # Per-category metrics
     metrics_list = []
     positive_categories = sorted(df_eval[df_eval['y_true'] == 1]['category_grouped'].unique())
 
     for cat in positive_categories:
-        mask   = (df_eval['category_grouped'] == cat) | (df_eval['y_true'] == 0)
+        mask   = (df_eval['category_grouped'] == cat)
         df_sub = df_eval[mask]
         m      = _compute_binary_metrics(df_sub['y_true'].values, df_sub['y_pred'].values)
         metrics_list.append({

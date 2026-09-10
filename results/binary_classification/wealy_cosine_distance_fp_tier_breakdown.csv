@@ -1,4 +1,16 @@
 category_grouped,negative_tier,FP_Count
-Negative Pairs,global_nearest,19842
-Negative Pairs,intra_category_nearest,16772
-Negative Pairs,random,12943
+1a. Human Plagiarism (Base),global_nearest,121
+1a. Human Plagiarism (Base),intra_category_nearest,108
+1a. Human Plagiarism (Base),random,109
+1b. Human Plagiarism + DSP,global_nearest,1210
+1b. Human Plagiarism + DSP,intra_category_nearest,1207
+1b. Human Plagiarism + DSP,random,1155
+2. Original + DSP,global_nearest,3110
+2. Original + DSP,intra_category_nearest,3599
+2. Original + DSP,random,2395
+3. AI Generation (Base),global_nearest,1401
+3. AI Generation (Base),intra_category_nearest,1288
+3. AI Generation (Base),random,1142
+4. AI + DSP,global_nearest,14000
+4. AI + DSP,intra_category_nearest,10570
+4. AI + DSP,random,8142

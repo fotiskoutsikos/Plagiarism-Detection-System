@@ -1,3 +1,10 @@
 category_grouped,negative_tier,FP_Count
-Negative Pairs,global_nearest,2970
-Negative Pairs,intra_category_nearest,227
+1a. Human Plagiarism (Base),global_nearest,28
+1b. Human Plagiarism + DSP,global_nearest,280
+1b. Human Plagiarism + DSP,intra_category_nearest,62
+2. Original + DSP,global_nearest,440
+2. Original + DSP,intra_category_nearest,85
+3. AI Generation (Base),global_nearest,202
+3. AI Generation (Base),intra_category_nearest,12
+4. AI + DSP,global_nearest,2020
+4. AI + DSP,intra_category_nearest,68
