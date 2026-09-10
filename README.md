@@ -37,7 +37,7 @@ The framework evaluates music plagiarism through a multi-tiered approach:
 Plagiarism-Detection-System/
 ├── configs/                  # Model configurations
 │   └── extraction/
-│       ├── clews.yaml        # CLEWS architecture & CQT settings
+│       ├── clews.yaml        # CLEWS architecture & settings
 │       └── wealy.yaml        # WEALY Transformer & Whisper settings
 ├── data/                     # Primary datasets and generated embeddings
 │   ├── classifier_features.parquet
@@ -119,43 +119,43 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 ├────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                        │
 │ [STAGE 0: PREPROCESSING & FEATURE EXTRACTION]                                          │
-│   1. src/inference/vocal_detection.py    ──> Estimates source-level vocal validity    │
-│   2. src/inference/extract_clews.py      ──> Extracts 1024D CLEWS embeddings         │
-│   3. src/inference/extract_wealy.py      ──> Extracts 512D WEALY embeddings           │
+│   1. src/inference/vocal_detection.py    ──> Estimates source-level vocal validity     │
+│   2. src/inference/extract_clews.py      ──> Extracts 1024D CLEWS embeddings           │
+│   3. src/inference/extract_wealy.py      ──> Extracts 512D WEALY embeddings            │
 │                                   │                                                    │
 │                                   ▼                                                    │
 │ [STAGE 1: EVALUATION PAIR BUILDING & DATASET ANALYSIS]                                 │
 │   4. src/evaluation/build_pairs.py       ──> Constructs master evaluation pairs        │
-│   5. src/evaluation/analysis/dataset_analysis.py ──> Descriptive dataset breakdown   │
+│   5. src/evaluation/analysis/dataset_analysis.py ──> Descriptive dataset breakdown     │
 │                                   │                                                    │
 │                                   ▼                                                    │
 │ [STAGE 2: DISTANCE COMPUTATION & THRESHOLD BASELINES]                                  │
-│   6. src/evaluation/analysis/metrics.py  ──> Computes distance metrics               │
-│   7. src/evaluation/analysis/fusion_optimization.py ──> Score-level CLEWS+WEALY fusion│
-│   8. src/evaluation/analysis/optimal_threshold.py ──> Threshold optimization (F0.5)  │
+│   6. src/evaluation/analysis/metrics.py  ──> Computes distance metrics                 │ 
+│   7. src/evaluation/analysis/fusion_optimization.py ──> Score-level CLEWS+WEALY fusion │
+│   8. src/evaluation/analysis/optimal_threshold.py ──> Threshold optimization (F0.5)    │
 │   9. src/evaluation/analysis/binary_classification.py ──> Baseline distance metrics    │
 │                                   │                                                    │
 │                                   ▼                                                    │
 │ [STAGE 3: FEATURE TABLE & SUPERVISED MACHINE LEARNING]                                 │
-│  10. src/utils/classifier_features.py   ──> Assembles unified feature parquet        │
-│  11. src/classification/ablation.py      ──> Feature ablation study (Phases 1-3)      │
-│  12. src/classification/hybrid_experiments.py ──> Engineered + Raw Top-K experiments  │
-│  13. src/classification/selected_model_evaluation.py ──> Deep diagnostic evaluation  │
-│  14. src/classification/binary_supervised_classification.py ──> Final supervised table│
+│  10. src/utils/classifier_features.py   ──> Assembles unified feature parquet          │
+│  11. src/classification/ablation.py      ──> Feature ablation study (Phases 1-3)       │
+│  12. src/classification/hybrid_experiments.py ──> Engineered + Raw Top-K experiments   │
+│  13. src/classification/selected_model_evaluation.py ──> Deep diagnostic evaluation    │
+│  14. src/classification/binary_supervised_classification.py ──> Final supervised table │
 │                                   │                                                    │
 │                                   ▼                                                    │
 │ [STAGE 4: DIAGNOSTICS, ATTRIBUTION & XAI]                                              │
-│  15. src/evaluation/analysis/explainability.py ──> Dimensional XAI & latent shift     │
-│  16. src/evaluation/analysis/robustness_analysis.py ──> DSP stress testing           │
-│  17. src/evaluation/analysis/musical_attribution.py ──> 4-Way source identification  │
-│  18. src/evaluation/analysis/stem_analysis.py ──> Stem-level inpainting analysis     │
-│  19. src/evaluation/analysis/umap_analysis.py ──> Latent space drift visualization    │
-│  20. src/evaluation/analysis/plot_negative_tiers.py ──> Negative mining verification  │
+│  15. src/evaluation/analysis/explainability.py ──> Dimensional XAI & latent shift      │
+│  16. src/evaluation/analysis/robustness_analysis.py ──> DSP stress testing             │
+│  17. src/evaluation/analysis/musical_attribution.py ──> 4-Way source identification    │
+│  18. src/evaluation/analysis/stem_analysis.py ──> Stem-level inpainting analysis       │
+│  19. src/evaluation/analysis/umap_analysis.py ──> Latent space drift visualization     │
+│  20. src/evaluation/analysis/plot_negative_tiers.py ──> Negative mining verification   │
 │                                   │                                                    │
 │                                   ▼                                                    │
 │ [STAGE 5: PRODUCTION MODEL TRAINING & INFERENCE]                                       │
-│  21. src/classification/train_final_model.py ──> Exports production .pkl artifact     │
-│  22. src/inference/predict_pair.py      ──> Single-pair real-time prediction CLI      │
+│  21. src/classification/train_final_model.py ──> Exports production .pkl artifact      │
+│  22. src/inference/predict_pair.py      ──> Single-pair real-time prediction CLI       │
 │                                                                                        │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -163,7 +163,6 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 ---
 
 ## File Breakdown & Responsibilities
-
 ### Stage 0: Preprocessing & Feature Extraction
 * `src/inference/vocal_detection.py`
   - **Function**: Performs VAD and energy-band heuristic checks on Demucs-separated vocal stems.
@@ -206,7 +205,7 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 
 ### Stage 3: Supervised Machine Learning Pipeline
 * `src/utils/classifier_features.py`
-  - **Function**: Constructs the master feature table (`classifier_features.parquet`), unifying CLEWS/WEALY distances, 22 delta summary stats, Top-30 XAI dimensions, and vocal flags without data leakage.
+  - **Function**: Constructs the master feature table (`classifier_features.parquet`), unifying CLEWS/WEALY distances, 22 delta summary stats and vocal flags without data leakage.
   - **Output**: `data/classifier_features.parquet`
 * `src/classification/classification.py`
   - **Function**: Core parameterized execution engine for supervised XGBoost experiments using 5-Fold StratifiedGroupKFold CV (grouped by `filename_ori`), dynamic `scale_pos_weight`, out-of-fold (OOF) tracking, and multi-seed statistical evaluation.
@@ -214,20 +213,20 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
   - **Function**: Runs 3 ablation phases: (1) Engineered feature families, (2) Raw full embedding deltas, (3) Top-K dimension convergence curve vs. compute trade-offs.
   - **Outputs**: `ablation_results.csv`, `topk_convergence_curve.pdf`, etc.
 * `src/classification/hybrid_experiments.py`
-  - **Function**: Evaluates hybrid combinations of 30 base engineered features + Top-$K$ ($K \in \{256, 512, 1024\}$) raw CLEWS dimensions ranked by mean positive shift.
+  - **Function**: Evaluates hybrid combinations of 24 base engineered features + Top-$K$ ($K \in \{256, 512, 1024\}$) raw CLEWS dimensions ranked by mean positive shift.
   - **Outputs**: `hybrid_results.csv`, `hybrid_f05_comparison.pdf`
 * `src/classification/selected_model_evaluation.py`
   - **Function**: Runs deep diagnostic analysis (triple-tier error analysis + permutation feature importance) on selected candidates.
   - **Outputs**: Granular metric breakdowns and feature importance plots in `results/classification/` and `plots/classification/`.
 * `src/classification/binary_supervised_classification.py`
-  - **Function**: Formats and exports final supervised classification results for direct apples-to-apples comparison with unsupervised baselines.
+  - **Function**: Formats and exports final supervised classification results for direct comparison with unsupervised baselines.
   - **Outputs**: `results/binary_supervised_classification/`
 
 ---
 
-### Stage 4: Diagnostics, Attribution & XAI
+### Stage 4: Diagnostics, Attribution & Latent Space Analysis
 * `src/evaluation/analysis/explainability.py`
-  - **Function**: Conducts latent space XAI analysis: delta vectors, Top-30 affected dimensions, directional shift heatmaps, Cohen's $d$ discrimination (Human vs. AI), and stable-core preservation.
+  - **Function**: Conducts latent space analysis: delta vectors, Top-30 affected dimensions, directional shift heatmaps, Cohen's $d$ discrimination (Human vs. AI), and stable-core preservation.
   - **Outputs**: Extensive PDF plots and CSV dimension rankings in `explainability/`.
 * `src/evaluation/analysis/robustness_analysis.py`
   - **Function**: Stress-tests distance stability under continuous Pitch/Tempo DSP shifts and extreme modifications.
@@ -265,7 +264,13 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 To reproduce all results and generated artifacts from scratch:
 
 1. **Environment Setup**:
-   Ensure PyTorch, XGBoost, WeasyPrint, OpenPyXL, and Audio Processing packages (nnAudio, librosa, whisper) are installed.
+   Clone the repository and install all required dependencies using the provided `requirements.txt` file:
+
+   ```bash
+   git clone [https://github.com/fotiskoutsikos/Plagiarism-Detection-System.git](https://github.com/fotiskoutsikos/Plagiarism-Detection-System.git)
+   cd Plagiarism-Detection-System
+   pip install -r requirements.txt
+   ```
 
 2. **Sequential Pipeline Execution**:
    Run the pipeline scripts in the exact sequence specified in the [Execution Order & Pipeline Workflow](#-execution-order--pipeline-workflow) section:
