@@ -370,6 +370,7 @@ Run the pipeline scripts in the exact sequence specified in the Execution Order 
 
   # 5. Production Artifact Generation
   python src/classification/train_final_model.py
+
 ```
 
 ### 4. Inference
@@ -377,4 +378,5 @@ To test any arbitrary pair of audio files against the final trained model:
 
 ```
 python src/inference/predict_pair.py --ori sample1.wav --mod sample2.wav
+
 ```
