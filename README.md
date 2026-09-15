@@ -15,7 +15,7 @@ Pantelis Vikatos, Themos Stafylakis, Athanasios Voulodimos, & Giorgos Stamou.
 
 ## Pipeline Overview
 
-![Pipeline Overview](plots/figs/Diagram_short.png)
+![Pipeline Overview](plots/figs/Diagram.png)
 
 *End-to-end framework: from segment extraction and multi-source generation (human plagiarism, DSP obfuscation, AI re-synthesis) through dual-branch embedding (CLEWS acoustic + WEALY semantic) to supervised shift-based classification.* 
 
@@ -310,7 +310,7 @@ pip install -r requirements.txt
 
 ### 2. SMP Dataset Acquisition
 
-The COPYCAT benchmark is built on top of the [Similar Music Pair (SMP)](https://github.com/kimseyoung/SMP) dataset, which contains 70 real-world plagiarism disputes. **Due to copyright restrictions, we do not redistribute the raw audio.**
+The COPYCAT benchmark is built on top of the [Similar Music Pair (SMP)](https://github.com/Mippia/smp_dataset.git) dataset, which contains 70 real-world plagiarism disputes. **Due to copyright restrictions, we do not redistribute the raw audio.**
 
 To reproduce our results, you need to obtain the SMP audio independently:
 
