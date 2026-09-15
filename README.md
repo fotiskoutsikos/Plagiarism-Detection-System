@@ -1,6 +1,34 @@
-# Music Plagiarism Detection System
+# AI-Generated Music Plagiarism Detection as Version Identification
 
-An end-to-end, scientifically rigorous research framework and deployment pipeline for detecting music plagiarism in modern audio content. This repository addresses both human-made covers/derivatives and AI-generated music across various Digital Signal Processing (DSP) and generative modifications using multimodal latent space representations (**CLEWS** for acoustic/melodic features and **WEALY** for semantic/vocal features).
+>**Official code repository for the COPYCAT Paper**
+> *Fotis Koutsikos, Ioannis Prokopiou, Spyridon Kantarelis, Vassilis Lyberatos, Pantelis Vikatos, Themos Stafylakis, Athanasios Voulodimos, Giorgos Stamou*
+
+This repository provides the full reproducibility framework for **COPYCAT**, a benchmark of 350,654 pairwise comparisons for AI-generated music plagiarism detection, and the accompanying supervised shift modeling framework that recovers the plagiarism signal from coordinate-wise embedding shifts (Δz). We evaluate two pretrained MVI backbones — **CLEWS** (acoustic) and **WEALY** (semantic) — under human plagiarism, DSP obfuscation, and generative re-synthesis (MusicGen, AudioLDM 2, MGE-LDM), showing that scalar distance thresholds collapse under AI re-synthesis while our Hybrid Top-512 XGBoost classifier raises $F_{0.5}$-Score from 0.612 to 0.803.
+
+---
+
+## Pipeline Overview
+
+![Pipeline Overview](plots/figs/Diagram_short.pdf)
+
+*End-to-end framework: from segment extraction and multi-source generation (human plagiarism, DSP obfuscation, AI re-synthesis) through dual-branch embedding (CLEWS acoustic + WEALY semantic) to supervised shift-based classification.*
+
+---
+
+## Key Results
+
+Category-wise performance on the **COPYCAT** benchmark. Best $F_{0.5}$ per category in **bold**.
+
+| Category                 | Pairs   | WEALY $F_{0.5}$ | CLEWS $F_{0.5}$ | Hybrid Top-512 $F_{0.5}$ |
+|--------------------------|---------|-----------|-----------|------------------------|
+| Human Plagiarism         | 3,757   | 54.0%     | 68.0%     | **94.9%** $\pm$ 0.2%   |
+| Human Plagiarism + DSP   | 37,570  | 52.3%     | 64.5%     | **94.0%** $\pm$ 0.2%   |
+| Original + DSP           | 12,190  | 55.7%     | **96.5%** | 89.4% $\pm$ 0.3%       |
+| AI Generation            | 5,472   | 43.9%     | 43.8%     | **70.5%** $\pm$ 0.3%   |
+| AI + DSP                 | 54,701  | 36.0%     | 33.9%     | **66.2%** $\pm$ 0.4%   |
+| **Overall**              | 113,690 | 43.5%     | 61.2%     | **80.3%** $\pm$ 0.3%   |
+
+> Hybrid Top-512 results are reported as mean over 10 random seeds. See paper for full precision/recall breakdown and confidence intervals.
 
 ---
 
@@ -192,7 +220,7 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
   - **Function**: Computes 4 distance metrics (Cosine, Euclidean, Manhattan, Pearson) on the unified pair benchmark.
   - **Outputs**: `results/distances/{clews,wealy}_distances.csv`
 * `src/evaluation/analysis/fusion_optimization.py`
-  - **Function**: Performs exhaustive grid search (336 configs) for late score-level fusion ($d = lpha \cdot d_{	ext{CLEWS}} + (1-lpha) \cdot d_{	ext{WEALY}}$) with a vocal-aware fallback policy.
+  - **Function**: Performs exhaustive grid search (336 configs) for late score-level fusion ($d = α \cdot d_{CLEWS} + (1-α) \cdot \d_{WEALY}$) with a vocal-aware fallback policy.
   - **Outputs**: `results/fusion/optimal_fused_distances.csv`, heatmaps, alpha curves.
 * `src/evaluation/analysis/optimal_threshold.py`
   - **Function**: Evaluates distance metrics using 5-Fold Stratified CV, optimizing decision thresholds for $F_{0.5}$-score.
@@ -263,53 +291,80 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 
 To reproduce all results and generated artifacts from scratch:
 
-1. **Environment Setup**:
-   Clone the repository and install all required dependencies using the provided `requirements.txt` file:
+### 1. Environment Setup
+Clone the repository and install all required dependencies:
 
-   ```bash
-   git clone [https://github.com/fotiskoutsikos/Plagiarism-Detection-System.git](https://github.com/fotiskoutsikos/Plagiarism-Detection-System.git)
-   cd Plagiarism-Detection-System
-   pip install -r requirements.txt
-   ```
+​`​`​`bash
+git clone https://github.com/fotiskoutsikos/Plagiarism-Detection-System.git
+cd Plagiarism-Detection-System
+pip install -r requirements.txt
+​`​`​`
 
-2. **Sequential Pipeline Execution**:
-   Run the pipeline scripts in the exact sequence specified in the [Execution Order & Pipeline Workflow](#-execution-order--pipeline-workflow) section:
+### 2. SMP Dataset Acquisition
 
-   ```bash
-   # 1. Feature Extraction & Dataset Preparation
-   python src/inference/vocal_detection.py
-   python src/inference/extract_clews.py
-   python src/inference/extract_wealy.py
-   python src/evaluation/build_pairs.py
-   python src/evaluation/analysis/dataset_analysis.py
+The COPYCAT benchmark is built on top of the [Similar Music Pair (SMP)](https://github.com/kimseyoung/SMP) dataset, which contains 70 real-world plagiarism disputes. **Due to copyright restrictions, we do not redistribute the raw audio.**
 
-   # 2. Distance Computation & Baseline Thresholding
-   python src/evaluation/analysis/metrics.py
-   python src/evaluation/analysis/fusion_optimization.py
-   python src/evaluation/analysis/optimal_threshold.py
-   python src/evaluation/analysis/binary_classification.py
+To reproduce our results, you need to obtain the SMP audio independently:
 
-   # 3. Feature Assembly & Supervised Machine Learning
-   python src/utils/classifier_features.py
-   python src/classification/ablation.py
-   python src/classification/hybrid_experiments.py
-   python src/classification/selected_model_evaluation.py
-   python src/classification/binary_supervised_classification.py
+1. Consult the official SMP repository for metadata and licensing information.
+2. Use the YouTube links provided in `data/Final_dataset_pairs.csv` to obtain the audio files.
+3. Organize the downloaded files under `data/final_dataset/` in the following structure:
 
-   # 4. Diagnostic & Explainability Analyses
-   python src/evaluation/analysis/explainability.py
-   python src/evaluation/analysis/robustness_analysis.py
-   python src/evaluation/analysis/musical_attribution.py
-   python src/evaluation/analysis/stem_analysis.py
-   python src/evaluation/analysis/umap_analysis.py
-   python src/evaluation/analysis/plot_negative_tiers.py
+​`​`​`
+data/final_dataset/
+├── 1/
+│   ├── <ori_title>.wav
+│   └── <comp_title>.wav
+├── 2/
+│   ├── <ori_title>.wav
+│   └── <comp_title>.wav
+...
+├── 70/
+​`​`​`
 
-   # 5. Production Artifact Generation
-   python src/classification/train_final_model.py
-   ```
+where `<ori_title>` and `<comp_title>` match the values in `Final_dataset_pairs.csv` for each `pair_number`.
 
-3. **Inference**:
-   To test any arbitrary pair of audio files against the final trained model:
-   ```bash
-   python src/inference/predict_pair.py --ori sample1.wav --mod sample2.wav
-   ```
+> **Disclaimer:** Obtaining the audio is the user's responsibility. The authors assume no liability for copyright compliance.
+
+### 3. Sequential Pipeline Execution
+Run the pipeline scripts in the exact sequence specified in the [Execution Order & Pipeline Workflow](#-execution-order--pipeline-workflow) section:
+
+​`​`​`bash
+# 1. Feature Extraction & Dataset Preparation
+python src/inference/vocal_detection.py
+python src/inference/extract_clews.py
+python src/inference/extract_wealy.py
+python src/evaluation/build_pairs.py
+python src/evaluation/analysis/dataset_analysis.py
+
+# 2. Distance Computation & Baseline Thresholding
+python src/evaluation/analysis/metrics.py
+python src/evaluation/analysis/fusion_optimization.py
+python src/evaluation/analysis/optimal_threshold.py
+python src/evaluation/analysis/binary_classification.py
+
+# 3. Feature Assembly & Supervised Machine Learning
+python src/utils/classifier_features.py
+python src/classification/ablation.py
+python src/classification/hybrid_experiments.py
+python src/classification/selected_model_evaluation.py
+python src/classification/binary_supervised_classification.py
+
+# 4. Diagnostic & Explainability Analyses
+python src/evaluation/analysis/explainability.py
+python src/evaluation/analysis/robustness_analysis.py
+python src/evaluation/analysis/musical_attribution.py
+python src/evaluation/analysis/stem_analysis.py
+python src/evaluation/analysis/umap_analysis.py
+python src/evaluation/analysis/plot_negative_tiers.py
+
+# 5. Production Artifact Generation
+python src/classification/train_final_model.py
+​`​`​`
+
+### 4. Inference
+To test any arbitrary pair of audio files against the final trained model:
+
+​`​`​`bash
+python src/inference/predict_pair.py --ori sample1.wav --mod sample2.wav
+​`​`​`
