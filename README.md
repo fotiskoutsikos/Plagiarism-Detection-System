@@ -1,9 +1,15 @@
 # AI-Generated Music Plagiarism Detection as Version Identification
 
->**Official code repository for the COPYCAT Paper**
-> *Fotis Koutsikos, Ioannis Prokopiou, Spyridon Kantarelis, Vassilis Lyberatos, Pantelis Vikatos, Themos Stafylakis, Athanasios Voulodimos, Giorgos Stamou*
+>This is the official repository for the COPYCAT paper. It includes the full reproducibility pipeline for the COPYCAT benchmark (350,654 evaluation pairs),the supervised shift modeling framework, pretrained embeddings (CLEWS + WEALY), and the final Hybrid Top-512 classifier. We do not redistribute the raw SMP audio due to copyright restrictions.
 
-This repository provides the full reproducibility framework for **COPYCAT**, a benchmark of 350,654 pairwise comparisons for AI-generated music plagiarism detection, and the accompanying supervised shift modeling framework that recovers the plagiarism signal from coordinate-wise embedding shifts (Δz). We evaluate two pretrained MVI backbones — **CLEWS** (acoustic) and **WEALY** (semantic) — under human plagiarism, DSP obfuscation, and generative re-synthesis (MusicGen, AudioLDM 2, MGE-LDM), showing that scalar distance thresholds collapse under AI re-synthesis while our Hybrid Top-512 XGBoost classifier raises $F_{0.5}$-Score from 0.612 to 0.803.
+## Abstract
+
+The rapid proliferation of Text-to-Music generative models challenges traditional paradigms of music creation and intellectual property. Plagiarism in this context is rarely an absolute mathematical binary, but an ambiguous threshold negotiated over harmonic structure, melodic contours, or overall perceived stylistic character. In this work, we test the transferability of state-of-the-art Music Version Identification architectures from the human-to-human cover domain to the human-to-AI plagiarism setting. To evaluate this task, we introduce *COPYCAT*, a benchmark derived from real-world plagiarism cases and extended through generative re-synthesis and digital signal processing obfuscations, yielding 350,654 evaluation pairs. We show that scalar distance thresholding collapses under generative re-synthesis, while a supervised framework leveraging coordinate-wise embedding shifts recovers the dispersed plagiarism signal, raising overall $F_{0.5}$ from $0.612$ to $0.803$.
+
+## Authors
+
+Fotis Koutsikos, Ioannis Prokopiou, Spyridon Kantarelis, Vassilis Lyberatos, 
+Pantelis Vikatos, Themos Stafylakis, Athanasios Voulodimos, & Giorgos Stamou.
 
 ---
 
@@ -220,7 +226,7 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
   - **Function**: Computes 4 distance metrics (Cosine, Euclidean, Manhattan, Pearson) on the unified pair benchmark.
   - **Outputs**: `results/distances/{clews,wealy}_distances.csv`
 * `src/evaluation/analysis/fusion_optimization.py`
-  - **Function**: Performs exhaustive grid search (336 configs) for late score-level fusion ($d = α \cdot d_{CLEWS} + (1-α) \cdot \d_{WEALY}$) with a vocal-aware fallback policy.
+  - **Function**: Performs exhaustive grid search (336 configs) for late score-level fusion ($d = α \cdot d_{CLEWS} + (1-α) \cdot d_{WEALY}$) with a vocal-aware fallback policy.
   - **Outputs**: `results/fusion/optimal_fused_distances.csv`, heatmaps, alpha curves.
 * `src/evaluation/analysis/optimal_threshold.py`
   - **Function**: Evaluates distance metrics using 5-Fold Stratified CV, optimizing decision thresholds for $F_{0.5}$-score.
@@ -310,7 +316,7 @@ To reproduce our results, you need to obtain the SMP audio independently:
 2. Use the YouTube links provided in `data/Final_dataset_pairs.csv` to obtain the audio files.
 3. Organize the downloaded files under `data/final_dataset/` in the following structure:
 
-```
+```bash
 data/final_dataset/
 ├── 1/
 │   ├── <ori_title>.wav
