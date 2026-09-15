@@ -340,37 +340,36 @@ where `<ori_title>` and `<comp_title>` match the values in `Final_dataset_pairs.
 Run the pipeline scripts in the exact sequence specified in the Execution Order & Pipeline Workflow section:
 
 ​```
-  # 1. Feature Extraction & Dataset Preparation
-  python src/inference/vocal_detection.py
-  python src/inference/extract_clews.py
-  python src/inference/extract_wealy.py
-  python src/evaluation/build_pairs.py
-  python src/evaluation/analysis/dataset_analysis.py
+# 1. Feature Extraction & Dataset Preparation
+python src/inference/vocal_detection.py
+python src/inference/extract_clews.py
+python src/inference/extract_wealy.py
+python src/evaluation/build_pairs.py
+python src/evaluation/analysis/dataset_analysis.py
 
-  # 2. Distance Computation & Baseline Thresholding
-  python src/evaluation/analysis/metrics.py
-  python src/evaluation/analysis/fusion_optimization.py
-  python src/evaluation/analysis/optimal_threshold.py
-  python src/evaluation/analysis/binary_classification.py
+# 2. Distance Computation & Baseline Thresholding
+python src/evaluation/analysis/metrics.py
+python src/evaluation/analysis/fusion_optimization.py
+python src/evaluation/analysis/optimal_threshold.py
+python src/evaluation/analysis/binary_classification.py
 
-  # 3. Feature Assembly & Supervised Machine Learning
-  python src/utils/classifier_features.py
-  python src/classification/ablation.py
-  python src/classification/hybrid_experiments.py
-  python src/classification/selected_model_evaluation.py
-  python src/classification/binary_supervised_classification.py
+# 3. Feature Assembly & Supervised Machine Learning
+python src/utils/classifier_features.py
+python src/classification/ablation.py
+python src/classification/hybrid_experiments.py
+python src/classification/selected_model_evaluation.py
+python src/classification/binary_supervised_classification.py
 
-  # 4. Diagnostic & Explainability Analyses
-  python src/evaluation/analysis/explainability.py
-  python src/evaluation/analysis/robustness_analysis.py
-  python src/evaluation/analysis/musical_attribution.py
-  python src/evaluation/analysis/stem_analysis.py
-  python src/evaluation/analysis/umap_analysis.py
-  python src/evaluation/analysis/plot_negative_tiers.py
+# 4. Diagnostic & Explainability Analyses
+python src/evaluation/analysis/explainability.py
+python src/evaluation/analysis/robustness_analysis.py
+python src/evaluation/analysis/musical_attribution.py
+python src/evaluation/analysis/stem_analysis.py
+python src/evaluation/analysis/umap_analysis.py
+python src/evaluation/analysis/plot_negative_tiers.py
 
-  # 5. Production Artifact Generation
-  python src/classification/train_final_model.py
-
+# 5. Production Artifact Generation
+python src/classification/train_final_model.py
 ```
 
 ### 4. Inference
@@ -378,5 +377,4 @@ To test any arbitrary pair of audio files against the final trained model:
 
 ```
 python src/inference/predict_pair.py --ori sample1.wav --mod sample2.wav
-
 ```
