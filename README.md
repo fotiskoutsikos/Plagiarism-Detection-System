@@ -339,7 +339,7 @@ where `<ori_title>` and `<comp_title>` match the values in `Final_dataset_pairs.
 ### 3. Sequential Pipeline Execution
 Run the pipeline scripts in the exact sequence specified in the Execution Order & Pipeline Workflow section:
 
-​```bash
+​```
   # 1. Feature Extraction & Dataset Preparation
   python src/inference/vocal_detection.py
   python src/inference/extract_clews.py
