@@ -9,7 +9,7 @@ This repository provides the full reproducibility framework for **COPYCAT**, a b
 
 ## Pipeline Overview
 
-![Pipeline Overview](plots/figs/Diagram_short.pdf)
+![Pipeline Overview](plots/figs/Diagram_short.png)
 
 *End-to-end framework: from segment extraction and multi-source generation (human plagiarism, DSP obfuscation, AI re-synthesis) through dual-branch embedding (CLEWS acoustic + WEALY semantic) to supervised shift-based classification.*
 
@@ -310,7 +310,7 @@ To reproduce our results, you need to obtain the SMP audio independently:
 2. Use the YouTube links provided in `data/Final_dataset_pairs.csv` to obtain the audio files.
 3. Organize the downloaded files under `data/final_dataset/` in the following structure:
 
-​`​`​`
+```
 data/final_dataset/
 ├── 1/
 │   ├── <ori_title>.wav
@@ -320,7 +320,8 @@ data/final_dataset/
 │   └── <comp_title>.wav
 ...
 ├── 70/
-​`​`​`
+
+```
 
 where `<ori_title>` and `<comp_title>` match the values in `Final_dataset_pairs.csv` for each `pair_number`.
 
