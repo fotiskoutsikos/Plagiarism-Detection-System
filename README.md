@@ -339,8 +339,7 @@ where `<ori_title>` and `<comp_title>` match the values in `Final_dataset_pairs.
 ### 3. Sequential Pipeline Execution
 Run the pipeline scripts in the exact sequence specified in the Execution Order & Pipeline Workflow section:
 
-
-​```
+```
 # 1. Feature Extraction & Dataset Preparation
 python src/inference/vocal_detection.py
 python src/inference/extract_clews.py
@@ -375,6 +374,7 @@ python src/classification/train_final_model.py
 
 ### 4. Inference
 To test any arbitrary pair of audio files against the final trained model:
+
 
 ```
 python src/inference/predict_pair.py --ori sample1.wav --mod sample2.wav
