@@ -302,13 +302,13 @@ To reproduce all results and generated artifacts from scratch:
 ### 1. Environment Setup
 Clone the repository and install all required dependencies:
 
-​`​`​`bash
+​`​`​
 
 git clone https://github.com/fotiskoutsikos/Plagiarism-Detection-System.git
 cd Plagiarism-Detection-System
 pip install -r requirements.txt
 
-​`​`​`
+​`​`​
 
 ### 2. SMP Dataset Acquisition
 
@@ -340,7 +340,7 @@ where `<ori_title>` and `<comp_title>` match the values in `Final_dataset_pairs.
 ### 3. Sequential Pipeline Execution
 Run the pipeline scripts in the exact sequence specified in the [Execution Order & Pipeline Workflow](#-execution-order--pipeline-workflow) section:
 
-​`​``bash
+​`​`
 
   # 1. Feature Extraction & Dataset Preparation
   python src/inference/vocal_detection.py
@@ -373,11 +373,11 @@ Run the pipeline scripts in the exact sequence specified in the [Execution Order
   # 5. Production Artifact Generation
   python src/classification/train_final_model.py
 
-​`​``​
+​`​`
 
 ### 4. Inference
 To test any arbitrary pair of audio files against the final trained model:
 
-​`​``bash
+​`​`
 python src/inference/predict_pair.py --ori sample1.wav --mod sample2.wav
-​`​`​`
+​`​`​
