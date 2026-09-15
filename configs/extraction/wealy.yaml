@@ -10,4 +10,4 @@ model:
   ff_dim: 1024           
   dropout: 0.1
   shingle_size: 1500
-  shingle_hop: 150
+  shingle_hop: 150 

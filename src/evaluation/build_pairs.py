@@ -285,3 +285,4 @@ if __name__ == "__main__":
         build_master_pairs(args.parquet, args.smp, args.output)
     else:
         print(f"Error: {args.parquet} not found.")
+        

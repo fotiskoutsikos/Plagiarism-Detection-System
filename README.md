@@ -17,7 +17,7 @@ Pantelis Vikatos, Themos Stafylakis, Athanasios Voulodimos, & Giorgos Stamou.
 
 ![Pipeline Overview](plots/figs/Diagram_short.png)
 
-*End-to-end framework: from segment extraction and multi-source generation (human plagiarism, DSP obfuscation, AI re-synthesis) through dual-branch embedding (CLEWS acoustic + WEALY semantic) to supervised shift-based classification.*
+*End-to-end framework: from segment extraction and multi-source generation (human plagiarism, DSP obfuscation, AI re-synthesis) through dual-branch embedding (CLEWS acoustic + WEALY semantic) to supervised shift-based classification.* 
 
 ---
 
@@ -226,7 +226,9 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
   - **Function**: Computes 4 distance metrics (Cosine, Euclidean, Manhattan, Pearson) on the unified pair benchmark.
   - **Outputs**: `results/distances/{clews,wealy}_distances.csv`
 * `src/evaluation/analysis/fusion_optimization.py`
-  - **Function**: Performs exhaustive grid search (336 configs) for late score-level fusion ($d = α \cdot d_{CLEWS} + (1-α) \cdot d_{WEALY}$) with a vocal-aware fallback policy.
+  - **Function**: Performs exhaustive grid search (336 configs) for late score-level fusion
+   $$d = α \cdot d_{CLEWS} + (1-α) \cdot d_{WEALY}$$
+  with a vocal-aware fallback policy.
   - **Outputs**: `results/fusion/optimal_fused_distances.csv`, heatmaps, alpha curves.
 * `src/evaluation/analysis/optimal_threshold.py`
   - **Function**: Evaluates distance metrics using 5-Fold Stratified CV, optimizing decision thresholds for $F_{0.5}$-score.

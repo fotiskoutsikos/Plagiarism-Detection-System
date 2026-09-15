@@ -234,3 +234,4 @@ if __name__ == "__main__":
             )
         else:
             print(f"Error: {cfg['parquet']} not found. Skipping.")
+            

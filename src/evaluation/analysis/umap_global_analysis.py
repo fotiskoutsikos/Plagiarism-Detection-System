@@ -558,3 +558,4 @@ if __name__ == "__main__":
     print(f"\n{'=' * 60}")
     print("Consistent global UMAP analysis complete.")
     print(f"{'=' * 60}")
+    

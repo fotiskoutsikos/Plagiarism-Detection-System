@@ -1,5 +1,5 @@
 data/
-!data/Final_dataset_pairs.csv
+!data/Final_dataset_pairs.csv 
 models/
 __pycache__/
 *.wav

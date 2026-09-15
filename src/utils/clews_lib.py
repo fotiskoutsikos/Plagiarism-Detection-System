@@ -272,3 +272,4 @@ class Model(torch.nn.Module):
             h = self.prepare(h, shingle_len=shingle_len, shingle_hop=shingle_hop)
             z, _ = self.embed(h)
         return z
+    

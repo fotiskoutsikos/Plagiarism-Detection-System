@@ -95,3 +95,4 @@ class Model(nn.Module):
     def forward(self, h: torch.Tensor) -> torch.Tensor:
         z, _ = self.embed(h)
         return z
+    

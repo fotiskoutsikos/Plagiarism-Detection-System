@@ -514,3 +514,4 @@ def build_classifier_feature_table(
 # CLI Entry Point 
 if __name__ == "__main__":
     build_classifier_feature_table()
+    

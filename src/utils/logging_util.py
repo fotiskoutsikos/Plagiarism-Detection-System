@@ -58,3 +58,4 @@ def setup_logging(script_path=None, log_dir="logs", level=logging.INFO):
 
     logger.info(f"Logging initialized for {script_name}, file: {log_file}")
     return logger
+ 

@@ -25,4 +25,4 @@ model:
       pos: "bpwr-5"
       neg: "min"
     gamma: 5
-    epsilon: 1e-6
+    epsilon: 1e-6 
