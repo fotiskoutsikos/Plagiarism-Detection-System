@@ -1,4 +1,4 @@
-# Towards AI-Generated Music Plagiarism Detection as Version Identification
+# Towards AI-Generated Music Plagiarism Detection as a Version Identification Problem
 
 >This is the official repository for the COPYCAT paper. It includes the full reproducibility pipeline for the COPYCAT benchmark (350,654 evaluation pairs),the supervised shift modeling framework, pretrained embeddings (CLEWS + WEALY), and the final Hybrid Top-512 classifier. We do not redistribute the raw SMP audio due to copyright restrictions.
 
