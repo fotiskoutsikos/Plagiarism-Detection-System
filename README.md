@@ -4,7 +4,7 @@
 
 ## Abstract
 
-The rapid proliferation of Text-to-Music generative models challenges traditional paradigms of music creation and intellectual property. Plagiarism in this context is rarely an absolute mathematical binary, but an ambiguous threshold negotiated over harmonic structure, melodic contours, or overall perceived stylistic character. In this work, we test the transferability of state-of-the-art Music Version Identification architectures from the human-to-human cover domain to the human-to-AI plagiarism setting. To evaluate this task, we introduce *COPYCAT*, a benchmark derived from real-world plagiarism cases and extended through generative re-synthesis and digital signal processing obfuscations, yielding 350,654 evaluation pairs. We show that scalar distance thresholding collapses under generative re-synthesis, while a supervised framework leveraging coordinate-wise embedding shifts recovers the dispersed plagiarism signal, raising overall $F_{0.5}$ from $0.612$ to $0.803$.
+The rapid expansion of Text-to-Music generative models challenges traditional paradigms of music creation and intellectual property. Plagiarism in this context is rarely an absolute mathematical binary, but an ambiguous threshold negotiated over harmonic structure, melodic contours, or overall perceived stylistic character. In this work, we test the transferability of state-of-the-art Music Version Identification architectures from the human-to-human cover domain to the human-to-AI plagiarism setting. To evaluate this task, we introduce *COPYCAT*, a benchmark derived from real-world plagiarism cases and extended through generative re-synthesis and digital signal processing obfuscations, yielding 350,654 evaluation pairs. We show that scalar distance thresholding collapses under generative re-synthesis, while a supervised framework leveraging coordinate-wise embedding shifts recovers the dispersed plagiarism signal, raising overall $F_{0.5}$ from $0.612$ to $0.803$.
 
 ## Authors
 
@@ -39,16 +39,17 @@ Category-wise performance on the **COPYCAT** benchmark. Best $F_{0.5}$ per categ
 ---
 
 ## Table of Contents
-1. [System Architecture & Overview](#-system-architecture--overview)
-2. [Directory & File Structure](#-directory--file-structure)
-3. [Execution Order & Pipeline Workflow](#-execution-order--pipeline-workflow)
-   - [Phase 1: Feature Extraction & Data Preparation](#phase-1-feature-extraction--data-preparation)
-   - [Phase 2: Baseline Unsupervised Evaluation (Distance & Thresholding)](#phase-2-baseline-unsupervised-evaluation-distance--thresholding)
-   - [Phase 3: Supervised Machine Learning Pipeline](#phase-3-supervised-machine-learning-pipeline)
-   - [Phase 4: Diagnostic, Robustness & XAI Analyses](#phase-4-diagnostic-robustness--xai-analyses)
-   - [Phase 5: Production Training & Real-Time Inference](#phase-5-production-training--real-time-inference)
-4. [File Breakdown & Responsibilities](#-file-breakdown--responsibilities)
-5. [Reproducibility Guide](#-reproducibility-guide)
+1. [System Architecture & Overview](#system-architecture--overview)
+2. [Directory & File Structure](#directory--file-structure)
+3. [Execution Order & Pipeline Workflow](#execution-order--pipeline-workflow)
+4. [File Breakdown & Responsibilities](#file-breakdown--responsibilities)
+   - [Stage 0: Preprocessing & Feature Extraction](#stage-0-preprocessing--feature-extraction)
+   - [Stage 1: Dataset Construction & Descriptive Statistics](#stage-1-dataset-construction--descriptive-statistics)
+   - [Stage 2: Distance Computation, Threshold Calibration & Fusion Baselines](#stage-2-distance-computation-threshold-calibration--fusion-baselines)
+   - [Stage 3: Supervised Machine Learning Pipeline](#stage-3-supervised-machine-learning-pipeline)
+   - [Stage 4: Diagnostics, Attribution & Latent Space Analysis](#stage-4-diagnostics-attribution--latent-space-analysis)
+   - [Stage 5: Production Deployment & Inference](#stage-5-production-deployment--inference)
+5. [Reproducibility Guide](#reproducibility-guide)
 
 ---
 
@@ -61,7 +62,7 @@ The framework evaluates music plagiarism through a multi-tiered approach:
 2. **Metric Learning & Distance Computation**: Evaluates Cosine, Euclidean, Manhattan, and Pearson metrics across pairs with varying difficulty (Random, Intra-Category, Global Hard Negatives).
 3. **Score-Level Fusion**: Late-fusion strategy combining acoustic and semantic metrics using dynamic vocal-aware fallback policies.
 4. **Supervised Classification (XGBoost)**: Feature engineering (distances, delta summary statistics, Top-K XAI dimensions) and hybrid XGBoost modeling optimized strictly for $F_{0.5}$-Score (precision-heavy) with Stratified Group K-Fold cross-validation to prevent data leakage.
-5. **Explainable AI (XAI)**: Latent space drift, stable-core preservation, and Cohen's $d$ feature effect analysis.
+5. **Latent Space Analysis**: Latent space drift and geometric visualization via UMAP, stable-core preservation, and Cohen's $d$ feature effect analysis.
 
 ---
 
@@ -178,7 +179,7 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 │  14. src/classification/binary_supervised_classification.py ──> Final supervised table │
 │                                   │                                                    │
 │                                   ▼                                                    │
-│ [STAGE 4: DIAGNOSTICS, ATTRIBUTION & XAI]                                              │
+│ [STAGE 4: DIAGNOSTICS, ATTRIBUTION & LATENT SPACE ANALYSIS]                                              │
 │  15. src/evaluation/analysis/explainability.py ──> Dimensional XAI & latent shift      │
 │  16. src/evaluation/analysis/robustness_analysis.py ──> DSP stress testing             │
 │  17. src/evaluation/analysis/musical_attribution.py ──> 4-Way source identification    │
@@ -199,7 +200,7 @@ To guarantee full **reproducibility** of the results, scripts must be executed i
 ## File Breakdown & Responsibilities
 ### Stage 0: Preprocessing & Feature Extraction
 * `src/inference/vocal_detection.py`
-  - **Function**: Performs VAD and energy-band heuristic checks on Demucs-separated vocal stems.
+  - **Function**: Applies an energy-based VAD filter on Demucs-separated vocal stems.
   - **Output**: `results/vocal_detection/vocal_ratios_source.csv`
 * `src/inference/extract_clews.py`
   - **Function**: Extracts 1024D acoustic embeddings from audio waveforms using CQT + ResNet50.
