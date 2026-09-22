@@ -9,7 +9,7 @@ The rapid expansion of Text-to-Music generative models challenges traditional pa
 ## Authors
 
 Fotis Koutsikos, Ioannis Prokopiou, Spyridon Kantarelis, Vassilis Lyberatos, 
-Pantelis Vikatos, Themos Stafylakis, Athanasios Voulodimos, & Giorgos Stamou.
+Pantelis Vikatos, Athanasios Aidinis, Themos Stafylakis, Athanasios Voulodimos, & Giorgos Stamou.
 
 ---
 
